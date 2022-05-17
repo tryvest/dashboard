@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -9,7 +9,6 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import HomeIcon from '@mui/icons-material/Home';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import ExploreIcon from "@mui/icons-material/Explore";
 import ForumIcon from '@mui/icons-material/Forum';
@@ -86,7 +85,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function NavBar() {
-  const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
   const currentUser = true //placeholder
@@ -104,7 +102,7 @@ export default function NavBar() {
 
   return (
       <Box sx={{ display: 'flex', paddingTop: '12vh'}}>
-        <AppBar position="fixed" elevation={1}>
+        <AppBar position="fixed" elevation={0}>
           <Toolbar>
               <Box display='flex' flexGrow={1}>
                 <div className='header__left'>
@@ -122,21 +120,21 @@ export default function NavBar() {
 
           </Toolbar>
         </AppBar>
-        <Drawer variant="permanent" open={open}>
-
-          <List style={{marginTop: '10vh'}}>
+        <Drawer variant="permanent" open={open} onMouseEnter={handleDrawerOpen} onMouseLeave={handleDrawerClose}>
+          <List style={{marginTop: '10vh'}} >
             {['Dashboard', 'Discover', 'Messages', 'Settings', 'Profile'].map((text, index) => (
-                <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+                <ListItem
+                    key={text}
+                    disablePadding
+                    sx={{ display: 'block',
+                    }}>
                   <ListItemButton
                       sx={{
-                        minHeight: 48,
+                        minHeight: 60,
                         justifyContent: open ? 'initial' : 'center',
                         px: 2.5,
-
+                        borderRadius: 5,
                       }}
-
-                      onMouseEnter={handleDrawerOpen}
-                      onMouseLeave={handleDrawerClose}
                       onClick={() => {navigate('/' + text.toLowerCase())}}
                       selected={(pathname.substring(pathname.lastIndexOf("/") + 1, pathname.length) === text.toLowerCase())}
                   >

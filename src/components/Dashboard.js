@@ -1,7 +1,5 @@
 import React from 'react'
-import Card from './Card'
-import {Container, Grid, ListItem, Paper} from "@mui/material";
-import styled from "@emotion/styled";
+import {Container, Grid, Paper} from "@mui/material";
 import Box from "@mui/material/Box";
 
 
@@ -14,12 +12,10 @@ function Dashboard() {
         sx={{
         backgroundColor: '#fff',
         flexGrow: 1,
-        height: '150vh',
-        marginBottom: '100px',
       }}>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
 
-          <Grid container spacing={4}>
+          <Grid container spacing={8}>
             <Grid item xs={1}>
             </Grid>
             <Grid item xs={7}>
