@@ -1,18 +1,15 @@
-import React from 'react'
-import {Container, Grid, Paper} from "@mui/material";
+import React from 'react';
 import Box from "@mui/material/Box";
+import {Container, Grid, Paper} from "@mui/material";
 
-
-function Dashboard() {
-
-
+function Analytics(props) {
   return (
       <Box
-        component='main'
-        sx={{
-        backgroundColor: '#fff',
-        flexGrow: 1,
-      }}>
+          component='main'
+          sx={{
+            backgroundColor: '#fff',
+            flexGrow: 1,
+          }}>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
 
           <Grid container spacing={8}>
@@ -50,7 +47,7 @@ function Dashboard() {
           </Grid>
         </Container>
       </Box>
-  )
+  );
 }
 
-export default Dashboard;
+export default Analytics;

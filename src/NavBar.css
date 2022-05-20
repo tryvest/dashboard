@@ -75,6 +75,7 @@ span {
     display: flex;
     align-items: center;
     margin-left: 20px;
+    flex-direction: row;
 }
 
 .header__right {
@@ -85,7 +86,8 @@ span {
     /*width: 15vw; */
     margin-right: 0;
     margin-left: 200px;
-
+    flex-direction: row;
+    height: 30px;
 }
 
 .Mui-selected {
@@ -94,5 +96,9 @@ span {
 
 .navText {
  transition: opacity 0.2s;
+}
 
+.flexbox-container {
+    display: flex;
+    flex-direction: row;
 }

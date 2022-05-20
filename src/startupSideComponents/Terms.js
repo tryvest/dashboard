@@ -1,9 +1,10 @@
 import React from 'react';
-import {Container, Grid, Paper} from "@mui/material";
 import Box from "@mui/material/Box";
+import {Container, Grid, Paper} from "@mui/material";
 
-function Discover() {
+function Terms(props) {
   return (
+
       <Box
           component='main'
           sx={{
@@ -78,7 +79,7 @@ function Discover() {
           </Grid>
         </Container>
       </Box>
-  )
+  );
 }
 
-export default Discover
+export default Terms;

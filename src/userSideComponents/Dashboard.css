@@ -1,0 +1,33 @@
+
+.task {
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0px 6px 18px -9px rgba(0, 0, 0, 0.75);
+    transition: transform 100ms ease-in;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    padding: 10px;
+    margin: 10px;
+}
+
+.task:hover {
+    transform: scale(1.04);
+}
+
+.progress {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 15px;
+    background-color: #f6f6f6;
+    border: 1px solid #e2e2e2;
+}
+
+.flexbox-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    background-color: red;
+}
+

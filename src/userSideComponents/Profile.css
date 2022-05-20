@@ -1,12 +1,17 @@
-.card {
-    margin: 30px;
+.profile__picture {
+    margin: 10px;
     border-radius: 10px;
     overflow: hidden;
-    background-color: black;
     box-shadow: 0px 6px 18px -9px rgba(0, 0, 0, 0.75);
     transition: transform 100ms ease-in;
     cursor: pointer;
-    height: 150vh;
     text-overflow: ellipsis;
-    max-width: 30vw;
+    max-height: 30vw;
+}
+
+.profile__picture > img {
+    object-fit: fill;
+    width: 30vw;
+    height: 35vh;
+
 }
