@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 // material
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Stack, AppBar, Toolbar, IconButton } from '@mui/material';
+import {Box, Stack, AppBar, Toolbar, IconButton, Button} from '@mui/material';
 // components
+import {useNavigate} from "react-router-dom";
 import Iconify from '../../components/Iconify';
 //
 import Searchbar from './Searchbar';
@@ -41,6 +42,9 @@ DashboardNavbar.propTypes = {
 };
 
 export default function DashboardNavbar({ onOpenSidebar }) {
+
+  const navigate = useNavigate()
+
   return (
     <RootStyle>
       <ToolbarStyle>
@@ -52,6 +56,9 @@ export default function DashboardNavbar({ onOpenSidebar }) {
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
+          <Button onClick={() => {navigate('/landing')}} variant='outlined'>
+            For Business
+          </Button>
           <LanguagePopover />
           <NotificationsPopover />
           <AccountPopover />

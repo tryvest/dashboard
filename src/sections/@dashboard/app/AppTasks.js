@@ -1,43 +1,73 @@
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { Form, FormikProvider, useFormik } from 'formik';
 // @mui
-import { Card, Stack, Divider, Checkbox, MenuItem, IconButton, CardHeader, FormControlLabel } from '@mui/material';
+import {
+  Card, Stack, Divider, Checkbox, MenuItem, IconButton, FormControlLabel,
+  Accordion, AccordionDetails, AccordionSummary, Typography, Box, Grid
+} from '@mui/material';
+import LinearProgress, {linearProgressClasses} from "@mui/material/LinearProgress";
+
 // components
+import styled from "@emotion/styled";
 import Iconify from '../../../components/Iconify';
 import MenuPopover from '../../../components/MenuPopover';
+import {AppWidgetSummary} from "./index";
+
+import ACCOUNT from '../../../_mock/account'
+
 
 // ----------------------------------------------------------------------
 
 AppTasks.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
-  list: PropTypes.array.isRequired,
+  tasks: PropTypes.array,
 };
 
-export default function AppTasks({ title, subheader, list, ...other }) {
-  const formik = useFormik({
-    initialValues: {
-      checked: [list[2].id],
-    },
-    onSubmit: (values) => {
-      console.log(values);
-    },
-  });
+export default function AppTasks({tasks, ...other }) {
 
-  const { values, handleSubmit } = formik;
 
   return (
     <Card {...other}>
-      <CardHeader title={title} subheader={subheader} />
+      <Grid container spacing={0}>
+        <Grid item xs={12} sm={12} md={4}>
+          <AppWidgetSummary title="Total Coins" total={ACCOUNT.totalCoins} icon={'ph:coins-fill'}
+                            sx={{marginLeft: 6, marginTop: 5, marginRight: 2}}/>
+        </Grid>
 
-      <FormikProvider value={formik}>
-        <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-          {list.map((task) => (
-            <TaskItem key={task.id} task={task} checked={values.checked.includes(task.id)} formik={formik} />
-          ))}
-        </Form>
-      </FormikProvider>
+        <Grid item xs={12} sm={12} md={4}>
+          <AppWidgetSummary title="Outstanding Coins" total={ACCOUNT.outstandingCoins} color="info"
+                            icon={'mdi:hand-coin-outline'} sx={{marginLeft: 4, marginTop: 5, marginRight: 4}}/>
+        </Grid>
+
+        <Grid item xs={12} sm={12} md={4}>
+          <AppWidgetSummary title="Equity Paid Out" total={ACCOUNT.equityPaidOut} color="success"
+                            icon={'mdi:currency-usd'} sx={{marginLeft: 2, marginTop: 5, marginRight: 6}}/>
+        </Grid>
+
+      </Grid>
+      <Typography variant='h3' sx={{m: 2, mt: 4}}>Tasks <span style={{fontWeight: '300'}}>&nbsp;Weekly</span></Typography>
+
+      <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Outstanding</Typography>
+      {tasks?.map((task) => (
+            !task.completed &&
+            <Task key={task.id} title={task.title} company={task.company} progress={task.progress}
+                  description={task.description} coins={task.coins} color={task.color}/>
+
+
+        ))
+      }
+      <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Completed</Typography>
+      {tasks?.map((task) => (
+          task.completed &&
+          <Task key={task.id} title={task.title} company={task.company} progress={task.progress}
+                description={task.description} coins={task.coins} color={task.color}/>
+
+
+      ))
+      }
+
+
     </Card>
   );
 }
@@ -132,6 +162,79 @@ function TaskItem({ formik, task, checked, ...other }) {
         }
       />
     </Stack>
+  );
+}
+
+
+
+function Task({title, company, progress, description, coins, color}) {
+
+
+  const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+    height: 16,
+    borderRadius: 8,
+    [`&.${linearProgressClasses.colorPrimary}`]: {
+      backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
+    },
+    [`& .${linearProgressClasses.bar}`]: {
+      borderRadius: 8,
+      backgroundColor: theme.palette.mode === 'light' ? color : '#308fe8',
+    },
+  }));
+
+  function LinearProgressWithLabel() {
+    return (
+        <Box sx={{ display: 'flex', alignItems: 'center' , width: '25%' }}>
+          <Box sx={{ width: '200%', mr: 1 }}>
+            <BorderLinearProgress variant="determinate" value={progress} />
+          </Box>
+          <Box sx={{ minWidth: 35 }}>
+            <Typography variant="body2" color="text.secondary">
+              {progress}%
+            </Typography>
+          </Box>
+        </Box>
+    );
+  }
+
+  const [expanded, setExpanded] = React.useState(false);
+
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
+  return (
+      <Accordion sx={{marginBottom: '10px', borderRadius: '5px', width: '90%'}}
+                 expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+
+        <AccordionSummary
+            expandIcon={<Iconify icon={'ic:baseline-expand-more'} /> }
+            aria-controls="panel1bh-content"
+            id="panel1bh-header"
+            sx={{justifyContent: 'space-evenly'}}
+        >
+          <Typography sx={{ width: '25%', flexShrink: 0, color: '#444'}}>
+            {company}
+          </Typography>
+          <Typography sx={{ width: '25%', flexShrink: 0 }}>
+            {title}
+          </Typography>
+
+          <LinearProgressWithLabel/>
+
+          <Box sx={{ width: '25%', flexShrink: 0, display: 'flex', flexDirection: 'row', justifyContent: 'center',
+            alignItems: 'center', paddingLeft: '30px' }}>
+            <Typography>
+              {coins}&nbsp;
+            </Typography>
+            <Iconify icon={'ic:round-monetization-on'} />
+
+          </Box>
+        </AccordionSummary>
+        <AccordionDetails>
+          {description}
+        </AccordionDetails>
+      </Accordion>
   );
 }
 

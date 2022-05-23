@@ -9,22 +9,22 @@ const navConfig = [
   {
     title: 'dashboard',
     path: '/dashboard/app',
-    icon: getIcon('eva:pie-chart-2-fill'),
+    icon: getIcon('ic:round-dashboard'),
   },
   {
-    title: 'user',
-    path: '/dashboard/user',
-    icon: getIcon('eva:people-fill'),
+    title: 'discover',
+    path: '/dashboard/discover',
+    icon: getIcon('mdi:compass'),
   },
   {
-    title: 'product',
-    path: '/dashboard/products',
-    icon: getIcon('eva:shopping-bag-fill'),
+    title: 'messages',
+    path: '/dashboard/messages',
+    icon: getIcon('ic:baseline-message'),
   },
   {
-    title: 'blog',
-    path: '/dashboard/blog',
-    icon: getIcon('eva:file-text-fill'),
+    title: 'profile',
+    path: '/dashboard/profile',
+    icon: getIcon('ic:baseline-person'),
   },
   {
     title: 'login',
@@ -36,11 +36,7 @@ const navConfig = [
     path: '/register',
     icon: getIcon('eva:person-add-fill'),
   },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: getIcon('eva:alert-triangle-fill'),
-  },
+
 ];
 
 export default navConfig;

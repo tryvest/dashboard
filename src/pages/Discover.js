@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { Container, Stack, Typography } from '@mui/material';
 // components
 import Page from '../components/Page';
-import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products';
+import { ProductSort, ProductCartWidget, CompanyList, ProductFilterSidebar } from '../sections/@dashboard/companies';
 // mock
-import PRODUCTS from '../_mock/products';
+import COMPANIES from '../_mock/companies';
 
 // ----------------------------------------------------------------------
 
@@ -23,8 +23,8 @@ export default function EcommerceShop() {
   return (
     <Page title="Dashboard: Products">
       <Container>
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Products
+        <Typography variant="h2" sx={{ mb: 5 }}>
+          Discover
         </Typography>
 
         <Stack direction="row" flexWrap="wrap-reverse" alignItems="center" justifyContent="flex-end" sx={{ mb: 5 }}>
@@ -38,8 +38,7 @@ export default function EcommerceShop() {
           </Stack>
         </Stack>
 
-        <ProductList products={PRODUCTS} />
-        <ProductCartWidget />
+        <CompanyList companies={COMPANIES} />
       </Container>
     </Page>
   );

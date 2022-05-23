@@ -12,12 +12,12 @@ import Iconify from '../../../components/Iconify';
 const IconWrapperStyle = styled('div')(({ theme }) => ({
   margin: 'auto',
   display: 'flex',
-  borderRadius: '50%',
+  borderRadius: '30%',
   alignItems: 'center',
-  width: theme.spacing(8),
-  height: theme.spacing(8),
+  width: theme.spacing(6),
+  height: theme.spacing(6),
   justifyContent: 'center',
-  marginBottom: theme.spacing(3),
+  marginBottom: theme.spacing(1),
 }));
 
 // ----------------------------------------------------------------------
@@ -34,7 +34,7 @@ export default function AppWidgetSummary({ title, total, icon, color = 'primary'
   return (
     <Card
       sx={{
-        py: 5,
+        py: 2,
         boxShadow: 0,
         textAlign: 'center',
         color: (theme) => theme.palette[color].darker,
@@ -56,7 +56,7 @@ export default function AppWidgetSummary({ title, total, icon, color = 'primary'
         <Iconify icon={icon} width={24} height={24} />
       </IconWrapperStyle>
 
-      <Typography variant="h3">{fShortenNumber(total)}</Typography>
+      <Typography variant="h5">{total}</Typography>
 
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
         {title}
