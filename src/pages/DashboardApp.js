@@ -66,7 +66,7 @@ export default function DashboardApp() {
           <Grid item xs={12} md={6} lg={8}>
             <AppConversionRates
               title="My Companies"
-              subheader="User Growth"
+              subheader="User Growth (users per month)"
               chartData={
                 COMPANIES.map((c) => (
                     {label: c.name, value: c.userGrowth}

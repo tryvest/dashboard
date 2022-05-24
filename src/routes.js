@@ -45,6 +45,13 @@ export default function Router() {
         { path: '*', element: <Navigate to="/404" /> },
       ],
     },
+    {
+      path: '/business',
+      element: <DashboardLayout />,
+      children: [
+        { path: 'app', element: <DashboardApp />}
+      ],
+    },
     { path: '*', element: <Navigate to="/404" replace /> },
   ]);
 }

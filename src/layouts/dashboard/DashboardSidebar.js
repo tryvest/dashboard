@@ -37,11 +37,12 @@ const AccountStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 DashboardSidebar.propTypes = {
+  business: PropTypes.bool,
   isOpenSidebar: PropTypes.bool,
   onCloseSidebar: PropTypes.func,
 };
 
-export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
+export default function DashboardSidebar({ business, isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
 
   const isDesktop = useResponsive('up', 'lg');
@@ -60,30 +61,35 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <Logo />
+      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex', }}>
+        <Logo sx={{zIndex: 10}} />
       </Box>
 
-      <Box sx={{ mb: 5, mx: 2.5 }}>
-        <Link underline="none" component={RouterLink} to="#">
-          <AccountStyle>
-            <Avatar src={account.photoURL} alt="photoURL" />
-            <Box sx={{ ml: 2 }}>
-              <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
-              </Typography>
+      {business ?
+          <NavSection navConfig={navConfig.companySide} />
+          :
+          <>
+            <Box sx={{mb: 5, mx: 2.5}}>
+              <Link underline="none" component={RouterLink} to="#">
+                <AccountStyle>
+                  <Avatar src={account.photoURL} alt="photoURL"/>
+                  <Box sx={{ml: 2}}>
+                    <Typography variant="subtitle2" sx={{color: 'text.primary'}}>
+                      {account.displayName}
+                    </Typography>
+                    <Typography variant="body2" sx={{color: 'text.secondary'}}>
+                      {account.role}
+                    </Typography>
+                  </Box>
+                </AccountStyle>
+              </Link>
             </Box>
-          </AccountStyle>
-        </Link>
-      </Box>
 
-      <NavSection navConfig={navConfig} />
+          <NavSection navConfig={navConfig.userSide} />
 
-      <Box sx={{ flexGrow: 1 }} />
-
+          <Box sx={{flexGrow: 1}} />
+        </>
+      }
     </Scrollbar>
   );
 
