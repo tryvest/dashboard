@@ -1,0 +1,15 @@
+venv/
+
+*.pyc
+__pycache__/
+
+instance/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/
+/valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json
