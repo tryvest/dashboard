@@ -1,4 +1,6 @@
-from flask import Flask
+import json
+
+from flask import Flask, request
 from flask_restx import Api, Resource
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -16,13 +18,124 @@ api = Api(app=flaskApp, prefix=baseRoute)
 busApi = api.namespace('businesses', description="For business side requests")
 tryApi = api.namespace('tryvestors', description="For tryvestor side requests")
 
-@busApi.route("/")
-class busHello(Resource):
+
+class Business:
+    def __init__(self, docId, name, description, topics, valuation, totalShares, termGroups, logo, media):
+        self.media = media
+        self.logo = logo
+        self.termGroups = termGroups
+        self.totalShares = totalShares
+        self.valuation = valuation
+        self.topics = topics
+        self.description = description
+        self.name = name
+        self.docId = docId
+
+    def toDict(self):
+        return {
+            "id": self.docId,
+            "name": self.name,
+            "description": self.description,
+            "topics": self.topics,
+            "valuation": self.valuation,
+            "totalShares": self.totalShares,
+            "termGroups": self.termGroups,
+            "logo": self.logo,
+            "media": self.media,
+        }
+
+    def asJson(self):
+        return self.toDict()
+
+    @staticmethod
+    def getTermGroupsJSONByCompanyID(companyID):
+        returnObj = {
+            "l1": "Outer layer",
+            "l2": {
+                "1": "Inner Layer"
+            },
+            "l3": [
+                {
+                    "1": "Inner Array Element 1"
+                },
+                {
+                    "2": "Inner Array Element 2"
+                },
+            ]
+        }
+        return returnObj
+        # NotImplementedError()
+
+
+# @busApi.route("/")
+# class busHello(Resource):
+#     def get(self):
+#         return 'Business Hello, Get!'
+#
+#     def post(self):
+#         return 'Business Hello, Post!'
+
+
+@busApi.route("/") # http://127.0.0.1:5000/api/businesses/
+class AllBusinesses(Resource):
     def get(self):
-        return 'Business Hello, Get!'
+        businesses = db.collection("businesses").stream()
+        result = []
+        for business in businesses:
+            busId = business.id
+            business = business.to_dict()
+            toAdd = Business(
+                media=business["media"],
+                logo=business["logo"],
+                termGroups=business["termGroups"],
+                totalShares=business["totalShares"],
+                valuation=business["valuation"],
+                topics=business["topics"],
+                description=business["description"],
+                name=business["name"],
+                docId=busId
+            )
+            result.append(toAdd.asJson())
+        return result
 
     def post(self):
-        return 'Business Hello, Post!'
+        businessData = request.json
+        print(businessData)
+        busDoc = db.collection('businesses').document()
+        toAdd = Business(
+            media=businessData["media"],
+            logo=businessData["logo"],
+            termGroups=[],
+            totalShares=businessData["totalShares"],
+            valuation=businessData["valuation"],
+            topics=businessData["topics"],
+            description=businessData["description"],
+            name=businessData["name"],
+            docId=busDoc.id
+        )
+        busDoc.set(toAdd.toDict())
+        return busDoc.id
+
+@busApi.route("/<string:businessID>")
+class SpecificBusiness(Resource):
+    def get(self, businessID):
+        business = db.collection("businesses").document(businessID).get()
+        if not business.exists:
+            return "Error"
+        business = business.to_dict()
+        result = Business(
+            media=business["media"],
+            logo=business["logo"],
+            termGroups=Business.getTermGroupsJSONByCompanyID(businessID),
+            totalShares=business["totalShares"],
+            valuation=business["valuation"],
+            topics=business["topics"],
+            description=business["description"],
+            name=business["name"],
+            docId=business.id
+        )
+        return result.asJson()
+
 
 @tryApi.route("/")
 class tryHello(Resource):
@@ -33,4 +146,4 @@ class tryHello(Resource):
         return 'Tryvestor Hello, Post!'
 
 
-flaskApp.run()
+flaskApp.run(debug=True)
