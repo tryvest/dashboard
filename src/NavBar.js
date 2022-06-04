@@ -15,8 +15,8 @@ import ForumIcon from '@mui/icons-material/Forum';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import {Link} from "react-router-dom";
-import Avatar from "./userSideComponents/Avatar";
-import LogIn from "./userSideComponents/LogIn";
+import Avatar from "./components/Avatar";
+import LogIn from "./components/LogIn";
 import {useNavigate, useLocation} from "react-router-dom";
 import Button from "@mui/material/Button";
 //import TryvestLogo from './images/Tryvest_logo_design.svg'

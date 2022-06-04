@@ -7,10 +7,12 @@ import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormContr
 import { LoadingButton } from '@mui/lab';
 // component
 import Iconify from '../../../components/Iconify';
+import {useAuth} from "../../../contexts/AuthContext";
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
+  const {login} = useAuth()
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -27,8 +29,14 @@ export default function LoginForm() {
       remember: true,
     },
     validationSchema: LoginSchema,
-    onSubmit: () => {
-      navigate('/dashboard', { replace: true });
+    onSubmit: ({email, password}) => {
+      try {
+        login(email, password)
+      } catch {
+        // Throw error
+      }
+      navigate('/dashboard/app', { replace: true });
+
     },
   });
 

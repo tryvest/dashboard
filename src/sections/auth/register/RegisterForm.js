@@ -1,16 +1,20 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
-import { useFormik, Form, FormikProvider } from 'formik';
+import { useFormik, Form, Field, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
 // material
 import { Stack, TextField, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
 import Iconify from '../../../components/Iconify';
-
+import {useAuth} from '../../../contexts/AuthContext'
 // ----------------------------------------------------------------------
 
+
 export default function RegisterForm() {
+
+  const { signup, currentUser } = useAuth()
+
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -30,8 +34,13 @@ export default function RegisterForm() {
       password: '',
     },
     validationSchema: RegisterSchema,
-    onSubmit: () => {
-      navigate('/dashboard', { replace: true });
+    onSubmit: ({email, password}) => {
+      try {
+        signup(email, password)
+      } catch {
+        // Throw error
+      }
+      navigate('/dashboard/app', { replace: true });
     },
   });
 
@@ -88,7 +97,12 @@ export default function RegisterForm() {
             helperText={touched.password && errors.password}
           />
 
-          <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
+          <TextField
+            fullWidth
+            label="Interests"
+            />
+
+          <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting} >
             Register
           </LoadingButton>
         </Stack>

@@ -56,6 +56,8 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
+
+
 export default function Register() {
   const smUp = useResponsive('up', 'sm');
 
@@ -93,8 +95,6 @@ export default function Register() {
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Make the first step to gaining equity in exciting
               startups</Typography>
-
-            <AuthSocial />
 
             <RegisterForm />
 
