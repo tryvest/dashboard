@@ -2,21 +2,43 @@ import * as Yup from 'yup';
 import { useState } from 'react';
 import { useFormik, Form, Field, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
+import { styled, useTheme } from '@mui/material/styles';
+
 // material
-import { Stack, TextField, IconButton, InputAdornment } from '@mui/material';
+import {
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  IconButton,
+  InputAdornment,
+  Typography,
+  Button
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
+// eslint-disable-next-line import/no-duplicates
 import Iconify from '../../../components/Iconify';
 import {useAuth} from '../../../contexts/AuthContext'
+import {fCurrency} from "../../../utils/formatNumber";
+
 // ----------------------------------------------------------------------
 
 
 export default function RegisterForm() {
 
-  const { signup, currentUser } = useAuth()
-
+  const { signup } = useAuth()
+  const theme = useTheme()
   const navigate = useNavigate();
 
+  const [topics, setTopics] = useState([
+    {name: 'Artificial Intelligence', chosen: false},
+    {name: 'Social Media', chosen: false},
+    {name: 'Dating', chosen: false},
+    {name: 'OKR', chosen: false},
+    {name: 'Fitness', chosen: false},
+    {name: 'Gaming', chosen: false}
+  ])
   const [showPassword, setShowPassword] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
@@ -66,6 +88,7 @@ export default function RegisterForm() {
               error={Boolean(touched.lastName && errors.lastName)}
               helperText={touched.lastName && errors.lastName}
             />
+
           </Stack>
 
           <TextField
@@ -97,10 +120,40 @@ export default function RegisterForm() {
             helperText={touched.password && errors.password}
           />
 
-          <TextField
-            fullWidth
-            label="Interests"
-            />
+          <Typography variant='h5'>
+            Which topics interest you?
+          </Typography>
+
+          { // <Stack direction="row" alignItems="center" justifyContent="space-between">
+          }
+
+
+            {
+              // DISGUSTING CODE, ONLY TEMPORARY
+
+              topics.map((topic, idx) => (
+                <Button key={idx} variant='contained' sx={{
+                  backgroundColor: topic.chosen ? theme.palette.topics[idx] : theme.palette.grey[300],
+                  color: topic.chosen ? theme.palette.common.white : theme.palette.common.black,
+                  margin: 1,
+                  whiteSpace: 'nowrap',
+                  borderRadius: 5,
+                  fitContent: '100%',
+                  disableRipple: true,
+                  disableFocusRipple: true,
+                  disableElevation: true,
+                }} onClick={() => {setTopics(topics.map((t, i) => {
+                  return i === idx ? {name: t.name, chosen: !t.chosen} : {name: t.name, chosen: t.chosen}
+                }))}}>
+                  {topic.name}
+                </Button>
+              ))
+            }
+
+          {// </Stack>
+          }
+
+
 
           <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting} >
             Register

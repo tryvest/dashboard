@@ -73,6 +73,8 @@ const WARNING = {
   contrastText: GREY[800],
 };
 
+const TOPICS = ['#826AF9', '#f57c00', '#D32F2F', '#ce93d8', '#90caf9', '#ff3881', '#08660D'  ]
+
 const ERROR = {
   lighter: '#FFE7D9',
   light: '#FFA48D',
@@ -100,6 +102,7 @@ const CHART_COLORS = {
 
 const palette = {
   common: { black: '#000', white: '#fff' },
+  topics: TOPICS,
   primary: { ...PRIMARY },
   secondary: { ...SECONDARY },
   info: { ...INFO },
