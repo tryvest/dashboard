@@ -100,7 +100,6 @@ class AllBusinesses(Resource):
 
     def post(self):
         businessData = request.json
-        print(businessData)
         busDoc = db.collection('businesses').document()
         toAdd = Business(
             media=businessData["media"],
@@ -132,7 +131,7 @@ class SpecificBusiness(Resource):
             topics=business["topics"],
             description=business["description"],
             name=business["name"],
-            docId=business.id
+            docId=businessID
         )
         return result.asJson()
 
