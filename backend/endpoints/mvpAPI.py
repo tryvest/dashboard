@@ -4,12 +4,14 @@ from flask import Flask, request
 from flask_restx import Api, Resource
 import firebase_admin
 from firebase_admin import credentials, firestore
+from flask_cors import CORS
 
 cred = credentials.Certificate("valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 flaskApp = Flask(__name__)
+CORS(flaskApp)
 
 baseRoute = "/api"
 businessRoute = "/businesses"

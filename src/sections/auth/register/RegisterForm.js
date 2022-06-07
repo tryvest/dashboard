@@ -71,7 +71,7 @@ export default function RegisterForm() {
                  "interests": topics
               }
               const response = await fetch("https://us-central1-valued-throne-350421.cloudfunctions.net/" +
-                  "mvp-endpoints/api/tryvestors/", {
+                  "mvp-endpoints/api/tryvestors", {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
