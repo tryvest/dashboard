@@ -27,7 +27,7 @@ import {fCurrency} from "../../../utils/formatNumber";
 
 export default function RegisterForm() {
 
-  const { signup } = useAuth()
+  const { signup, currentUser } = useAuth()
   const theme = useTheme()
   const navigate = useNavigate();
 
@@ -56,12 +56,46 @@ export default function RegisterForm() {
       password: '',
     },
     validationSchema: RegisterSchema,
-    onSubmit: ({email, password}) => {
+    onSubmit: ({firstName, lastName, email, password}) => {
       try {
         signup(email, password)
+
+        console.log(currentUser.uid)
+        const interests = []
+
+        // eslint-disable-next-line no-plusplus
+        for (let t = 0; t < topics.length; t++) {
+          if(topics[t].chosen){
+            interests.push(topics[t].name)
+          }
+        }
+
+        const data = {
+            uid: currentUser.uid,
+            firstName,
+            lastName,
+            interests,
+        }
+
+        fetch('https://tryvest.us/api/tryvestors', {
+          method: 'POST', // or 'PUT'
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Success:', data);
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+
       } catch {
-        // Throw error
+        console.error('Error: Signup could not be completed');
       }
+
       navigate('/dashboard/app', { replace: true });
     },
   });
