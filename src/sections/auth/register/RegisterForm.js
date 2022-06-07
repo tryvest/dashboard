@@ -63,15 +63,14 @@ export default function RegisterForm() {
       try {
         signup(email, password).then(
             async (res) => {
-              const fullName = `${firstName} ${lastName}`
               const data = {
                  "uid": res.user.uid,
                  "username": email,
-                 "name": fullName,
+                 "firstName": firstName,
+                 "lastName": lastName,
                  "interests": topics
               }
-              const response = await fetch("https://us-central1-valued-throne-350421.cloudfunctions.net/" +
-                  "mvp-endpoints/api/tryvestors", {
+              const response = await fetch("https://endpoints-wb5xla47ea-uc.a.run.app/api/tryvestors/", {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',

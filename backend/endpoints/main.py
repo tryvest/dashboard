@@ -122,9 +122,10 @@ class TermResponse:
 
 
 class Tryvestor:
-    def __init__(self, docID, name, username, interests):
+    def __init__(self, docID, firstName, lastName, username, interests):
         self.docID = docID
-        self.name = name
+        self.firstName = firstName
+        self.lastName = lastName
         self.username = username
         self.interests = interests
 
@@ -132,14 +133,16 @@ class Tryvestor:
     def fromDict(sourceDict, tryID):
         return Tryvestor(
             docID=tryID,
-            name=sourceDict["name"],
+            firstName=sourceDict["firstName"],
+            lastName=sourceDict["lastName"],
             username=sourceDict["username"],
             interests=sourceDict["interests"]
         )
 
     def toDict(self):
         return {
-            "name": self.name,
+            "firstName": self.firstName,
+            "lastName": self.lastName,
             "username": self.username,
             "interests": self.interests
         }
@@ -315,4 +318,4 @@ class TermDocuments(Resource):
 
 
 if __name__ == "__main__":
-    app.run(ssl_context="adhoc", host="0.0.0.0", port=5000)
+    app.run(port=5000)
