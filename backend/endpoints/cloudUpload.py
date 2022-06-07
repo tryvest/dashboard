@@ -1,5 +1,4 @@
 import datetime
-import json
 from flask import Flask, request
 from flask_restx import Api, Resource
 import firebase_admin
@@ -194,7 +193,6 @@ class AllTryvestors(Resource):
         tryvestorData = request.json
         print(tryvestorData)
         tryDoc = db.collection('tryvestors').document(tryvestorData["uid"])
-        tryDocRef = tryDoc.get()
         toAdd = Tryvestor.fromDict(sourceDict=tryvestorData, tryID=tryDoc.id)
         tryDoc.set(toAdd.toDict())
         return tryDoc.id
