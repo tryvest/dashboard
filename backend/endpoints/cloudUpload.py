@@ -4,19 +4,18 @@ from flask_restx import Api, Resource
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
-import os
 
 cred = credentials.Certificate("valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-app = Flask(__name__)
-CORS(app)
+flaskApp = Flask(__name__)
+CORS(flaskApp)
 
 baseRoute = "/api"
 businessRoute = "/businesses"
 tryvestorRoute = "/tryvestors"
-api = Api(app=app, prefix=baseRoute)
+api = Api(app=flaskApp, prefix=baseRoute)
 busApi = api.namespace('businesses', description="For business side requests")
 tryApi = api.namespace('tryvestors', description="For tryvestor side requests")
 
@@ -122,10 +121,9 @@ class TermResponse:
 
 
 class Tryvestor:
-    def __init__(self, docID, firstName, lastName, username, interests):
+    def __init__(self, docID, name, username, interests):
         self.docID = docID
-        self.firstName = firstName
-        self.lastName = lastName
+        self.name = name
         self.username = username
         self.interests = interests
 
@@ -133,16 +131,14 @@ class Tryvestor:
     def fromDict(sourceDict, tryID):
         return Tryvestor(
             docID=tryID,
-            firstName=sourceDict["firstName"],
-            lastName=sourceDict["lastName"],
+            name=sourceDict["name"],
             username=sourceDict["username"],
             interests=sourceDict["interests"]
         )
 
     def toDict(self):
         return {
-            "firstName": self.firstName,
-            "lastName": self.lastName,
+            "name": self.name,
             "username": self.username,
             "interests": self.interests
         }
@@ -197,7 +193,6 @@ class AllTryvestors(Resource):
         tryvestorData = request.json
         print(tryvestorData)
         tryDoc = db.collection('tryvestors').document(tryvestorData["uid"])
-        tryDocRef = tryDoc.get()
         toAdd = Tryvestor.fromDict(sourceDict=tryvestorData, tryID=tryDoc.id)
         tryDoc.set(toAdd.toDict())
         return tryDoc.id
@@ -317,5 +312,22 @@ class TermDocuments(Resource):
         return termDoc.id
 
 
-if __name__ == "__main__":
-    app.run(port=5000)
+def mainRunner(innerRequest):
+    # Create a new app context for the internal app
+    internal_ctx = flaskApp.test_request_context(path=innerRequest.full_path,
+                                            method=innerRequest.method)
+
+    # Copy main request data from original request
+    # According to your context, parts can be missing. Adapt here!
+    internal_ctx.request.data = innerRequest.data
+    internal_ctx.request.headers = innerRequest.headers
+
+    # Activate the context
+    internal_ctx.push()
+    # Dispatch the request to the internal app and get the result
+    return_value = flaskApp.full_dispatch_request()
+    # Offload the context
+    internal_ctx.pop()
+
+    # Return the result of the internal app routing and processing
+    return return_value

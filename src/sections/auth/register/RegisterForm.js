@@ -13,8 +13,10 @@ import {
   IconButton,
   InputAdornment,
   Typography,
-  Button
+  Button,
+  Autocomplete, Chip
 } from '@mui/material';
+import ChipInput from "material-ui-chip-input";
 import { LoadingButton } from '@mui/lab';
 // component
 // eslint-disable-next-line import/no-duplicates
@@ -31,14 +33,15 @@ export default function RegisterForm() {
   const theme = useTheme()
   const navigate = useNavigate();
 
-  const [topics, setTopics] = useState([
-    {name: 'Artificial Intelligence', chosen: false},
-    {name: 'Social Media', chosen: false},
-    {name: 'Dating', chosen: false},
-    {name: 'OKR', chosen: false},
-    {name: 'Fitness', chosen: false},
-    {name: 'Gaming', chosen: false}
-  ])
+  const [topics, setTopics] = useState([])
+
+  const possibleTopics = [
+    "Apparel and Cosmetics", "Consumer Electronics", "Content, Food and Beverage",
+    "Gaming", "Home and Personal", "Job and Career Services", "Social",
+    "Transportation Services", "Travel", "Leisure and Tourism",
+    "Virtual and Augmented Reality", "Education", "FinTech", "Health", "Pets and Animals"
+  ]
+
   const [showPassword, setShowPassword] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
@@ -56,41 +59,31 @@ export default function RegisterForm() {
       password: '',
     },
     validationSchema: RegisterSchema,
-    onSubmit: ({firstName, lastName, email, password}) => {
+    onSubmit: ({email, password, firstName, lastName}) => {
       try {
-        signup(email, password)
+        signup(email, password).then(
+            async (res) => {
+              const data = {
+                 "uid": res.user.uid,
+                 "username": email,
+                 "firstName": firstName,
+                 "lastName": lastName,
+                 "interests": topics
+              }
+              const response = await fetch("https://endpoints-wb5xla47ea-uc.a.run.app/api/tryvestors/", {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data),
+              });
 
-        console.log(currentUser.uid)
-        const interests = []
-
-        // eslint-disable-next-line no-plusplus
-        for (let t = 0; t < topics.length; t++) {
-          if(topics[t].chosen){
-            interests.push(topics[t].name)
-          }
-        }
-
-        const data = {
-            uid: currentUser.uid,
-            firstName,
-            lastName,
-            interests,
-        }
-
-        fetch('https://tryvest.us/api/tryvestors', {
-          method: 'POST', // or 'PUT'
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(data => {
-              console.log('Success:', data);
-            })
-            .catch((error) => {
-              console.error('Error:', error);
-            });
+              response.json().then(data => {
+                console.log(data);
+              });
+            }
+        )
 
       } catch {
         console.error('Error: Signup could not be completed');
@@ -160,11 +153,34 @@ export default function RegisterForm() {
 
           { // <Stack direction="row" alignItems="center" justifyContent="space-between">
           }
+          {
+            // <div style={{border: '1px solid rgba(0, 0, 0, 0.05)', borderRadius: '10px', padding: '0px 5px 0px'}}/>
+              <Autocomplete
+                  multiple
+                  value={topics}
+                  onChange={(event, newValue) => {
+                    setTopics([
+                      ...newValue,
+                    ]);
+                  }}
+                  options={possibleTopics}
+                  renderTags={(tagValue, getTagProps) =>
+                      tagValue.map((option, index) => (
+                          <Chip
+                              label={option.toString()}
+                              {...getTagProps(index)}
+                          />
+                      ))
+                  }
+                  style={{ width: 500 }}
+                  renderInput={(params) => (
+                      <TextField {...params} placeholder="Favorites" />
+                  )}
+              />
+          }
 
-
-            {
+          {/*
               // DISGUSTING CODE, ONLY TEMPORARY
-
               topics.map((topic, idx) => (
                 <Button key={idx} variant='contained' sx={{
                   backgroundColor: topic.chosen ? theme.palette.topics[idx] : theme.palette.grey[300],
@@ -182,7 +198,7 @@ export default function RegisterForm() {
                   {topic.name}
                 </Button>
               ))
-            }
+            */}
 
           {// </Stack>
           }

@@ -1,0 +1,16 @@
+.gcloudignore
+.git
+.gitignore
+mvpAPI.py
+cloudUpload.py
+
+venv/
+*.pyc
+__pycache__/
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
