@@ -29,7 +29,7 @@ import {fCurrency} from "../../../utils/formatNumber";
 
 export default function RegisterForm() {
 
-  const { signup } = useAuth()
+  const { signup, currentUser } = useAuth()
   const theme = useTheme()
   const navigate = useNavigate();
 
@@ -84,9 +84,11 @@ export default function RegisterForm() {
               });
             }
         )
+
       } catch {
-        // Throw error
+        console.error('Error: Signup could not be completed');
       }
+
       navigate('/dashboard/app', { replace: true });
     },
   });

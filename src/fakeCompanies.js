@@ -1,5 +1,5 @@
 export const fakeCompanies = [ /* this data will come from firebase soon. Making it an array so we can .map. This will
-    be the case anyway once backend is linked*/
+    be the case anyway once backend is linked */
   {
     name: 'Symbiotica',
     description: 'Symbiotica is an Ed-tech company based in Philadelphia. We created a web ' +
