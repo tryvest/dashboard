@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 // material
 import { Container, Stack, Typography } from '@mui/material';
 // components
@@ -12,6 +12,8 @@ import COMPANIES from '../_mock/companies';
 export default function EcommerceShop() {
   const [openFilter, setOpenFilter] = useState(false);
 
+  const [companies, setCompanies] = useState([])
+
   const handleOpenFilter = () => {
     setOpenFilter(true);
   };
@@ -19,6 +21,21 @@ export default function EcommerceShop() {
   const handleCloseFilter = () => {
     setOpenFilter(false);
   };
+
+  useEffect(async () => {
+     const response = await fetch('http://127.0.0.1:5000/api/businesses/', {
+       method: 'GET',
+       headers: {
+         'Accept': 'application/json',
+         'Content-Type': 'application/json'
+       }
+     });
+
+    response.json().then(data => {
+      console.log(data);
+      setCompanies(data)
+    });
+  }, [])
 
   return (
     <Page title="Dashboard: Products">
@@ -38,7 +55,7 @@ export default function EcommerceShop() {
           </Stack>
         </Stack>
 
-        <CompanyList companies={COMPANIES} />
+        <CompanyList companies={companies} />
       </Container>
     </Page>
   );

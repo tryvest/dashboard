@@ -1,5 +1,5 @@
-import React from 'react'
-import { useParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react'
+import {useParams} from 'react-router-dom';
 // material
 import {
   Grid,
@@ -11,7 +11,8 @@ import {
   CardContent,
   Modal,
   Backdrop,
-  Fade
+  Fade,
+  CircularProgress
 } from '@mui/material';
 // components
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -45,12 +46,34 @@ export default function Company() {
 
   const { id } = useParams()
 
-  const company = COMPANIES.find((c) => c.id ===  id)
-  const {name, description, funding, colors, status, cover } = company
+  console.log(id)
 
-  const [openReferralModal, setOpenReferralModal] = React.useState(false)
+  // const company = COMPANIES.find((c) => c.id ===  id)
+  // const {name, description, funding, colors, status, cover } = company
 
-  const [textToCopy, setTextToCopy] = React.useState('https://tryvest.us/referral/company?#referrer=pablo')
+  const [openReferralModal, setOpenReferralModal] = useState(false)
+
+  const [textToCopy, setTextToCopy] = useState('https://tryvest.us/referral/company?#referrer=pablo')
+
+  const [company, setCompany] = useState()
+  const [companyLoaded, setCompanyLoaded] = useState(false)
+
+  useEffect(async () => {
+
+    const response = await fetch(`https://endpoints-wb5xla47ea-uc.a.run.app/api/businesses/${id}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    });
+
+    response.json().then(data => {
+      console.log(data);
+      setCompany(data);
+      setCompanyLoaded(true)
+    });
+  }, []);
 
   return (
       <Page title="Dashboard: Company">
@@ -59,80 +82,44 @@ export default function Company() {
           <Grid container spacing={3}>
 
             <Grid item xs={12} sm={12} md={12}>
-              <Card sx={{ position: 'relative',  }}>
-
-
-                <CardContent
-                    sx={{
-                      pt: 4,
-                      height: 500,
-                      justifyContent: "space-between"
-                    }}
-                >
-
-                  <Typography
-                      variant="h1"
+              <Card sx={{ position: 'relative',  width: '100%', height: '100%'}}>
+                {companyLoaded ? (
+                  <CardContent
                       sx={{
-                        zIndex: 1,
+                        pt: 4,
+                        height: 500,
+                        justifyContent: "space-between"
                       }}
                   >
-                    {name}
-                  </Typography>
-                  <Typography
-                      variant="p"
-                      sx={{
-                         zIndex: 1,
-                      }}
-                  >
-                    {description}
-                  </Typography>
-
-                  <Button variant='contained' sx={{}} onClick={() => {setOpenReferralModal(true)}}>
-                    Referral Link
-                  </Button>
-                  <Modal
-                      aria-labelledby="transition-modal-title"
-                      aria-describedby="transition-modal-description"
-                      open={openReferralModal}
-                      onClose={() => {setOpenReferralModal(false)}}
-                      closeAfterTransition
-                      BackdropComponent={Backdrop}
-                      BackdropProps={{
-                        timeout: 500,
-                      }}
-
-                  >
-                    <Fade in={openReferralModal}>
-                      <Card sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 400,
-                        boxShadow: 24,
-                        p: 4,
-                      }}>
-
-                        <Stack spacing={2} sx={{ p: 3 }}>
-                          <Typography variant="h4" noWrap>
-                            Here's your link!
-                          </Typography>
-                          <Typography variant="p" >
-                            Thus far, you have referred a, b, c.
-                          </Typography>
-                          <Typography variant="p" >
-                            You can continue adding more friends by sending the following link: <span style={{color: '#04d49c'}}>{textToCopy}</span>
-                          </Typography>
-
-                          <CopyToClipboard text={textToCopy}>
-                            <Button>Copy to clipboard</Button>
-                          </CopyToClipboard>
-
-                        </Stack>
-                      </Card>
-                    </Fade>
-                  </Modal>
-                </CardContent>
+                    <Typography
+                        variant="h1"
+                        sx={{
+                          zIndex: 1,
+                        }}
+                    >
+                      {company.name}
+                    </Typography>
+                    <Typography
+                        variant="h4"
+                        style={{fontStyle: 'italic'}}
+                        sx={{
+                          zIndex: 1,
+                        }}
+                    >
+                      {company.tagline}
+                    </Typography>
+                    <Typography
+                        variant="p"
+                        sx={{
+                           zIndex: 1,
+                        }}
+                    >
+                      {company.description}
+                    </Typography>
+                  </CardContent>
+                ) : (
+                    <CircularProgress style={}/>
+                )}
               </Card>
             </Grid>
           </Grid>
@@ -140,3 +127,52 @@ export default function Company() {
       </Page>
   );
 }
+
+/*
+<Modal
+    aria-labelledby="transition-modal-title"
+    aria-describedby="transition-modal-description"
+    open={openReferralModal}
+    onClose={() => {setOpenReferralModal(false)}}
+    closeAfterTransition
+    BackdropComponent={Backdrop}
+    BackdropProps={{
+      timeout: 500,
+    }}
+
+>
+  <Fade in={openReferralModal}>
+    <Card sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: 400,
+      boxShadow: 24,
+      p: 4,
+    }}>
+
+      <Stack spacing={2} sx={{ p: 3 }}>
+        <Typography variant="h4" noWrap>
+          Here's your link!
+        </Typography>
+        <Typography variant="p" >
+          Thus far, you have referred a, b, c.
+        </Typography>
+        <Typography variant="p" >
+          You can continue adding more friends by sending the following link: <span style={{color: '#04d49c'}}>{textToCopy}</span>
+        </Typography>
+
+        <CopyToClipboard text={textToCopy}>
+          <Button>Copy to clipboard</Button>
+        </CopyToClipboard>
+
+      </Stack>
+    </Card>
+  </Fade>
+</Modal>
+
+<Button variant='contained' sx={{}} onClick={() => {setOpenReferralModal(true)}}>
+  Referral Link
+</Button>
+*/
