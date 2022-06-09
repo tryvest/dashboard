@@ -1,6 +1,6 @@
 import datetime
 from flask import Flask, request
-from flask_restx import Api, Resource
+from flask_restx import Api, Resource, fields
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
@@ -152,7 +152,7 @@ class Tryvestor:
         return self.toDict()
 
 
-@busApi.route("/")  # http://127.0.0.1:5000/api/businesses/
+@busApi.route("")  # http://127.0.0.1:5000/api/businesses/
 class AllBusinesses(Resource):
     def get(self):
         businesses = db.collection("businesses").stream()
@@ -182,7 +182,7 @@ class SpecificBusiness(Resource):
         return result.asJson()
 
 
-@tryApi.route("/")
+@tryApi.route("")
 class AllTryvestors(Resource):
     def get(self):
         tryvestors = db.collection("tryvestors").stream()
@@ -288,6 +288,7 @@ class TermDocumentUsers(Resource):
 
 @tryApi.route('/byUsername')
 class UserByUsername(Resource):
+    @api.doc(params={'username': {'description': 'username of the user (likely email)', 'type': 'String'}})
     def get(self):
         inputUsername = request.args.get('username')
         users = db.collection('tryvestors').where('username', '==', inputUsername).get()
@@ -299,6 +300,10 @@ class UserByUsername(Resource):
 
 @busApi.route('/termDocuments/results')
 class ResultsLink(Resource):
+    @api.doc(params={
+        'businessID': {'description': 'Firebase document id of the business to get results', 'type': 'String'},
+        'termDocNum': {'description': 'Starting at 1, which task do you want for the company', 'type': 'Integer'}
+                     })
     def get(self):
         busID = request.args.get('businessID')
         termDocNum = int(request.args.get('termDocNum'))

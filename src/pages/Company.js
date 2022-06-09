@@ -19,6 +19,7 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import Page from '../components/Page';
 
 import COMPANIES from '../_mock/companies'
+import {apiBusinesses} from "../utils/api/api-businesses";
 
 
 
@@ -58,17 +59,9 @@ export default function Company() {
   const [company, setCompany] = useState()
   const [companyLoaded, setCompanyLoaded] = useState(false)
 
-  useEffect(async () => {
+  useEffect( () => {
 
-    const response = await fetch(`https://endpoints-wb5xla47ea-uc.a.run.app/api/businesses/${id}`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-    });
-
-    response.json().then(data => {
+    const response = apiBusinesses.getSingle(id).then(data => {
       console.log(data);
       setCompany(data);
       setCompanyLoaded(true)
@@ -118,7 +111,7 @@ export default function Company() {
                     </Typography>
                   </CardContent>
                 ) : (
-                    <CircularProgress style={}/>
+                    <CircularProgress style={{justifyContent: 'center', alignContent: 'center'}}/>
                 )}
               </Card>
             </Grid>
