@@ -59,7 +59,8 @@ class Business:
             "termDocuments": self.termDocuments,
             "media": self.media,
             "logo": self.logo,
-            "tagline": self.tagline
+            "tagline": self.tagline,
+            "docID": self.docID
         }
 
     def asJson(self):
