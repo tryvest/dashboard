@@ -6,6 +6,7 @@ import Page from '../components/Page';
 import { ProductSort, ProductCartWidget, CompanyList, ProductFilterSidebar } from '../sections/@dashboard/companies';
 // mock
 import COMPANIES from '../_mock/companies';
+import {apiBusinesses} from "../utils/api/api-businesses";
 
 // ----------------------------------------------------------------------
 
@@ -22,16 +23,8 @@ export default function EcommerceShop() {
     setOpenFilter(false);
   };
 
-  useEffect(async () => {
-     const response = await fetch('http://127.0.0.1:5000/api/businesses/', {
-       method: 'GET',
-       headers: {
-         'Accept': 'application/json',
-         'Content-Type': 'application/json'
-       }
-     });
-
-    response.json().then(data => {
+  useEffect(() => {
+    const response = apiBusinesses.getAll().then(data => {
       console.log(data);
       setCompanies(data)
     });

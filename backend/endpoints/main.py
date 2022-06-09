@@ -152,7 +152,7 @@ class Tryvestor:
         return self.toDict()
 
 
-@busApi.route("/")  # http://127.0.0.1:5000/api/businesses/
+@busApi.route("")  # http://127.0.0.1:5000/api/businesses/
 class AllBusinesses(Resource):
     def get(self):
         businesses = db.collection("businesses").stream()
@@ -182,7 +182,7 @@ class SpecificBusiness(Resource):
         return result.asJson()
 
 
-@tryApi.route("/")
+@tryApi.route("")
 class AllTryvestors(Resource):
     def get(self):
         tryvestors = db.collection("tryvestors").stream()
