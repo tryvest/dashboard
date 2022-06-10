@@ -16,7 +16,6 @@ import {
   Button,
   Autocomplete, Chip
 } from '@mui/material';
-import ChipInput from "material-ui-chip-input";
 import { LoadingButton } from '@mui/lab';
 // component
 // eslint-disable-next-line import/no-duplicates
