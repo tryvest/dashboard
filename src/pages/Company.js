@@ -9,13 +9,18 @@ import {
   Typography,
   Card,
   CardContent,
+  CardHeader,
   Modal,
   Backdrop,
   Fade,
   CircularProgress
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import ReactPlayer from 'react-player'
+import Carousel from 'better-react-carousel'
 // components
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { fCurrency, fShortenNumber } from '../utils/formatNumber';
 import Page from '../components/Page';
 
 import COMPANIES from '../_mock/companies'
@@ -59,10 +64,14 @@ export default function Company() {
   const [company, setCompany] = useState()
   const [companyLoaded, setCompanyLoaded] = useState(false)
 
+  const theme = useTheme();
+
   useEffect( () => {
 
     const response = apiBusinesses.getSingle(id).then(data => {
       console.log(data);
+      data.media.unshift("https://challengepost-s3-challengepost.netdna-ssl.com/photos/production/software_photos/001/068/527/datas/gallery.jpg")
+      data.media.push('https://pbs.twimg.com/profile_images/1455185376876826625/s1AjSxph_400x400.jpg')
       setCompany(data);
       setCompanyLoaded(true)
     });
@@ -71,21 +80,20 @@ export default function Company() {
   return (
       <Page title="Dashboard: Company">
         <Container>
-
-          <Grid container spacing={3}>
-
-            <Grid item xs={12} sm={12} md={12}>
+          {companyLoaded ? (
+            <Grid container spacing={2}>
+            <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
               <Card sx={{ position: 'relative',  width: '100%', height: '100%'}}>
-                {companyLoaded ? (
                   <CardContent
                       sx={{
                         pt: 4,
-                        height: 500,
+                        pb: '10px',
+                        height: '100%',
                         justifyContent: "space-between"
                       }}
                   >
                     <Typography
-                        variant="h1"
+                        variant="h2"
                         sx={{
                           zIndex: 1,
                         }}
@@ -93,7 +101,7 @@ export default function Company() {
                       {company.name}
                     </Typography>
                     <Typography
-                        variant="h4"
+                        variant="h5"
                         style={{fontStyle: 'italic'}}
                         sx={{
                           zIndex: 1,
@@ -103,19 +111,77 @@ export default function Company() {
                     </Typography>
                     <Typography
                         variant="p"
+                        fontSize={14}
                         sx={{
                            zIndex: 1,
                         }}
                     >
                       {company.description}
                     </Typography>
+                    <div style={{maxHeight: '500px', maxWidth: '800px', margin: '10px'}}>
+                      <Carousel loop showDots scrollSnap dotColorActive={theme.palette.primary.main}>
+                        {company.media.map((imgLink) => {
+                          if (imgLink.includes('jpg') || imgLink.includes('png')) {
+                            return (
+                                <Carousel.Item>
+                                  <img src={imgLink} alt="imageyay"/>
+                                </Carousel.Item>)
+                          }
+
+                          if (imgLink.includes('mp4')) {
+                            return (
+                                <Carousel.Item>
+                                  <ReactPlayer controls url={imgLink} width={"100%"}/>
+                                </Carousel.Item>)
+                          }
+                          return <div/>
+                        })}
+                      </Carousel>
+                    </div>
                   </CardContent>
-                ) : (
-                    <CircularProgress style={{justifyContent: 'center', alignContent: 'center'}}/>
-                )}
+                )
               </Card>
             </Grid>
-          </Grid>
+            <Grid item xs={12} sm={3} md={3}>
+              <Card>
+                <CardHeader title={"Financial Details"}/>
+                <CardContent sx={{
+                  height: '100%',
+                  justifyContent: "space-between",
+                  pt: '0px'
+                }}>
+                  <Typography>
+                    {`Valuation: ${fShortenNumber(fCurrency(company.valuation))}`}
+                  </Typography>
+                  <Typography>
+                    {`Total Shares: ${fShortenNumber(company.totalShares)}`}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+              <Card>
+                {/*
+                  <CardHeader title={"All Tasks"}/>
+                */}
+                <CardContent sx={{
+                  height: '100%',
+                  justifyContent: 'space-around',
+                  pt: '0px'
+                }}>
+                  <Typography>
+                    {`Valuation: ${fShortenNumber(fCurrency(company.valuation))}`}
+                  </Typography>
+                  <Typography>
+                    {`Total Shares: ${fShortenNumber(company.totalShares)}`}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>)
+        : (
+        <CircularProgress style={{justifyContent: 'center', alignContent: 'center'}}/>
+        )}
         </Container>
       </Page>
   );
