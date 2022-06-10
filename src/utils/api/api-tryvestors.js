@@ -1,6 +1,6 @@
+import axios from "axios";
 import {ApiCore} from "./core";
 import {apiProvider} from "./provider";
-import axios from "axios";
 import {handleError, handleResponse} from "./response";
 
 const url = 'tryvestors';

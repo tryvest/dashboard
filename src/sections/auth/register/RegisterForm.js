@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
-import { useFormik, Form, Field, FormikProvider } from 'formik';
+import { useFormik, Form, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 
@@ -8,12 +8,9 @@ import { styled, useTheme } from '@mui/material/styles';
 import {
   Stack,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
   IconButton,
   InputAdornment,
   Typography,
-  Button,
   Autocomplete, Chip
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -21,8 +18,7 @@ import { LoadingButton } from '@mui/lab';
 // eslint-disable-next-line import/no-duplicates
 import Iconify from '../../../components/Iconify';
 import {useAuth} from '../../../contexts/AuthContext'
-import {fCurrency} from "../../../utils/formatNumber";
-
+import { apiProvider } from "../../../utils/api/provider";
 // ----------------------------------------------------------------------
 
 
@@ -69,6 +65,10 @@ export default function RegisterForm() {
                  "lastName": lastName,
                  "interests": topics
               }
+
+              apiProvider.post('tryvestors/', data).then(r => console.log('Registered'))
+
+              /*
               const response = await fetch("https://endpoints-wb5xla47ea-uc.a.run.app/api/tryvestors/", {
                 method: 'POST',
                 headers: {
@@ -81,6 +81,8 @@ export default function RegisterForm() {
               response.json().then(data => {
                 console.log(data);
               });
+
+               */
             }
         )
 
@@ -150,10 +152,6 @@ export default function RegisterForm() {
             Which topics interest you?
           </Typography>
 
-          { // <Stack direction="row" alignItems="center" justifyContent="space-between">
-          }
-          {
-            // <div style={{border: '1px solid rgba(0, 0, 0, 0.05)', borderRadius: '10px', padding: '0px 5px 0px'}}/>
               <Autocomplete
                   multiple
                   value={topics}
@@ -176,32 +174,6 @@ export default function RegisterForm() {
                       <TextField {...params} placeholder="Favorites" />
                   )}
               />
-          }
-
-          {/*
-              // DISGUSTING CODE, ONLY TEMPORARY
-              topics.map((topic, idx) => (
-                <Button key={idx} variant='contained' sx={{
-                  backgroundColor: topic.chosen ? theme.palette.topics[idx] : theme.palette.grey[300],
-                  color: topic.chosen ? theme.palette.common.white : theme.palette.common.black,
-                  margin: 1,
-                  whiteSpace: 'nowrap',
-                  borderRadius: 5,
-                  fitContent: '100%',
-                  disableRipple: true,
-                  disableFocusRipple: true,
-                  disableElevation: true,
-                }} onClick={() => {setTopics(topics.map((t, i) => {
-                  return i === idx ? {name: t.name, chosen: !t.chosen} : {name: t.name, chosen: t.chosen}
-                }))}}>
-                  {topic.name}
-                </Button>
-              ))
-            */}
-
-          {// </Stack>
-          }
-
 
 
           <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting} >
