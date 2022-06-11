@@ -1,9 +1,10 @@
 import axios from "axios";
 import {ApiCore} from "./core";
-import {apiProvider} from "./provider";
+
+import { BASE_URL } from "./provider";
 import {handleError, handleResponse} from "./response";
 
-const url = 'tryvestors';
+const url = `${BASE_URL}/tryvestors`;
 const plural = 'tryvestors';
 const single = 'tryvestor';
 
@@ -23,7 +24,7 @@ const apiTryvestors = new ApiCore({
 
 apiTryvestors.getByUsername = (username) => {
     return axios
-        .get(`${url}/byUsername`, {params: {username: username}})
+        .get(`${url}/byUsername`, {params: {username}})
         .then(handleResponse)
         .catch(handleError);
 }

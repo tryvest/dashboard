@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
-
 // material
 import {
   Stack,
@@ -14,18 +13,26 @@ import {
   Autocomplete, Chip
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+// import {connect} from 'react-redux';
 // component
 // eslint-disable-next-line import/no-duplicates
+import { useSelector, useDispatch } from "react-redux"
+import { bindActionCreators } from 'redux'
 import Iconify from '../../../components/Iconify';
-import {useAuth} from '../../../contexts/AuthContext'
-import { apiProvider } from "../../../utils/api/provider";
+import { authActionCreators } from "../../../store/index"
 // ----------------------------------------------------------------------
 
 
-export default function RegisterForm() {
+const RegisterForm = () => {
 
-  const { signup, currentUser } = useAuth()
+  const state = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
+  const { signUp } = bindActionCreators(authActionCreators, dispatch);
+
   const theme = useTheme()
+
   const navigate = useNavigate();
 
   const [topics, setTopics] = useState([])
@@ -55,40 +62,8 @@ export default function RegisterForm() {
     },
     validationSchema: RegisterSchema,
     onSubmit: ({email, password, firstName, lastName}) => {
-      try {
-        signup(email, password).then(
-            async (res) => {
-              const data = {
-                 "uid": res.user.uid,
-                 "username": email,
-                 "firstName": firstName,
-                 "lastName": lastName,
-                 "interests": topics
-              }
 
-              apiProvider.post('tryvestors/', data).then(r => console.log('Registered'))
-
-              /*
-              const response = await fetch("https://endpoints-wb5xla47ea-uc.a.run.app/api/tryvestors/", {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data),
-              });
-
-              response.json().then(data => {
-                console.log(data);
-              });
-
-               */
-            }
-        )
-
-      } catch {
-        console.error('Error: Signup could not be completed');
-      }
+      signUp({email, password, firstName, lastName, topics});
 
       navigate('/dashboard/app', { replace: true });
     },
@@ -164,6 +139,7 @@ export default function RegisterForm() {
                   renderTags={(tagValue, getTagProps) =>
                       tagValue.map((option, index) => (
                           <Chip
+                              key={index}
                               label={option.toString()}
                               {...getTagProps(index)}
                           />
@@ -184,3 +160,6 @@ export default function RegisterForm() {
     </FormikProvider>
   );
 }
+
+
+export default (RegisterForm);

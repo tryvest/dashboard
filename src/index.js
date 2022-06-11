@@ -53,7 +53,6 @@ ReactDOM.render(
     <BrowserRouter>
       <Provider store={store}>
         <ReactReduxFirebaseProvider {...rrfProps}>
-
             <App />
         </ReactReduxFirebaseProvider>
       </Provider>

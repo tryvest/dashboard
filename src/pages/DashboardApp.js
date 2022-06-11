@@ -22,21 +22,19 @@ import {
 } from '../sections/@dashboard/app';
 
 import TASKS from '../_mock/tasks';
-import {useAuth} from '../contexts/AuthContext'
 
 // ----------------------------------------------------------------------
 
 export default function DashboardApp() {
   const theme = useTheme();
-  const {currentUser} = useAuth()
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
 
-          {currentUser ?
-              <Typography variant="h4" sx={{ mb: 5 }}> Welcome Back, {currentUser.email}! </Typography>
+          { /* currentUser ?
+              <Typography variant="h4" sx={{ mb: 5 }}> Welcome Back, placehold! </Typography>
               :
-              <Typography variant="h4" sx={{ mb: 5 }}>User not logged in</Typography>
+              <Typography variant="h4" sx={{ mb: 5 }}>User not logged in</Typography> */
           }
 
 
