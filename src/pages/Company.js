@@ -151,7 +151,7 @@ export default function Company() {
                   pt: '0px'
                 }}>
                   <Typography>
-                    {`Valuation: ${fShortenNumber(fCurrency(company.valuation))}`}
+                    {`Valuation: $${fShortenNumber((company.valuation))}`}
                   </Typography>
                   <Typography>
                     {`Total Shares: ${fShortenNumber(company.totalShares)}`}
@@ -169,12 +169,10 @@ export default function Company() {
                   justifyContent: 'space-around',
                   pt: '0px'
                 }}>
-                  <Typography>
-                    {`Valuation: ${fShortenNumber(fCurrency(company.valuation))}`}
+                  <Typography variant={'h2'}>
+                    Active Tasks
                   </Typography>
-                  <Typography>
-                    {`Total Shares: ${fShortenNumber(company.totalShares)}`}
-                  </Typography>
+
                 </CardContent>
               </Card>
             </Grid>

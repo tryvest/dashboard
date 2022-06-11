@@ -4,7 +4,6 @@ from flask_restx import Api, Resource, fields
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
-import os
 
 cred = credentials.Certificate("valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json")
 firebase_admin.initialize_app(cred)
