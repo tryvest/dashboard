@@ -31,6 +31,7 @@ const AvatarStyle = styled(Avatar)(({ theme }) => ({
 
 const Profile = () => {
   const user = useSelector((state) => state.auth?.user)
+  console.log(user);
   const [username, setUsername] = useState(user?.username)
   const [firstName, setFirstName] = useState(user?.firstName)
   const [lastName, setLastName] = useState(user?.lastName)

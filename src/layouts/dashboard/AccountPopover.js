@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@mui/material';
 // components
+import {useSelector} from "react-redux";
 import MenuPopover from '../../components/MenuPopover';
 // mocks_
 import account from '../../_mock/account';
@@ -47,6 +48,8 @@ export default function AccountPopover() {
 
   }
 
+  const user = useSelector((state) => state.auth?.user)
+
   return (
     <>
       <IconButton
@@ -84,11 +87,11 @@ export default function AccountPopover() {
           },
         }}
       >
-        { /* currentUser ?
+        {user ?
             <>
               <Box sx={{my: 1.5, px: 2.5}}>
                 <Typography variant="subtitle2" noWrap>
-                  {currentUser.email}
+                  {user.firstName} {user.lastName}
                 </Typography>
               </Box>
               <Divider sx={{borderStyle: 'dashed'}}/>
@@ -114,7 +117,7 @@ export default function AccountPopover() {
                   Sign In
                 </Typography>
               </Box>
-            </> */
+            </>
         }
       </MenuPopover>
     </>

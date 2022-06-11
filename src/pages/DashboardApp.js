@@ -3,20 +3,15 @@ import { faker } from '@faker-js/faker';
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography } from '@mui/material';
 // components
+import {useSelector} from "react-redux";
 import Page from '../components/Page';
-import Iconify from '../components/Iconify';
-import ACCOUNT from '../_mock/account';
+
 import COMPANIES from '../_mock/companies';
 
 // sections
 import {
   AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
   AppCurrentVisits,
-  AppWebsiteVisits,
-  AppTrafficBySite,
-  AppWidgetSummary,
   AppCurrentSubject,
   AppConversionRates,
 } from '../sections/@dashboard/app';
@@ -27,14 +22,16 @@ import TASKS from '../_mock/tasks';
 
 export default function DashboardApp() {
   const theme = useTheme();
+  const user = useSelector((state) => state.auth?.user)
+
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
 
-          { /* currentUser ?
-              <Typography variant="h4" sx={{ mb: 5 }}> Welcome Back, placehold! </Typography>
+          { user ?
+              <Typography variant="h4" sx={{ mb: 5 }}> Welcome Back, {user.firstName}! </Typography>
               :
-              <Typography variant="h4" sx={{ mb: 5 }}>User not logged in</Typography> */
+              <Typography variant="h4" sx={{ mb: 5 }}>Log In</Typography>
           }
 
 

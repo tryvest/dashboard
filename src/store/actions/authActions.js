@@ -12,7 +12,7 @@ export const signIn = creds => {
           apiTryvestors.getByUsername(creds.email).then((fireRes) => {
             console.log(fireRes);
             const data = {
-              "username": fireRes[0].email,
+              "username": fireRes[0].username,
               "firstName": fireRes[0].firstName,
               "lastName": fireRes[0].lastName,
               "interests": fireRes[0].interests,
