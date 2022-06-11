@@ -10,7 +10,7 @@ const authReducer = (state = {}, action) => {
       return state;
     case "SIGN_OUT":
       toast("You signed out..");
-      return state;
+      return {...state, user: null};
     case "SIGN_UP":
       toast("Welcome..");
       return {...state, user: action.payload};

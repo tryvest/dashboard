@@ -28,16 +28,7 @@ const navConfig = {
         path: '/dashboard/profile',
         icon: getIcon('ic:baseline-person'),
       },
-      {
-        title: 'login',
-        path: '/login',
-        icon: getIcon('eva:lock-fill'),
-      },
-      {
-        title: 'register',
-        path: '/register',
-        icon: getIcon('eva:person-add-fill'),
-      },
+
 
     ],
     companySide: [

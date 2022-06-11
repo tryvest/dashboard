@@ -1,6 +1,5 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import {apiTryvestors} from "../../utils/api/api-tryvestors";
-import app from '../../firebaseConfig'
 
 const auth = getAuth()
 
@@ -27,14 +26,10 @@ export const signIn = creds => {
   };
 };
 
-export const signOut = () => {
+export const logOut = () => {
   return (dispatch, getState, { getFirebase }) => {
-    const firebase = getFirebase();
 
-    firebase
-        .auth()
-        .signOut()
-        .then(() => {
+        auth.signOut().then(() => {
           dispatch({ type: "SIGN_OUT" });
         });
   };

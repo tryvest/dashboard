@@ -4,10 +4,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@mui/material';
 // components
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {bindActionCreators} from "redux";
 import MenuPopover from '../../components/MenuPopover';
 // mocks_
 import account from '../../_mock/account';
+import {authActionCreators} from "../../store";
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +35,14 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const anchorRef = useRef(null);
+
   const [open, setOpen] = useState(null);
+
+  const state = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
+  const { logOut } = bindActionCreators(authActionCreators, dispatch);
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -45,6 +54,8 @@ export default function AccountPopover() {
 
   const handleLogout = () => {
     setOpen(null);
+    logOut();
+    console.log(state);
 
   }
 
@@ -107,7 +118,7 @@ export default function AccountPopover() {
             <Divider sx={{borderStyle: 'dashed'}} />
 
             <MenuItem onClick={handleLogout} sx={{m: 1}}>
-            Logout
+              Logout
             </MenuItem>
             </>
           :

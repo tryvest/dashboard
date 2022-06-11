@@ -67,12 +67,11 @@ const Profile = () => {
                   >
                     <Typography variant='h5' gutterBottom>
                       Interests:
+                      {interests.map((i, idx) => (
+                            <span key={idx} style={{fontWeight: 300}}> {i}</span>
+                      ))}
                     </Typography>
-                    {interests.map((i, idx) => (
-                        <Typography key={idx} ariant='h5' gutterBottom>
-                          <span style={{fontWeight: 300}}>{i}</span>
-                        </Typography>
-                    ))}
+
                     <Typography variant='h5' gutterBottom>
                       Age: <span style={{fontWeight: 300}}>{ACCOUNT.age}</span>
                     </Typography>
@@ -85,11 +84,6 @@ const Profile = () => {
                     <Typography variant='h5' gutterBottom>
                       Email: <span style={{fontWeight: 300}}>{username}</span>
                     </Typography>
-                    <Typography variant='h5'>
-                      Standing: <span style={{fontWeight: 300}}>#{ACCOUNT.leaderboardStanding}</span>
-                    </Typography>
-
-
                   </CardContent>
                 </Grid>
               </Grid>
