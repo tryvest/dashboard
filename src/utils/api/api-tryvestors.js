@@ -1,7 +1,7 @@
 import axios from "axios";
 import {ApiCore} from "./core";
 
-import { BASE_URL } from "./provider";
+import {BASE_URL} from "./provider";
 import {handleError, handleResponse} from "./response";
 
 const url = `${BASE_URL}/tryvestors`;

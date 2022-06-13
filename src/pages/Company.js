@@ -11,7 +11,7 @@ import {
   CardHeader,
   CircularProgress
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles'
 import ReactPlayer from 'react-player'
 import Carousel from 'better-react-carousel'
 // components

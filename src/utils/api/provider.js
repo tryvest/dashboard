@@ -4,7 +4,7 @@ import { handleResponse, handleError } from './response';
 // Define your api url from any source.
 // Pulling from your .env file when on the server or from localhost when locally
 
-const BASE_URL = 'https://endpoints-wb5xla47ea-uc.a.run.app/api';
+export const BASE_URL = 'https://endpoints-wb5xla47ea-uc.a.run.app/api';
 
 axios.defaults.headers.post.contentType = 'application/json';
 axios.defaults.headers.post.accept = 'application/json';
