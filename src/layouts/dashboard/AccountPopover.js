@@ -4,10 +4,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@mui/material';
 // components
+import {useDispatch, useSelector} from "react-redux";
+import {bindActionCreators} from "redux";
 import MenuPopover from '../../components/MenuPopover';
 // mocks_
 import account from '../../_mock/account';
-import {useAuth} from "../../contexts/AuthContext";
+import {authActionCreators} from "../../store";
 
 // ----------------------------------------------------------------------
 
@@ -33,8 +35,14 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const anchorRef = useRef(null);
-  const {logout, currentUser} = useAuth()
+
   const [open, setOpen] = useState(null);
+
+  const state = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
+  const { logOut } = bindActionCreators(authActionCreators, dispatch);
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -46,8 +54,12 @@ export default function AccountPopover() {
 
   const handleLogout = () => {
     setOpen(null);
-    logout()
+    logOut();
+    console.log(state);
+
   }
+
+  const user = useSelector((state) => state.auth?.user)
 
   return (
     <>
@@ -86,11 +98,11 @@ export default function AccountPopover() {
           },
         }}
       >
-        {currentUser ?
+        {user ?
             <>
               <Box sx={{my: 1.5, px: 2.5}}>
                 <Typography variant="subtitle2" noWrap>
-                  {currentUser.email}
+                  {user.firstName} {user.lastName}
                 </Typography>
               </Box>
               <Divider sx={{borderStyle: 'dashed'}}/>
@@ -106,7 +118,7 @@ export default function AccountPopover() {
             <Divider sx={{borderStyle: 'dashed'}} />
 
             <MenuItem onClick={handleLogout} sx={{m: 1}}>
-            Logout
+              Logout
             </MenuItem>
             </>
           :

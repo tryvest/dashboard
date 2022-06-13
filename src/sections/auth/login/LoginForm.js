@@ -6,13 +6,20 @@ import { useFormik, Form, FormikProvider } from 'formik';
 import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
+import {useDispatch, useSelector} from "react-redux";
+import {bindActionCreators} from "redux";
 import Iconify from '../../../components/Iconify';
-import {useAuth} from "../../../contexts/AuthContext";
+import {authActionCreators} from "../../../store";
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const {login} = useAuth()
+  const state = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
+  const { signIn } = bindActionCreators(authActionCreators, dispatch);
+
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -30,11 +37,8 @@ export default function LoginForm() {
     },
     validationSchema: LoginSchema,
     onSubmit: ({email, password}) => {
-      try {
-        login(email, password)
-      } catch {
-        // Throw error
-      }
+      signIn({email, password});
+
       navigate('/dashboard/app', { replace: true });
 
     },

@@ -6,16 +6,56 @@ import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
 //
+import { Provider, useSelector } from 'react-redux';
+import thunk from 'redux-thunk';
+import { createStore, applyMiddleware, compose } from 'redux';
+import { createFirestoreInstance } from 'redux-firestore';
+import { ReactReduxFirebaseProvider, getFirebase, isLoaded } from 'react-redux-firebase';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
+import rootReducer from './store/reducers/rootReducer'
+import firebase from './firebaseConfig'
 
 // ----------------------------------------------------------------------
+
+const store = createStore(
+    rootReducer,
+    applyMiddleware(thunk.withExtraArgument({getFirebase})),
+);
+
+const rrfProps = {
+  firebase,
+  config: {},
+  dispatch: store.dispatch,
+  createFirestoreInstance,
+}
+
+function AuthIsLoaded({ children }) {
+  const auth = useSelector(state => state.firebase.auth);
+  if (!isLoaded(auth))
+    return (
+        <div className="text-center">
+          <div
+              className="spinner-grow text-primary"
+              style={{ width: "7rem", height: "7rem" }}
+              role="status"
+          >
+            <span className="sr-only">Loading...</span>
+          </div>
+        </div>
+    );
+  return children;
+}
 
 ReactDOM.render(
   <HelmetProvider>
     <BrowserRouter>
-      <App />
+      <Provider store={store}>
+        <ReactReduxFirebaseProvider {...rrfProps}>
+            <App />
+        </ReactReduxFirebaseProvider>
+      </Provider>
     </BrowserRouter>
   </HelmetProvider>,
   document.getElementById('root')
