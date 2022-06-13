@@ -5,26 +5,22 @@ import {
   Grid,
   Button,
   Container,
-  Stack,
   Typography,
   Card,
   CardContent,
   CardHeader,
-  Modal,
-  Backdrop,
-  Fade,
   CircularProgress
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ReactPlayer from 'react-player'
 import Carousel from 'better-react-carousel'
 // components
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { fCurrency, fShortenNumber } from '../utils/formatNumber';
 import Page from '../components/Page';
 
 import COMPANIES from '../_mock/companies'
 import {apiBusinesses} from "../utils/api/api-businesses";
+import BusinessTask from "../sections/@dashboard/companies/BusinessTask";
 
 
 
@@ -48,21 +44,19 @@ const ModalStyle = {
 
 // ----------------------------------------------------------------------
 
-export default function Company() {
+export default function Business() {
 
   const { id } = useParams()
 
   console.log(id)
 
-  // const company = COMPANIES.find((c) => c.id ===  id)
-  // const {name, description, funding, colors, status, cover } = company
+  // const business = COMPANIES.find((c) => c.id ===  id)
+  // const {name, description, funding, colors, status, cover } = business
 
-  const [openReferralModal, setOpenReferralModal] = useState(false)
+  const [business, setBusiness] = useState()
+  const [businessLoaded, setBusinessLoaded] = useState(false)
 
-  const [textToCopy, setTextToCopy] = useState('https://tryvest.us/referral/company?#referrer=pablo')
 
-  const [company, setCompany] = useState()
-  const [companyLoaded, setCompanyLoaded] = useState(false)
 
   const theme = useTheme();
 
@@ -72,15 +66,15 @@ export default function Company() {
       console.log(data);
       data.media.unshift("https://challengepost-s3-challengepost.netdna-ssl.com/photos/production/software_photos/001/068/527/datas/gallery.jpg")
       data.media.push('https://pbs.twimg.com/profile_images/1455185376876826625/s1AjSxph_400x400.jpg')
-      setCompany(data);
-      setCompanyLoaded(true)
+      setBusiness(data);
+      setBusinessLoaded(true)
     });
   }, []);
 
   return (
-      <Page title="Dashboard: Company">
+      <Page title="Dashboard: Business">
         <Container>
-          {companyLoaded ? (
+          {businessLoaded ? (
             <Grid container spacing={2}>
             <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
               <Card sx={{ position: 'relative',  width: '100%', height: '100%'}}>
@@ -98,7 +92,7 @@ export default function Company() {
                           zIndex: 1,
                         }}
                     >
-                      {company.name}
+                      {business.name}
                     </Typography>
                     <Typography
                         variant="h5"
@@ -107,7 +101,7 @@ export default function Company() {
                           zIndex: 1,
                         }}
                     >
-                      {company.tagline}
+                      {business.tagline}
                     </Typography>
                     <Typography
                         variant="p"
@@ -116,11 +110,11 @@ export default function Company() {
                            zIndex: 1,
                         }}
                     >
-                      {company.description}
+                      {business.description}
                     </Typography>
                     <div style={{maxHeight: '500px', maxWidth: '800px', margin: '10px'}}>
                       <Carousel loop showDots scrollSnap dotColorActive={theme.palette.primary.main}>
-                        {company.media.map((imgLink) => {
+                        {business.media.map((imgLink) => {
                           if (imgLink.includes('jpg') || imgLink.includes('png')) {
                             return (
                                 <Carousel.Item>
@@ -151,10 +145,10 @@ export default function Company() {
                   pt: '0px'
                 }}>
                   <Typography>
-                    {`Valuation: $${fShortenNumber((company.valuation))}`}
+                    {`Valuation: $${fShortenNumber((business.valuation))}`}
                   </Typography>
                   <Typography>
-                    {`Total Shares: ${fShortenNumber(company.totalShares)}`}
+                    {`Total Shares: ${fShortenNumber(business.totalShares)}`}
                   </Typography>
                 </CardContent>
               </Card>
@@ -172,7 +166,9 @@ export default function Company() {
                   <Typography variant={'h2'}>
                     Active Tasks
                   </Typography>
-
+                  {business.termDocs.map((singleTermDoc) => (
+                      <BusinessTask singleTermDoc={singleTermDoc}/>
+                  ))}
                 </CardContent>
               </Card>
             </Grid>
@@ -232,4 +228,7 @@ export default function Company() {
 <Button variant='contained' sx={{}} onClick={() => {setOpenReferralModal(true)}}>
   Referral Link
 </Button>
+
+const [openReferralModal, setOpenReferralModal] = useState(false)
+const [textToCopy, setTextToCopy] = useState('https://tryvest.us/referral/business?#referrer=pablo')
 */

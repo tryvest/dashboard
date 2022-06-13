@@ -35,9 +35,16 @@ apiBusinesses.postTermDocumentResponse = (model) => {
         .catch(handleError);
 }
 
-apiBusinesses.getTermDocumentResults = (model) => {
+apiBusinesses.getTermDocumentResponses = (termDocID) => {
     return axios
-        .post(`${url}/termDocuments/results`, model)
+        .get(`${url}/termDocuments/responses`, {params: {termDocID}})
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.getTermDocumentResults = () => {
+    return axios
+        .get(`${url}/termDocuments/results`)
         .then(handleResponse)
         .catch(handleError);
 }

@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import LogoOnlyLayout from './layouts/LogoOnlyLayout';
+import EmptyPage from './layouts/EmptyPage';
 //
 import Profile from './pages/Profile';
 import User from './pages/User';
@@ -12,6 +13,7 @@ import Discover from './pages/Discover';
 import DashboardApp from './pages/DashboardApp';
 import Landing from './pages/companySide/Landing';
 import Company from './pages/Company'
+import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage";
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +33,13 @@ export default function Router() {
       element: <DashboardLayout />,
       children: [
         { path: ':id', element: <Company />},
+      ]
+    },
+    {
+      path: '/termDocuments',
+      element: <EmptyPage />,
+      children: [
+        { path: 'embedURL', element: <AirtableEmbedPage />},
       ]
     },
     {
