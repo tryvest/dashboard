@@ -31,7 +31,6 @@ const AvatarStyle = styled(Avatar)(({ theme }) => ({
 
 const Profile = () => {
   const user = useSelector((state) => state.auth?.user)
-  console.log(user);
   const [username, setUsername] = useState(user?.username)
   const [firstName, setFirstName] = useState(user?.firstName)
   const [lastName, setLastName] = useState(user?.lastName)
@@ -54,7 +53,6 @@ const Profile = () => {
                         }}
                     />
 
-                    {/* <CoverImgStyle alt="Account's Header" src='../images/angryimg.png' /> */}
                     <Typography variant='h2' sx={{marginLeft: '350px'}}>
                       {firstName} {lastName}
                     </Typography>

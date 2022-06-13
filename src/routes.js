@@ -39,7 +39,7 @@ export default function Router() {
       path: '/termDocuments',
       element: <EmptyPage />,
       children: [
-        { path: 'embedURL', element: <AirtableEmbedPage />},
+        { path: ':embedURL', element: <AirtableEmbedPage />},
       ]
     },
     {

@@ -33,7 +33,8 @@ export default function DashboardApp() {
 
 
           { user ?
-
+              <>
+              <Typography variant="h4" sx={{ mb: 5 }}> Welcome Back, {user.firstName}! </Typography>
               <Grid container spacing={3}>
 
                 <Grid item xs={12} md={6} lg={8}>
@@ -87,8 +88,7 @@ export default function DashboardApp() {
                   />
                 </Grid>
               </Grid>
-
-
+            </>
               :
             <>
               <Grid container spacing={3}>

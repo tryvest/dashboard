@@ -9,12 +9,12 @@ export const signIn = creds => {
         signInWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async () => {
           apiTryvestors.getByUsername(creds.email).then((fireRes) => {
-            console.log(fireRes);
             const data = {
-              "username": fireRes[0].username,
-              "firstName": fireRes[0].firstName,
-              "lastName": fireRes[0].lastName,
-              "interests": fireRes[0].interests,
+              "username": fireRes.username,
+              "firstName": fireRes.firstName,
+              "lastName": fireRes.lastName,
+              "interests": fireRes.interests,
+              "uid": fireRes.tryvestorID,
             }
             dispatch({ type: "SIGN_IN", payload: data });
           })
