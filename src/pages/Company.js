@@ -63,11 +63,12 @@ export default function Business() {
   useEffect( () => {
 
     const response = apiBusinesses.getSingle(id).then(data => {
-      console.log(data);
-      data.media.unshift("https://challengepost-s3-challengepost.netdna-ssl.com/photos/production/software_photos/001/068/527/datas/gallery.jpg")
-      data.media.push('https://pbs.twimg.com/profile_images/1455185376876826625/s1AjSxph_400x400.jpg')
+      // console.log(data.media)
+      // data.media.unshift("https://challengepost-s3-challengepost.netdna-ssl.com/photos/production/software_photos/001/068/527/datas/gallery.jpg")
+      // data.media.push('https://pbs.twimg.com/profile_images/1455185376876826625/s1AjSxph_400x400.jpg')
       setBusiness(data);
       setBusinessLoaded(true)
+      console.log(business.media)
     });
   }, []);
 
@@ -113,7 +114,8 @@ export default function Business() {
                       {business.description}
                     </Typography>
                     <div style={{maxHeight: '500px', maxWidth: '800px', margin: '10px'}}>
-                      <Carousel loop showDots scrollSnap dotColorActive={theme.palette.primary.main}>
+                      {business.media.length ?
+                      (<Carousel loop showDots scrollSnap dotColorActive={theme.palette.primary.main}>
                         {business.media.map((imgLink) => {
                           if (imgLink.includes('jpg') || imgLink.includes('png')) {
                             return (
@@ -130,7 +132,9 @@ export default function Business() {
                           }
                           return <div/>
                         })}
-                      </Carousel>
+                      </Carousel>) :
+                      (<div/>)
+                      }
                     </div>
                   </CardContent>
                 )
@@ -161,14 +165,28 @@ export default function Business() {
                 <CardContent sx={{
                   height: '100%',
                   justifyContent: 'space-around',
-                  pt: '0px'
+                  pt: '18px'
                 }}>
-                  <Typography variant={'h2'}>
-                    Active Tasks
-                  </Typography>
-                  {business.termDocs.map((singleTermDoc) => (
-                      <BusinessTask singleTermDoc={singleTermDoc}/>
-                  ))}
+                  {
+                     business.termDocs.length > 0 ? (
+                         <div>
+                           <Typography variant={'h2'}>
+                             Active Tasks
+                           </Typography>
+                           <Grid container spacing={1}>
+                             {business.termDocs.map((singleTermDoc) => (
+                                 <Grid item width={"100%"}>
+                                   <BusinessTask singleTermDoc={singleTermDoc}/>
+                                 </Grid>
+                             ))}
+                           </Grid>
+                         </div>
+                      ) : (
+                          <Typography variant={'h2'}>
+                            No Active Tasks
+                          </Typography>
+                      )
+                  }
                 </CardContent>
               </Card>
             </Grid>
