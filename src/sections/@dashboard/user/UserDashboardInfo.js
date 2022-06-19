@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 // @mui
 import {
@@ -26,31 +26,59 @@ import MenuPopover from '../../../components/MenuPopover';
 import {AppWidgetSummary} from "../app/index";
 
 import ACCOUNT from '../../../_mock/account'
-import {fCurrency} from "../../../utils/formatNumber";
+import {fCurrency, fShortenNumber} from "../../../utils/formatNumber";
 
 
 // ----------------------------------------------------------------------
 
 
 export default function UserDashboardInfo({title, subheader, userObj}) {
+    // let numSharesAwarded = 0
+    // let valueSharesAwarded = 0
+    // let valueSharesPending = 0
+    // const numSharesAwarded = 1
+    // const valueSharesAwarded = 1
+    // const valueSharesPending = 1
+    const [numSharesAwarded, setNumSharesAwarded] = useState(0)
+    const [valueSharesAwarded, setValueSharesAwarded] = useState(0)
+    const [valueSharesPending, setValueSharesPending] = useState(0)
+    const [summarizedInfo, setSummarizedInfo] = useState(false)
+
+    useEffect(() => {
+        let numAwarded = 0
+        let valueAwarded = 0
+        let valuePending = 0
+        userObj.businessesRespondedTo.forEach((business) => {
+            numAwarded += business.interactionSummaryInfo.numSharesAwarded
+            valueAwarded += business.interactionSummaryInfo.numSharesAwarded
+                * business.interactionSummaryInfo.valuePerShare
+            valuePending += business.interactionSummaryInfo.numSharesPending
+                * business.interactionSummaryInfo.valuePerShare
+            console.log(business.interactionSummaryInfo.numSharesPending * business.interactionSummaryInfo.valuePerShare)
+        })
+        setNumSharesAwarded(numAwarded)
+        setValueSharesAwarded(valueAwarded)
+        setValueSharesPending(valuePending)
+        setSummarizedInfo(true)
+    },[])
 
     console.log(userObj)
 
     return userObj ? (<Card>
         <Grid container spacing={0}>
             <Grid item xs={12} sm={12} md={4}>
-                <AppWidgetSummary title="Total Coins" total={ACCOUNT.totalCoins} icon={'ph:coins-fill'}
+                <AppWidgetSummary title="# Shares Awarded" total={summarizedInfo ? fShortenNumber(numSharesAwarded) : "--"} icon={'ph:coins-fill'}
                                   sx={{marginLeft: 6, marginTop: 5, marginRight: 2}}/>
             </Grid>
 
             <Grid item xs={12} sm={12} md={4}>
-                <AppWidgetSummary title="Outstanding Coins" total={ACCOUNT.outstandingCoins} color="info"
+                <AppWidgetSummary title="Value of Awarded Shares" total={summarizedInfo ? fCurrency(valueSharesAwarded) : "--"} color="info"
                                   icon={'mdi:hand-coin-outline'}
                                   sx={{marginLeft: 4, marginTop: 5, marginRight: 4}}/>
             </Grid>
 
             <Grid item xs={12} sm={12} md={4}>
-                <AppWidgetSummary title="Equity Paid Out" total={ACCOUNT.equityPaidOut} color="success"
+                <AppWidgetSummary title="Value of Pending Shares" total={summarizedInfo ? fCurrency(valueSharesPending) : "--"} color="success"
                                   icon={'mdi:currency-usd'} sx={{marginLeft: 2, marginTop: 5, marginRight: 6}}/>
             </Grid>
 
@@ -99,7 +127,12 @@ function Business({
             sx={{justifyContent: 'space-evenly'}}
         >
             <Grid container>
-                <Grid item xs={8} md={8} lg={8}>
+                <Grid item xs={2} md={2} lg={2}>
+                    <div style={{marginInline: "10px", borderRadius: "10px", overflow: "hidden"}}>
+                        <img src={logo} alt={"company logo"}/>
+                    </div>
+                </Grid>
+                <Grid item xs={6} md={6} lg={6}>
                     <Stack style={{paddingRight: "5px"}}>
                         <Typography fontSize={20} sx={{width: '100%', flexShrink: 0, color: '#444'}}>
                             {name}
@@ -107,9 +140,10 @@ function Business({
                         <Typography fontSize={14} sx={{width: '100%', flexShrink: 0}}>
                             {tagline}
                         </Typography>
-                        <Typography fontSize={14} sx={{width: '100%', flexShrink: 0, color: 'green'}}>
+                        <Typography fontSize={14} sx={{width: '100%', flexShrink: 0, color: theme.palette.primary.main}}>
                             Valuation: {fCurrency(valuation)}
                         </Typography>
+                        {/*
                         <Grid container>
                             {topics.map((topic) => {
                                 return (
@@ -119,6 +153,7 @@ function Business({
                                 )
                             })}
                         </Grid>
+                        */}
                     </Stack>
                 </Grid>
                 <Grid item xs={4} md={4} lg={4}>
@@ -126,7 +161,7 @@ function Business({
                         <Typography fontSize={16} sx={{width: '100%', flexShrink: 0, color: '#444'}}>
                             #Shares: {totalShares}
                         </Typography>
-                        <Typography fontSize={14} sx={{width: '100%', flexShrink: 0, color: "green"}}>
+                        <Typography fontSize={14} sx={{width: '100%', flexShrink: 0, color: theme.palette.primary.main}}>
                             Awarded Shares: {interactionSummaryInfo.numSharesAwarded}
                         </Typography>
                         <Typography fontSize={14} sx={{width: '100%', flexShrink: 0}}>
@@ -141,17 +176,59 @@ function Business({
         </AccordionSummary>
         <AccordionDetails>
             <Stack spacing={2}>
-                <div style={{paddingTop: "5px"}}>
-                    {description}
-                </div>
+                {termDocuments.map((termDoc) => {
+                    console.log(termDoc)
+                    return <TermDocument {...termDoc}/>
+                })}
             </Stack>
         </AccordionDetails>
     </Accordion>);
 }
 
+// Term Document React Prop Definition
+function TermDocument({termDocumentID, formLink, resultsLink, description, businessID, numSharesAward, termResponse}) {
+    const {termResponseID, verificationStatus, tryvestorID} = termResponse;
+
+
+    const verificationSwitch = (param) => {
+        switch(param) {
+            case -1:
+                return 'Rejected';
+            case 1:
+                return 'Accepted'
+            default:
+                return 'Awaiting Approval';
+        }
+    }
+
+    return (
+        <Card>
+            <Grid container spacing={1} sx={{padding: "10px"}}>
+                <Grid item xs={12} sm={12} md={12}>
+                    <Typography>
+                        {description}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} md={6}>
+                    <Stack>
+                        <Typography variant={"h5"}>
+                            Number Shares: {verificationStatus === 1 ? numSharesAward : 0}/{numSharesAward}
+                        </Typography>
+                    </Stack>
+                </Grid>
+                <Grid>
+                    {
+                        verificationSwitch(verificationStatus)
+                    }
+                </Grid>
+            </Grid>
+        </Card>
+    )
+}
+
 /*
 function TermDocument({formLink, resultsLink, description, businessID, numSharesAward, response}) {
-    const {getFieldProps} = formik;
+    const {username, termDocID, verificationStatus} = response;
 
     const [open, setOpen] = useState(null);
 
@@ -235,6 +312,8 @@ function TermDocument({formLink, resultsLink, description, businessID, numShares
     );
 }
 */
+
+
 // ----------------------------------------------------------------------
 /*
 MoreMenuButton.propTypes = {
