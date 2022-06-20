@@ -86,10 +86,10 @@ export default function UserDashboardInfo({title, subheader, userObj}) {
         <Typography variant='h3' sx={{m: 2, mt: 4}}>Your <span
             style={{fontWeight: '300'}}>&nbsp;Businesses</span></Typography>
 
-        <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Pending Tasks</Typography>
+        <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Pending</Typography>
         {userObj.businessesRespondedTo?.map((business) => (business.interactionSummaryInfo.statusOfTasks === 0 &&
             <Business {...business}/>))}
-        <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Completed Tasks</Typography>
+        <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Completed</Typography>
         {userObj.businessesRespondedTo?.map((business) => (business.interactionSummaryInfo.statusOfTasks !== 0 &&
             <Business {...business}/>))}
     </Card>) : <div/>;

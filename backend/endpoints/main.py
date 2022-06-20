@@ -35,15 +35,15 @@ class Business:
     @staticmethod
     def fromDict(sourceDict, businessID):
         return Business(
-            tagline=sourceDict["tagline"],
-            logo=sourceDict["logo"],
+            tagline=str(sourceDict["tagline"]),
+            logo=str(sourceDict["logo"]),
             media=sourceDict["media"],
-            totalShares=sourceDict["totalShares"],
-            valuation=sourceDict["valuation"],
+            totalShares=float(sourceDict["totalShares"]),
+            valuation=float(sourceDict["valuation"]),
             topics=sourceDict["topics"],
-            description=sourceDict["description"],
-            name=sourceDict["name"],
-            businessID=businessID
+            description=str(sourceDict["description"]),
+            name=str(sourceDict["name"]),
+            businessID=str(businessID)
         )
 
     def toFirebaseDict(self):
@@ -76,19 +76,19 @@ class TermDocument:
     @staticmethod
     def fromDict(sourceDict, termDocumentID):
         return TermDocument(
-            formLink=sourceDict["formLink"],
-            description=sourceDict["description"],
-            resultsLink=sourceDict["resultsLink"],
-            businessID=sourceDict["businessID"],
-            numSharesAward=sourceDict["numSharesAward"],
-            termDocumentID=termDocumentID
+            formLink=str(sourceDict["formLink"]),
+            description=str(sourceDict["description"]),
+            resultsLink=str(sourceDict["resultsLink"]),
+            businessID=str(sourceDict["businessID"]),
+            numSharesAward=float(sourceDict["numSharesAward"]),
+            termDocumentID=str(termDocumentID)
         )
 
     def toFirebaseDict(self):
         return {
             "businessID": self.businessID,
             "description": self.description,
-            "numSharesAward": self.numSharesAward,
+            "numSharesAward": float(self.numSharesAward),
             "formLink": self.formLink,
             "resultsLink": self.resultsLink
         }
@@ -108,9 +108,9 @@ class TermResponse:
     @staticmethod
     def fromDict(sourceDict, termResponseID):
         return TermResponse(
-            termResponseID=termResponseID,
-            tryvestorID=sourceDict["tryvestorID"],
-            verificationStatus=sourceDict["verificationStatus"],
+            termResponseID=str(termResponseID),
+            tryvestorID=str(sourceDict["tryvestorID"]),
+            verificationStatus=int(sourceDict["verificationStatus"]),
         )
 
     def toFirebaseDict(self):
@@ -136,10 +136,10 @@ class Tryvestor:
     @staticmethod
     def fromDict(sourceDict, tryvestorID):
         return Tryvestor(
-            tryvestorID=tryvestorID,
-            firstName=sourceDict["firstName"],
-            lastName=sourceDict["lastName"],
-            username=sourceDict["username"],
+            tryvestorID=str(tryvestorID),
+            firstName=str(sourceDict["firstName"]),
+            lastName=str(sourceDict["lastName"]),
+            username=str(sourceDict["username"]),
             interests=sourceDict["interests"]
         )
 
@@ -290,6 +290,8 @@ class SpecificTryvestor(Resource):
                 }
                 businessesRespondedToArr.append(businessDict)
                 indexOfBusiness = len(businessesRespondedToArr) - 1
+                print("Business Added Index" + str(indexOfBusiness))
+                print("Business Added Verification Status" + str(statusOfTasks))
             else:
                 # Add the term document to the businesses responded to array
                 businessesRespondedToArr[indexOfBusiness]["termDocuments"].append(termDocumentDict)
@@ -299,6 +301,8 @@ class SpecificTryvestor(Resource):
                 numSharesPending = termDocument.numSharesAward if termResponse.verificationStatus == 0 else 0
                 numSharesRejected = termDocument.numSharesAward if termResponse.verificationStatus == -1 else 0
                 tempBusInteractionInfo = businessesRespondedToArr[indexOfBusiness]["interactionSummaryInfo"]
+                print("Business Edited Index" + str(indexOfBusiness))
+                print("Business Edited Verification Status Before" + str(statusOfTasks))
                 busInteractionInfo = {
                     "numSharesAwarded": int(tempBusInteractionInfo["numSharesAwarded"]) + numSharesAwarded,
                     "numSharesPending": int(tempBusInteractionInfo["numSharesPending"]) + numSharesPending,
@@ -310,6 +314,7 @@ class SpecificTryvestor(Resource):
                     "businessLogoLink": business.logo,
                     "statusOfTasks": 0 if statusOfTasks == 0 else tempBusInteractionInfo["statusOfTasks"]
                 }
+                print("Business Edited Verification Status After" + str(busInteractionInfo["statusOfTasks"]))
                 businessesRespondedToArr[indexOfBusiness]["interactionSummaryInfo"] = busInteractionInfo
         tryvestor["businessesRespondedTo"] = businessesRespondedToArr
         return tryvestor
