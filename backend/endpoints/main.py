@@ -65,13 +65,14 @@ class Business:
 
 
 class TermDocument:
-    def __init__(self, termDocumentID, formLink, description, resultsLink, businessID, numSharesAward):
+    def __init__(self, termDocumentID, formLink, description, resultsLink, businessID, numSharesAward, title):
         self.termDocumentID = termDocumentID
         self.formLink = formLink
         self.description = description
         self.resultsLink = resultsLink
         self.businessID = businessID
         self.numSharesAward = numSharesAward
+        self.title = title
 
     @staticmethod
     def fromDict(sourceDict, termDocumentID):
@@ -81,7 +82,8 @@ class TermDocument:
             resultsLink=str(sourceDict["resultsLink"]),
             businessID=str(sourceDict["businessID"]),
             numSharesAward=float(sourceDict["numSharesAward"]),
-            termDocumentID=str(termDocumentID)
+            termDocumentID=str(termDocumentID),
+            title=str(sourceDict["title"])
         )
 
     def toFirebaseDict(self):

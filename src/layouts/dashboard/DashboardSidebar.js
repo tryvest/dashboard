@@ -80,9 +80,6 @@ export default function DashboardSidebar({ business, isOpenSidebar, onCloseSideb
                         <Typography variant="subtitle2" sx={{color: 'text.primary'}}>
                           {user.firstName} {user.lastName}
                         </Typography>
-                        <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                          {user.username}
-                        </Typography>
                       </Box>
                     </AccountStyle>
                   </Link>

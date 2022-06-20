@@ -40,7 +40,7 @@ export default function DashboardApp() {
             })
         }
 
-    }, [user, userObj])
+    }, [user])
 
     return (<Page title="Dashboard">
         <Container maxWidth="xl">
