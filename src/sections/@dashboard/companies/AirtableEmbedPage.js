@@ -17,8 +17,6 @@ function AirtableEmbedPage() {
                         style={{background: "transparent", border: "1px solid #ccc"}}/>
             </div>
         </Page>
-
-
     );
 }
 

@@ -67,7 +67,10 @@ export default function Login() {
     <Page title="Login">
       <RootStyle>
         <HeaderStyle>
-          <Logo />
+            {
+                // (visualViewport.width < 600 || visualViewport.width > 900) &&
+                <Logo />
+            }
 
           {smUp && (
             <Typography variant="body2" sx={{ mt: { md: -2 } }}>

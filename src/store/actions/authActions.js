@@ -50,7 +50,7 @@ export const signUp = creds => {
         "interests": creds.topics,
       }
 
-      apiTryvestors.post(data).then(() => console.log("Data in Firestore"))
+      apiTryvestors.post(data)
       dispatch({ type: "SIGN_UP", payload: data });
 
     })

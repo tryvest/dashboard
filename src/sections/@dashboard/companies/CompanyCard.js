@@ -18,10 +18,10 @@ DiscoverCompanyCard.propTypes = {
 };
 
 export default function DiscoverCompanyCard({ company }) {
-  const { docID, name, description, topics, valuation, totalShares, logo, media, tagline} = company;
+  const { businessID, name, description, topics, valuation, totalShares, logo, media, tagline} = company;
   const theme = useTheme();
   const navigate = useNavigate()
-  const goCompanyPage = () => {navigate(`/companies/${docID}`)}
+  const goCompanyPage = () => {navigate(`/companies/${businessID}`)}
 
   return (
     <Card>
