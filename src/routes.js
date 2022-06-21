@@ -23,10 +23,10 @@ export default function Router() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <DashboardApp /> },
-        { path: 'discover', element: <Discover /> },
-        { path: 'messages', element: <User /> },
-        { path: 'profile', element: <Profile /> },
+        { path: 'overview', element: <DashboardApp /> },
+        { path: 'tasks', element: <Discover /> },
+        { path: 'community', element: <User /> },
+        { path: 'announcements', element: <Profile /> },
       ],
     },
     { path: '/companies',
@@ -46,7 +46,7 @@ export default function Router() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/discover" /> },
+        { path: '/', element: <Navigate to="/dashboard/overview" /> },
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: 'landing', element: <Landing />},

@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-// material
+import {bindActionCreators} from "redux";// material
 import { styled } from '@mui/material/styles';
 import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
 // mock
-import {useSelector} from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
+import {businessActionCreators} from "../../store";
 import account from '../../_mock/account';
 // hooks
 import useResponsive from '../../hooks/useResponsive';
@@ -71,20 +72,7 @@ export default function DashboardSidebar({ business, isOpenSidebar, onCloseSideb
           <NavSection navConfig={navConfig.companySide} />
           :
           <>
-            {user &&
-                <Box sx={{mb: 5, mx: 2.5}}>
-                  <Link underline="none" component={RouterLink} to="#">
-                    <AccountStyle>
-                      <Avatar src={account.photoURL} alt="photoURL"/>
-                      <Box sx={{ml: 2}}>
-                        <Typography variant="subtitle2" sx={{color: 'text.primary'}}>
-                          {user.firstName} {user.lastName}
-                        </Typography>
-                      </Box>
-                    </AccountStyle>
-                  </Link>
-                </Box>
-            }
+            {user && <CompanySwitcher/>}
 
 
           <NavSection navConfig={navConfig.userSide} />
@@ -125,5 +113,29 @@ export default function DashboardSidebar({ business, isOpenSidebar, onCloseSideb
         </Drawer>
       )}
     </RootStyle>
+  );
+}
+
+function CompanySwitcher(props) {
+  const user = useSelector((state) => state.auth?.user)
+  const dispatch = useDispatch();
+  const { switchBusiness } = bindActionCreators(businessActionCreators, dispatch);
+
+
+  return (
+      <Box sx={{mb: 5, mx: 2.5}} bgcolor={"#f1f1f1"} borderRadius={"10px"} padding={"5px"}>
+        {user?.businessesRespondedTo.map((business) => {
+          return (
+            <div>
+              <Stack direction={"row"}>
+                <div style={{overflow: "hidden", borderRadius: "50%"}}>
+                  <img src={business.logo} alt={"businessLogo"}/>
+                </div>
+
+              </Stack>
+            </div>
+          )
+        })}
+      </Box>
   );
 }

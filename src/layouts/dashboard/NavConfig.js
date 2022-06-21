@@ -9,24 +9,24 @@ const navConfig = {
 
     userSide: [
       {
-        title: 'dashboard',
-        path: '/dashboard/app',
+        title: 'overview',
+        path: '/dashboard/overview',
         icon: getIcon('ic:round-dashboard'),
       },
       {
-        title: 'discover',
-        path: '/dashboard/discover',
-        icon: getIcon('mdi:compass'),
+        title: 'tasks',
+        path: '/dashboard/tasks',
+        icon: getIcon('fluent:tasks-app-28-filled'),
       },
       {
-        title: 'messages',
-        path: '/dashboard/messages',
-        icon: getIcon('ic:baseline-message'),
+        title: 'community',
+        path: '/dashboard/community',
+        icon: getIcon('jam:messages-f'),
       },
       {
-        title: 'profile',
-        path: '/dashboard/profile',
-        icon: getIcon('ic:baseline-person'),
+        title: 'announcements',
+        path: '/dashboard/announcements',
+        icon: getIcon('fluent:megaphone-loud-24-filled'),
       },
 
 

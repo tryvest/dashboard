@@ -14,10 +14,7 @@ import {authActionCreators} from "../../../store";
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const state = useSelector((state) => state.user);
-
   const dispatch = useDispatch();
-
   const { signIn } = bindActionCreators(authActionCreators, dispatch);
 
   const navigate = useNavigate();
@@ -39,7 +36,7 @@ export default function LoginForm() {
     onSubmit: ({email, password}) => {
       signIn({email, password});
 
-      navigate('/dashboard/app', { replace: true });
+      navigate('/dashboard/overview', { replace: true });
 
     },
   });
