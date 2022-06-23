@@ -92,7 +92,8 @@ class TermDocument:
             "description": self.description,
             "numSharesAward": float(self.numSharesAward),
             "formLink": self.formLink,
-            "resultsLink": self.resultsLink
+            "resultsLink": self.resultsLink,
+            "title": self.title
         }
 
     def toDict(self):
@@ -198,7 +199,7 @@ class SpecificBusiness(Resource):
                 responsesArr.append(verifiedTermDocumentResponse)
             verifiedTermDocument["responses"] = responsesArr
             termDocs.append(verifiedTermDocument)
-        businessDict["termDocs"] = termDocs
+        businessDict["termDocuments"] = termDocs
         print(businessDict)
         return businessDict
 

@@ -20,6 +20,7 @@ import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
 import { ColorManyPicker } from '../../../components/color-utils';
 
+
 // ----------------------------------------------------------------------
 
 export const SORT_BY_OPTIONS = [
@@ -57,6 +58,7 @@ ShopFilterSidebar.propTypes = {
 };
 
 export default function ShopFilterSidebar({ isOpenFilter, onOpenFilter, onCloseFilter }) {
+  const values = {colors: []}
   return (
     <>
       <Button disableRipple color="inherit" endIcon={<Iconify icon="ic:round-filter-list" />} onClick={onOpenFilter}>
@@ -114,7 +116,7 @@ export default function ShopFilterSidebar({ isOpenFilter, onOpenFilter, onCloseF
                 name="colors"
                 colors={FILTER_COLOR_OPTIONS}
                 // onChange={handleChange}
-                // onChecked={(color) => values.colors.includes(color)}
+                onChecked={(color) => values.colors.includes(color)}
                 sx={{ maxWidth: 38 * 4 }}
               />
             </div>

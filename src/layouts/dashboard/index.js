@@ -39,7 +39,7 @@ export default function DashboardLayout() {
   return (
     <RootStyle>
       <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
-      <DashboardSidebar business={pathname.includes('business')} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
+      <DashboardSidebar isBusiness={pathname.includes('business')} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
       <MainStyle>
         <Outlet />
       </MainStyle>

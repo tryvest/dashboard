@@ -14,36 +14,39 @@ import {
     AccordionSummary,
     Typography,
     Box,
-    Grid, Chip
+    Grid, Chip,
+    Button
 } from '@mui/material';
 import LinearProgress, {linearProgressClasses} from "@mui/material/LinearProgress";
 
 // components
 import styled from "@emotion/styled";
 import {useTheme} from "@mui/material/styles";
+import {useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom";
 import Iconify from '../../../components/Iconify';
 import MenuPopover from '../../../components/MenuPopover';
 import {AppWidgetSummary} from "../app/index";
 
 import ACCOUNT from '../../../_mock/account'
 import {fCurrency, fShortenNumber} from "../../../utils/formatNumber";
-
+import {apiBusinesses} from "../../../utils/api/api-businesses";
 
 // ----------------------------------------------------------------------
 
 
-export default function UserDashboardInfo({title, subheader, userObj}) {
+export default function UserDashboardInfo({title, subheader, userObj, businessInfo}) {
     // let numSharesAwarded = 0
     // let valueSharesAwarded = 0
     // let valueSharesPending = 0
     // const numSharesAwarded = 1
     // const valueSharesAwarded = 1
     // const valueSharesPending = 1
-    const [numSharesAwarded, setNumSharesAwarded] = useState(0)
-    const [valueSharesAwarded, setValueSharesAwarded] = useState(0)
-    const [valueSharesPending, setValueSharesPending] = useState(0)
-    const [summarizedInfo, setSummarizedInfo] = useState(false)
-
+    // const [numSharesAwarded, setNumSharesAwarded] = useState(0)
+    // const [valueSharesAwarded, setValueSharesAwarded] = useState(0)
+    // const [valueSharesPending, setValueSharesPending] = useState(0)
+    // const [summarizedInfo, setSummarizedInfo] = useState(false)
+    /*
     useEffect(() => {
         let numAwarded = 0
         let valueAwarded = 0
@@ -61,10 +64,24 @@ export default function UserDashboardInfo({title, subheader, userObj}) {
         setValueSharesPending(valuePending)
         setSummarizedInfo(true)
     },[])
+    */
 
-    console.log(userObj)
+    const [fullBusiness, setFullBusiness] = useState()
+    const [termDocIDs, setTermDocIDs] = useState()
 
-    return userObj ? (<Card>
+    useEffect(() => {
+        if(businessInfo?.termDocuments){
+            setTermDocIDs(businessInfo?.termDocuments.map((termDoc) => termDoc.termDocumentID))
+        }
+        if(businessInfo?.businessID){
+            apiBusinesses.getSingle(businessInfo.businessID).then((data) => {
+                setFullBusiness(data)
+            })
+        }
+    }, businessInfo)
+
+    return businessInfo ? (<Card sx={{padding: "10px"}}>
+        {/*
         <Grid container spacing={0}>
             <Grid item xs={12} sm={12} md={4}>
                 <AppWidgetSummary title="# Shares Awarded" total={summarizedInfo ? fShortenNumber(numSharesAwarded) : "--"} icon={'ph:coins-fill'}
@@ -83,19 +100,28 @@ export default function UserDashboardInfo({title, subheader, userObj}) {
             </Grid>
 
         </Grid>
-        <Typography variant='h3' sx={{m: 2, mt: 4}}>Your <span
+        */}
+        {/*
+            <Typography variant='h3' sx={{m: 2, mt: 4}}>Your <span
             style={{fontWeight: '300'}}>&nbsp;Businesses</span></Typography>
-
-        <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Pending</Typography>
-        {userObj.businessesRespondedTo?.map((business) => (business.interactionSummaryInfo.statusOfTasks === 0 &&
-            <Business {...business}/>))}
-        <Typography variant='h5' sx={{m: 2, fontWeight: '300'}}>Completed</Typography>
-        {userObj.businessesRespondedTo?.map((business) => (business.interactionSummaryInfo.statusOfTasks !== 0 &&
-            <Business {...business}/>))}
+            */}
+        <Typography variant='h5' sx={{m: 2, fontWeight: '1000'}}>Active Tasks</Typography>
+        <Grid container spacing={1}>
+            {fullBusiness?.termDocuments.map((termDoc) => (!termDocIDs.includes(termDoc.termDocumentID) &&
+                    <Grid item><TermDocument {...termDoc}/></Grid>))}
+            {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus !== 1 &&
+                <Grid item><TermDocument {...termDoc} submitted/></Grid>))}
+        </Grid>
+        <Grid container spacing={1}>
+        <Typography variant='h5' sx={{m: 2, fontWeight: '1000'}}>Completed Tasks</Typography>
+        {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus === 1 &&
+            <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
+        </Grid>
     </Card>) : <div/>;
 }
 
 // ----------------------------------------------------------------------
+/*
 function Business({
                       businessID,
                       name,
@@ -143,7 +169,6 @@ function Business({
                         <Typography fontSize={14} sx={{width: '100%', flexShrink: 0, color: theme.palette.primary.main}}>
                             Valuation: {fCurrency(valuation)}
                         </Typography>
-                        {/*
                         <Grid container>
                             {topics.map((topic) => {
                                 return (
@@ -153,7 +178,6 @@ function Business({
                                 )
                             })}
                         </Grid>
-                        */}
                     </Stack>
                 </Grid>
                 <Grid item xs={4} md={4} lg={4}>
@@ -184,43 +208,67 @@ function Business({
         </AccordionDetails>
     </Accordion>);
 }
+*/
 
 // Term Document React Prop Definition
-function TermDocument({termDocumentID, formLink, resultsLink, description, businessID, numSharesAward, termResponse}) {
-    const {termResponseID, verificationStatus, tryvestorID} = termResponse;
-
-
-    const verificationSwitch = (param) => {
-        switch(param) {
-            case -1:
-                return 'Rejected';
-            case 1:
-                return 'Accepted'
-            default:
-                return 'Awaiting Approval';
-        }
+function TermDocument({title,termDocumentID, formLink, resultsLink, description, businessID, numSharesAward, termResponse, submitted}) {
+    let verificationStatus = -2
+    if(submitted){
+        verificationStatus = termResponse.verificationStatus
     }
 
+    const capitalizeFirst = (textToCap) => {
+        return textToCap.charAt(0).toUpperCase() + textToCap.slice(1)
+    }
+
+    const navigate = useNavigate()
+
     return (
-        <Card>
-            <Grid container spacing={1} sx={{padding: "10px"}}>
+        <Card sx={{backgroundColor: "#042534", color: "white", padding: "10px"}}>
+            <Grid container spacing={0} sx={{padding: "10px"}}>
                 <Grid item xs={12} sm={12} md={12}>
-                    <Typography>
-                        {description}
+                    <Typography fontWeight={"bold"} fontSize={"large"}>
+                        <Stack direction={"row"}>
+                            {capitalizeFirst(title)}
+                            {
+                                verificationStatus === 1 &&
+                                <div style={{marginInline: "5px"}}>
+                                    <svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="0.000244141" width="26" height="26" rx="13" fill="#04D49C"/>
+                                        <path d="M10.4464 15.9131L7.12653 12.7957L6 13.8535L10.4464 18.0288L20 9.05782L18.8735 8L10.4464 15.9131Z" fill="white"/>
+                                    </svg>
+                                </div>
+                            }
+                        </Stack>
                     </Typography>
                 </Grid>
-                <Grid item xs={12} sm={6} md={6}>
-                    <Stack>
-                        <Typography variant={"h5"}>
-                            Number Shares: {verificationStatus === 1 ? numSharesAward : 0}/{numSharesAward}
-                        </Typography>
-                    </Stack>
+                <Grid item xs={12} sm={12} md={12}>
+                    <Typography>
+                        {capitalizeFirst(description)}
+                    </Typography>
                 </Grid>
-                <Grid>
-                    {
-                        verificationSwitch(verificationStatus)
-                    }
-                </Grid>
+                {verificationStatus === 0 &&
+                    <Grid item xs={12} sm={12} md={12}>
+                        <div style={{paddingTop: "5px"}}>
+                            <Button size={"small"} variant={"outlined"} style={{borderRadius: "20px"}}>
+                                <div style={{paddingInline: "5px"}}>
+                                    Pending Approval
+                                </div>
+                            </Button>
+                        </div>
+                    </Grid>
+                }
+                {!submitted &&
+                    <Grid item xs={12} sm={12} md={12}>
+                        <div style={{paddingTop: "5px"}}>
+                            <Button  size={"small"} variant={"outlined"} style={{borderRadius: "20px"}} onClick={() => {navigate(`/termDocuments/${formLink}`)}}>
+                                <div style={{paddingInline: "5px"}}>
+                                    Submit Verification
+                                </div>
+                            </Button>
+                        </div>
+                    </Grid>
+                }
             </Grid>
         </Card>
     )
