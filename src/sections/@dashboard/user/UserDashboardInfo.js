@@ -78,7 +78,7 @@ export default function UserDashboardInfo({title, subheader, userObj, businessIn
                 setFullBusiness(data)
             })
         }
-    }, businessInfo)
+    }, [businessInfo])
 
     return businessInfo ? (<Card sx={{padding: "10px"}}>
         {/*
@@ -108,9 +108,11 @@ export default function UserDashboardInfo({title, subheader, userObj, businessIn
         <Typography variant='h5' sx={{m: 2, fontWeight: '1000'}}>Active Tasks</Typography>
         <Grid container spacing={1}>
             {fullBusiness?.termDocuments.map((termDoc) => (!termDocIDs.includes(termDoc.termDocumentID) &&
-                    <Grid item><TermDocument {...termDoc}/></Grid>))}
-            {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus !== 1 &&
-                <Grid item><TermDocument {...termDoc} submitted/></Grid>))}
+                <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc}/></Grid>))}
+            {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus === 0 &&
+                <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
+            {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus === -1 &&
+                <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
         </Grid>
         <Grid container spacing={1}>
         <Typography variant='h5' sx={{m: 2, fontWeight: '1000'}}>Completed Tasks</Typography>
@@ -224,7 +226,7 @@ function TermDocument({title,termDocumentID, formLink, resultsLink, description,
     const navigate = useNavigate()
 
     return (
-        <Card sx={{backgroundColor: "#042534", color: "white", padding: "10px"}}>
+        <Card sx={{backgroundColor: "#042534", color: "white", padding: "10px", width: "100%"}}>
             <Grid container spacing={0} sx={{padding: "10px"}}>
                 <Grid item xs={12} sm={12} md={12}>
                     <Typography fontWeight={"bold"} fontSize={"large"}>
@@ -258,10 +260,23 @@ function TermDocument({title,termDocumentID, formLink, resultsLink, description,
                         </div>
                     </Grid>
                 }
+                {verificationStatus === -1 &&
+                    <Grid item xs={12} sm={12} md={12}>
+                        <div style={{paddingTop: "5px"}}>
+                            <Button size={"small"} color={"error"} variant={"outlined"} style={{borderRadius: "20px"}}
+                                    onClick={() => {navigate(`/termDocuments/${formLink}`)}}>
+                                <div style={{paddingInline: "5px"}}>
+                                    Rejected, Awaiting Resubmission
+                                </div>
+                            </Button>
+                        </div>
+                    </Grid>
+                }
                 {!submitted &&
                     <Grid item xs={12} sm={12} md={12}>
                         <div style={{paddingTop: "5px"}}>
-                            <Button  size={"small"} variant={"outlined"} style={{borderRadius: "20px"}} onClick={() => {navigate(`/termDocuments/${formLink}`)}}>
+                            <Button  size={"small"} variant={"outlined"} style={{borderRadius: "20px"}}
+                                     onClick={() => {navigate(`/termDocuments/${formLink}`)}}>
                                 <div style={{paddingInline: "5px"}}>
                                     Submit Verification
                                 </div>
