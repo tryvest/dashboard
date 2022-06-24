@@ -16,6 +16,7 @@ import Company from './pages/Company'
 import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage";
 import Tasks from "./pages/Tasks";
 import Overview from "./pages/Overview";
+import Announcements from "./pages/Announcements";
 
 // ----------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ export default function Router() {
         { path: 'overview', element: <Overview /> },
         { path: 'tasks', element: <Tasks /> },
         { path: 'community', element: <User /> },
-        { path: 'announcements', element: <Profile /> },
+        { path: 'announcements', element: <Announcements /> },
       ],
     },
     { path: '/companies',
