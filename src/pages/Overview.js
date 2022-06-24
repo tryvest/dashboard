@@ -14,13 +14,18 @@ import {
     Stack,
     CardHeader,
     CardContent, Box, Chip,
-    SvgIcon, IconButton
+    SvgIcon, IconButton, Slider,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    List,
 } from '@mui/material';
 // components
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
+import {fShortenNumber, fCurrency} from '../utils/formatNumber'
 import Page from '../components/Page';
 
 import COMPANIES from '../_mock/companies';
@@ -90,19 +95,23 @@ export default function Overview() {
     }
     */
 
+    const navTaskPage = () => {
+        navigate('/dashboard/tasks')
+    }
+
     return (
         <Page title="Company Overview">
             {
                 (businessObj) ? (
                     <Grid container spacing={1} style={{margin: "5px"}}>
-                        <Grid item xs={12} sm={12} md={9.5}>
+                        <Grid item xs={12} sm={12} md={9}>
                             <Card>
                                 <CardContent>
                                     <Stack spacing={1}>
-                                        <Box borderRadius={"20px"} padding={"20px"} display={"flex"} alignItems={"center"} bgcolor={"#E4E4E4"}>
-                                            <Stack spacing={1} direction={"row"} alignItems={"center"} style={{marginInline: "auto"}}>
-                                                <img style={{height: "50px", width: "50px"}} src={businessObj.logo} alt="Business Logo"/>
-                                                <Typography variant={"h3"} fontWeight={"500"}>
+                                        <Box marginTop={"-25px"} marginX={"-25px"} padding={"20px"} display={"flex"} alignItems={"center"} bgcolor={"#E4E4E4"}>
+                                            <Stack paddingY={"10px"} spacing={1} direction={"row"} alignItems={"center"} style={{marginInline: "auto"}}>
+                                                <img style={{height: "60px", width: "60px"}} src={businessObj.logo} alt="Business Logo"/>
+                                                <Typography fontSize={"50px"} fontWeight={"900"}>
                                                     {businessObj.name}
                                                 </Typography>
                                             </Stack>
@@ -119,8 +128,9 @@ export default function Overview() {
                                                     return (
                                                         <Chip style={{marginBottom: "3px",
                                                             backgroundColor: theme.palette.primary.main,
-                                                            color: "black", fontSize: "12px", marginRight: "5px"}}
-                                                              size={"small"} label={topic}/>
+                                                            color: theme.palette.primary.dark, fontWeight: 200, fontSize: "12px", marginRight: "5px"}}
+                                                              size={"small"} label={topic}
+                                                        />
                                                     )
                                                 })}
                                             </Stack>
@@ -167,7 +177,7 @@ export default function Overview() {
                                             </div>
                                         </Stack>
                                         <Grid container justifyContent={"center"}>
-                                            <Button style={{borderRadius: "14px", backgroundColor: theme.palette.primary.dark}} title={"Start Tryvesting"} variant={"contained"}>
+                                            <Button onClick={navTaskPage} style={{borderRadius: "14px", backgroundColor: theme.palette.primary.dark}} variant={"contained"}>
                                                 <SvgIcon>
                                                     <svg width="26" height="23" viewBox="0 0 26 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M24.1247 4.74792C21.2745 4.75123 18.5418 5.91426 16.5264 7.98186C14.5109 10.0495 13.3772 12.8528 13.374 15.7768V21.0762C13.3846 21.5793 13.5868 22.0582 13.9375 22.4103C14.2881 22.7623 14.7592 22.9594 15.2497 22.9594C15.7403 22.9594 16.2114 22.7623 16.562 22.4103C16.9126 22.0582 17.1149 21.5793 17.1255 21.0762V15.7768C17.1275 13.8731 17.8656 12.048 19.1778 10.7019C20.49 9.35574 22.269 8.59855 24.1247 8.59643C24.6152 8.58559 25.082 8.3781 25.4252 8.01841C25.7683 7.65872 25.9605 7.17546 25.9605 6.67218C25.9605 6.16889 25.7683 5.68563 25.4252 5.32594C25.082 4.96625 24.6152 4.75876 24.1247 4.74792" fill="white"/>
@@ -179,29 +189,90 @@ export default function Overview() {
                                                 </Typography>
                                             </Button>
                                         </Grid>
-
                                     </Stack>
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={2.5}>
-                            <Stack spacing={1}>
-                                <Card>
-                                    <CardContent>
-                                        Target Market
-                                    </CardContent>
+                        <Grid item xs={12} sm={12} md={3}>
+                            <Stack spacing={3}>
+                                <Card style={{padding: "15px", backgroundColor: theme.palette.primary.dark}}>
+                                    <Stack>
+                                        <Typography fontWeight={500} fontSize={20} color={"white"}>
+                                            Target Market
+                                        </Typography>
+                                        <Stack>
+                                            {businessObj.targetMarket.map((sent, num) => {
+                                                let textColor = "white"
+                                                if(num === 0) {
+                                                    textColor = theme.palette.primary.main
+                                                }
+                                                return (
+                                                    <Typography color={textColor} fontSize={15}>
+                                                        {sent.charAt(0).toUpperCase() + sent.slice(1)}
+                                                    </Typography>
+                                                )
+                                            })}
+                                        </Stack>
+                                    </Stack>
                                 </Card>
-                                <Card>
-                                    <CardContent>
-                                        Financial Details
-                                    </CardContent>
+                                <Card style={{padding: "15px"}}>
+                                    <Stack spacing={1}>
+                                        <Typography fontWeight={800} fontSize={20}>
+                                            Financial Details
+                                        </Typography>
+                                        <Stack>
+                                            <Typography fontWeight={800} fontSize={16}>
+                                                Valuation:
+                                            </Typography>
+                                            <Typography fontWeight={400} fontSize={15}>
+                                                {fCurrency(businessObj.valuation)}
+                                            </Typography>
+                                        </Stack>
+                                        <Stack>
+                                            <Typography fontWeight={800} fontSize={16}>
+                                                Amount Raised:
+                                            </Typography>
+                                            <Typography fontWeight={400} fontSize={15}>
+                                                {fCurrency(businessObj.funding)}
+                                            </Typography>
+                                        </Stack>
+                                        <Stack>
+                                            <Typography fontWeight={800} fontSize={16}>
+                                                Current Investors:
+                                            </Typography>
+                                            {businessObj.investors.map((investor) => (
+                                                    <Typography fontWeight={400} fontSize={15}>
+                                                        {investor}
+                                                    </Typography>
+                                                )
+                                            )}
+                                        </Stack>
+                                    </Stack>
                                 </Card>
-                                <Card>
-                                    <CardContent>
-                                        Tasks
-                                    </CardContent>
+                                <Card style={{padding: "15px"}}>
+                                    <Stack spacing={1}>
+                                        <Typography fontWeight={800} fontSize={20}>
+                                            Tasks
+                                        </Typography>
+                                        <Stack spacing={1}>
+                                            {businessObj.termDocuments.map((termDocument, num) => (
+                                                <Stack direction={"row"} spacing={1}>
+                                                    <div style={{display: "flex", flexShrink: 0, alignItems: "center", justifyContent: "center", width: "30px", height: "30px", backgroundColor: "#D9D9D9", borderRadius: "50%"}}>
+                                                        {num + 1}
+                                                    </div>
+                                                    <Typography fontSize={15}>
+                                                        {termDocument.title}
+                                                    </Typography>
+                                                </Stack>
+                                                )
+                                            )}
+                                        </Stack>
+                                    </Stack>
                                 </Card>
                             </Stack>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                            <PayoutSlider currentVal={businessObj.valuation} businessName={businessObj.name} percentCompanyOwned={calcTotalPossibleSharesAsPercent()}/>
                         </Grid>
                     </Grid>
                 ) : (
@@ -230,5 +301,100 @@ export default function Overview() {
                 )
             }
         </Page>
+    );
+}
+
+function PayoutSlider({currentVal, percentCompanyOwned, businessName}) {
+    const [newValuation, setNewValuation] = useState(currentVal)
+
+    const handleChange = (event, newValue) => {
+        setNewValuation(newValue);
+    };
+
+    const getMaxVal = () => {
+        const tempVal = currentVal
+        if(tempVal > 100000000){
+            return 2000000000
+        }
+
+        if(tempVal > 10000000){
+            return 1000000000
+        }
+
+        if(tempVal > 1000000){
+            return 200000000
+        }
+
+        return tempVal * 100
+    }
+
+    const getMarks = () => {
+        const maxVal = getMaxVal()
+        const marks = [{
+            value: currentVal,
+            label: fShortenNumber(currentVal)
+        }]
+        const nextInterval = (maxVal - currentVal) / 10
+        for (let i = 1; i < 10; i += 1) {
+            marks.push({
+                value: nextInterval * i,
+                label: ""
+            })
+        }
+        marks.push({
+            value: maxVal,
+            label: fShortenNumber(maxVal)
+        })
+        return marks
+    }
+
+    const theme = useTheme()
+
+    return (
+        <Card>
+            <CardContent>
+                <Stack spacing={1} style={{marginRight: "35px"}}>
+                    <Typography fontWeight={"500"} fontSize={"20px"} style={{marginInline: "15px"}}>
+                        Your Potential Payout
+                    </Typography>
+                    <Slider
+                        style={{marginInline: "20px", marginTop: "30px", marginBottom: "30px", height: "10px"}}
+                        value={newValuation}
+                        onChange={handleChange}
+                        valueLabelFormat={value => <div style={{fontSize: "10px", borderRadius: "10px"}}>{fShortenNumber(value)}</div>}
+                        valueLabelDisplay={"auto"}
+                        defaultValue={currentVal}
+                        step={1000000}
+                        min={currentVal}
+                        max={getMaxVal()}
+                        marks={getMarks()}
+                    />
+                    <Stack>
+                        <Typography fontSize={11} fontWeight={150}>
+                            CURRENT VALUE OF {businessName.toUpperCase()}
+                        </Typography>
+                        <Typography variant={"h3"}>
+                            {fCurrency(currentVal)}
+                        </Typography>
+                    </Stack>
+                    <Stack>
+                        <Typography fontSize={15} fontWeight={150}>
+                            NEW VALUE OF {businessName.toUpperCase()}
+                        </Typography>
+                        <Typography variant={"h2"}>
+                            {fCurrency(newValuation)}
+                        </Typography>
+                    </Stack>
+                    <Stack>
+                        <Typography color={theme.palette.primary.main} fontSize={15} fontWeight={150}>
+                            Approximated Payout
+                        </Typography>
+                        <Typography color={theme.palette.primary.main} variant={"h2"}>
+                            {fCurrency((newValuation - currentVal) * percentCompanyOwned)}
+                        </Typography>
+                    </Stack>
+                </Stack>
+            </CardContent>
+        </Card>
     );
 }
