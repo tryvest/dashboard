@@ -89,7 +89,39 @@ const Announcements = () => {
       <Page title="Dashboard: Announcements">
         <Container>
           {user ?
-              ANNOUNCEMENTS.map((announcement) => (
+              <>
+              <Card key='a' sx={{m: 4, backgroundColor: '#0e2433'}}>
+                <CardContent>
+
+                  <Typography variant='h2' sx={{color: "#fff"}}>
+                    Keye has grown!
+                  </Typography>
+                  <Typography variant='subtitle1' sx={{color: "#f8f8f8", mb: 4}} gutterBottom>
+                    Congrats! You have earned money based on Keye's growth
+                  </Typography>
+
+                  <Typography variant='h4' sx={{color: "#fff", fontWeight: 200}}>
+                    Keye's previous valuation
+                  </Typography>
+                  <Typography variant='h3' sx={{color: "#fff"}}>
+                    $2,000,000
+                  </Typography>
+                  <Typography variant='h4' sx={{color: "#fff", fontWeight: 200}}>
+                    Keye's current valuation
+                  </Typography>
+                  <Typography variant='h3' sx={{color: "#fff"}}>
+                    $4,000,000
+                  </Typography>
+                  <Typography variant='h3' sx={{color: "#61d3a2"}}>
+                    Your earnings:
+                  </Typography>
+                  <Typography variant='h3' sx={{color: "#61d3a2"}}>
+                    $246
+                  </Typography>
+                </CardContent>
+              </Card>
+
+                {ANNOUNCEMENTS.map((announcement) => (
                 <Card key={announcement.id} sx={{m: 4}}>
                   <CardContent>
                     <Typography color={announcement.color} gutterBottom>
@@ -107,7 +139,8 @@ const Announcements = () => {
                     <Button size='small' variant='outlined' sx={{color: theme.palette.common.black, ml: 2, mb: 2}}>Read More</Button>
                   </CardActions>
                 </Card>
-              ))
+              ))}
+            </>
               :
               <Typography variant='h2'>
                 User not logged in
