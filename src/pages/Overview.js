@@ -15,16 +15,15 @@ import {
     CardHeader,
     CardContent, Box, Chip,
     SvgIcon, IconButton, Slider,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    List,
 } from '@mui/material';
 // components
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
+// import MuiMarkdown from "mui-markdown";
+import ReactMarkdown from "react-markdown";
+
 import {fShortenNumber, fCurrency} from '../utils/formatNumber'
 import Page from '../components/Page';
 
@@ -163,6 +162,7 @@ export default function Overview() {
                                                 Key Points
                                             </Typography>
                                             <div>
+                                                {/*
                                                 <ul style={{marginLeft: "15px"}}>
                                                     {businessObj.description.split(".").map((sentence) => {
                                                         const trimmedSent = sentence.trim()
@@ -174,10 +174,12 @@ export default function Overview() {
                                                         return <div/>
                                                     })}
                                                 </ul>
+                                                */}
+                                                <ReactMarkdown>{businessObj.description}</ReactMarkdown>
                                             </div>
                                         </Stack>
-                                        <Grid container justifyContent={"center"}>
-                                            <Button onClick={navTaskPage} style={{borderRadius: "14px", backgroundColor: theme.palette.primary.dark}} variant={"contained"}>
+                                        <Grid container justifyContent={"center"} style={{marginTop: "15px"}}>
+                                            <Button onClick={navTaskPage} style={{borderRadius: "14px", padding: "10px", backgroundColor: theme.palette.primary.dark}} variant={"contained"}>
                                                 <SvgIcon>
                                                     <svg width="26" height="23" viewBox="0 0 26 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M24.1247 4.74792C21.2745 4.75123 18.5418 5.91426 16.5264 7.98186C14.5109 10.0495 13.3772 12.8528 13.374 15.7768V21.0762C13.3846 21.5793 13.5868 22.0582 13.9375 22.4103C14.2881 22.7623 14.7592 22.9594 15.2497 22.9594C15.7403 22.9594 16.2114 22.7623 16.562 22.4103C16.9126 22.0582 17.1149 21.5793 17.1255 21.0762V15.7768C17.1275 13.8731 17.8656 12.048 19.1778 10.7019C20.49 9.35574 22.269 8.59855 24.1247 8.59643C24.6152 8.58559 25.082 8.3781 25.4252 8.01841C25.7683 7.65872 25.9605 7.17546 25.9605 6.67218C25.9605 6.16889 25.7683 5.68563 25.4252 5.32594C25.082 4.96625 24.6152 4.75876 24.1247 4.74792" fill="white"/>
