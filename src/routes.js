@@ -15,6 +15,7 @@ import Landing from './pages/companySide/Landing';
 import Company from './pages/Company'
 import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage";
 import Tasks from "./pages/Tasks";
+import Overview from "./pages/Overview";
 
 // ----------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ export default function Router() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { path: 'overview', element: <DashboardApp /> },
+        { path: 'overview', element: <Overview /> },
         { path: 'tasks', element: <Tasks /> },
         { path: 'community', element: <User /> },
         { path: 'announcements', element: <Profile /> },

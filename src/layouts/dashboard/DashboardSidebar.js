@@ -166,7 +166,7 @@ function CompanySwitcher({user}) {
                       <div style={{overflow: "hidden", borderRadius: "50%", height: "5vh", width:"5vh", display: "inline"}}>
                         <img src={business.logo} alt={"businessLogo"}/>
                       </div>
-                      <Typography fontSize={"x-small"}>
+                      <Typography fontSize={"medium"} fontWeight={"900"}>
                         {business.name.charAt(0).toUpperCase() + business.name.slice(1)}
                       </Typography>
                     </Stack>
