@@ -18,11 +18,19 @@ import Tasks from "./pages/Tasks";
 import Overview from "./pages/Overview";
 import Announcements from "./pages/Announcements";
 import Community from "./pages/Community"
+import Learn from "./pages/Learn";
 
 // ----------------------------------------------------------------------
 
 export function TryvestorRouter() {
   return useRoutes([
+    {
+      path: '/learn',
+      element: <DashboardLayout />,
+      children: [
+        { path: ':id', element: <Learn />},
+      ]
+    },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
