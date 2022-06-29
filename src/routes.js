@@ -17,10 +17,11 @@ import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage
 import Tasks from "./pages/Tasks";
 import Overview from "./pages/Overview";
 import Announcements from "./pages/Announcements";
+import Community from "./pages/Community"
 
 // ----------------------------------------------------------------------
 
-export default function Router() {
+export function TryvestorRouter() {
   return useRoutes([
     {
       path: '/dashboard',
@@ -28,7 +29,48 @@ export default function Router() {
       children: [
         { path: 'overview', element: <Overview /> },
         { path: 'tasks', element: <Tasks /> },
-        { path: 'community', element: <User /> },
+        { path: 'community', element: <Community /> },
+        { path: 'announcements', element: <Announcements /> },
+      ],
+    },
+    { path: '/companies',
+      element: <DashboardLayout />,
+      children: [
+        { path: ':id', element: <Company />},
+      ]
+    },
+    {
+      path: '/termDocuments',
+      element: <EmptyPage />,
+      children: [
+        { path: ':embedURL', element: <AirtableEmbedPage />},
+      ]
+    },
+    {
+      path: '/',
+      element: <LogoOnlyLayout />,
+      children: [
+        { path: '/', element: <Navigate to="/dashboard/overview" /> },
+        { path: 'login', element: <Login /> },
+        { path: 'register', element: <Register /> },
+        { path: 'landing', element: <Landing />},
+        { path: '404', element: <NotFound /> },
+        { path: '*', element: <Navigate to="/404" /> },
+      ],
+    },
+    { path: '*', element: <Navigate to="/404" replace /> },
+  ]);
+}
+
+export function BusinessRouter() {
+  return useRoutes([
+    {
+      path: '/dashboard',
+      element: <DashboardLayout />,
+      children: [
+        { path: 'overview', element: <Overview /> },
+        { path: 'tasks', element: <Tasks /> },
+        { path: 'community', element: <Community /> },
         { path: 'announcements', element: <Announcements /> },
       ],
     },
@@ -61,7 +103,7 @@ export default function Router() {
       path: '/business',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <DashboardApp />}
+        { path: 'app', element: <Overview />}
       ],
     },
     { path: '*', element: <Navigate to="/404" replace /> },

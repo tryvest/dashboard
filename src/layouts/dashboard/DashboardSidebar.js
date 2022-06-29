@@ -3,7 +3,20 @@ import {useEffect, useState} from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {bindActionCreators} from "redux";// material
 import { styled } from '@mui/material/styles';
-import {Box, Link, Button, Drawer, Typography, Avatar, Stack, Select, MenuItem} from '@mui/material';
+import {
+  Box,
+  Link,
+  Button,
+  Drawer,
+  Typography,
+  Avatar,
+  Stack,
+  Select,
+  MenuItem,
+  CircularProgress,
+  useTheme
+} from '@mui/material';
+
 // mock
 import {useSelector, useDispatch} from "react-redux";
 import {useWhatChanged} from "@simbathesailor/use-what-changed";
@@ -21,7 +34,7 @@ import {apiTryvestors} from "../../utils/api/api-tryvestors";
 
 // ----------------------------------------------------------------------
 
-const DRAWER_WIDTH = 280;
+export const DRAWER_WIDTH = 200;
 
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('lg')]: {
@@ -51,6 +64,7 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
 
   const isDesktop = useResponsive('up', 'lg');
   const user = useSelector((state) => state.auth?.user)
+  const theme = useTheme();
 
   useEffect(() => {
     if (isOpenSidebar) {
@@ -60,26 +74,26 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
   }, [pathname]);
 
   const renderContent = (
-    <Scrollbar
+    <Box
       sx={{
         height: 1,
-        '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
+        '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column'},
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex', }}>
-        <Logo sx={{zIndex: 10}} />
-      </Box>
+      <div style={{height: 'auto', display: 'inline-flex', justifyContent: "center", margin: "15px"}}>
+          <Logo sx={{zIndex: 10}} />
+      </div>
 
       {isBusiness ?
-          <NavSection navConfig={navConfig.companySide} />
+          <NavSection navConfig={navConfig.businessSide} />
           :
           <>
-          {user && <CompanySwitcher user={user}/>}
+          {user && <div style={{paddingInline: "5px"}}><CompanySwitcher user={user}/></div>}
           <NavSection navConfig={navConfig.userSide} />
           <Box sx={{flexGrow: 1}} />
         </>
       }
-    </Scrollbar>
+    </Box>
   );
 
   return (
@@ -89,7 +103,7 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
           open={isOpenSidebar}
           onClose={onCloseSidebar}
           PaperProps={{
-            sx: { width: DRAWER_WIDTH },
+            sx: { width: DRAWER_WIDTH, bgcolor: theme.palette.primary.dark,},
           }}
         >
           {renderContent}
@@ -103,8 +117,7 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
           PaperProps={{
             sx: {
               width: DRAWER_WIDTH,
-              bgcolor: 'background.default',
-              borderRightStyle: 'dashed',
+              bgcolor: theme.palette.primary.dark,
             },
           }}
         >
@@ -119,7 +132,18 @@ function CompanySwitcher({user}) {
   const dispatchBus = useDispatch();
   const [userObj, setUserObj] = useState()
   const [selectedBusinessID, setSelectedBusinessID] = useState()
+  const businessID = useSelector(state => state.business.businessID)
   const { switchBusiness } = bindActionCreators(businessActionCreators, dispatchBus);
+
+  const style = "MuiListItemIcon-root css-121b4uz-MuiListItemIcon-root"
+
+  const style2 = 1
+
+  // const activeStyleOuter = "MuiListItemButton-root MuiButtonBase-root css-2hw4ur-MuiButtonBase-root-MuiListItemButton-root active"
+  // const inactiveStyleOuter = "MuiListItemButton-root MuiButtonBase-root css-dbbdxt-MuiButtonBase-root-MuiListItemButton-root"
+
+  const inactiveStyleOuter = "a.css-dbbdxt-MuiButtonBase-root-MuiListItemButton-root"
+  const activeStyleOuter = "a.css-dbbdxt-MuiButtonBase-root-MuiListItemButton-root active"
 
   const pictureStyle = {
     borderRadius: "50%"
@@ -141,7 +165,14 @@ function CompanySwitcher({user}) {
     })
   }, [])
 
+  const theme = useTheme()
+
   useEffect(() => {
+    if(businessID){
+      setSelectedBusinessID(businessID)
+      return
+    }
+
     if(userObj && userObj.businessesRespondedTo.length > 0){
       const selectedBusIDTemp = userObj.businessesRespondedTo[0].businessID
       setSelectedBusinessID(selectedBusIDTemp)
@@ -151,22 +182,22 @@ function CompanySwitcher({user}) {
 
   return (
       selectedBusinessID ?
-      <Box sx={{mb: 5, mx: 2.5}} bgcolor={"#f1f1f1"} borderRadius={"10px"} padding={"5px"}>
+      <Box borderRadius={"10px"} padding={"5px"}>
         <Select
           value={selectedBusinessID}
           onChange={handleChange}
-          sx={{maxWidth: "100%"}}
+          sx={{maxWidth: "100%", width: "100%"}}
           defaultValue={selectedBusinessID}
         >
           {userObj?.businessesRespondedTo.map((business) => {
             return (
-                <MenuItem value={business.businessID}>
+                <MenuItem style={{maxWidth: "100%"}} value={business.businessID}>
                   <div style={{overflow: 'hidden'}}>
-                    <Stack direction={"row"} spacing={1}>
+                    <Stack display={"flex"} alignItems={"center"} direction={"row"} spacing={1}>
                       <div style={{overflow: "hidden", borderRadius: "50%", height: "5vh", width:"5vh", display: "inline"}}>
                         <img src={business.logo} alt={"businessLogo"}/>
                       </div>
-                      <Typography fontSize={"medium"} fontWeight={"900"}>
+                      <Typography fontSize={"medium"} fontWeight={"900"} color={"#f1f1f1"}>
                         {business.name.charAt(0).toUpperCase() + business.name.slice(1)}
                       </Typography>
                     </Stack>
@@ -176,7 +207,9 @@ function CompanySwitcher({user}) {
           })}
         </Select>
       </Box> :
-      <div>Missing Data for Businesses User has Responded To</div>
+      <div style={{display: "flex", justifyContent: 'center', alignItems: 'center'}}>
+        <CircularProgress/>
+      </div>
   );
 }
 /*

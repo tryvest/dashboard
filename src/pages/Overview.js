@@ -17,17 +17,18 @@ import {
     SvgIcon, IconButton, Slider,
 } from '@mui/material';
 // components
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
 // import MuiMarkdown from "mui-markdown";
 import ReactMarkdown from "react-markdown";
-
+import {bindActionCreators} from "redux";
 import {fShortenNumber, fCurrency} from '../utils/formatNumber'
 import Page from '../components/Page';
 
 import COMPANIES from '../_mock/companies';
+import {businessActionCreators} from '../store'
 
 // sections
 import TASKS from '../_mock/tasks';
@@ -44,10 +45,11 @@ export default function Overview() {
     const [userObj, setUserObj] = useState(null)
     const [businessObj, setBusinessObj] = useState(null)
     const navigate = useNavigate()
+    const dispatchBus = useDispatch();
+    const { switchBusiness } = bindActionCreators(businessActionCreators, dispatchBus);
 
     const iff = (condition, then, otherwise) => {
         if (condition) {
-            console.log(condition)
             return then
         }
         return otherwise
@@ -57,7 +59,9 @@ export default function Overview() {
         if (user) {
             apiTryvestors.getSingle(user.uid).then((data) => {
                 setUserObj(data);
-                console.log(data.businessesRespondedTo)
+                if(data.businessesRespondedTo.length > 0){
+                    switchBusiness(data.businessesRespondedTo[0].businessID)
+                }
             })
         }
 

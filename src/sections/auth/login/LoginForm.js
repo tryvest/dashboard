@@ -35,7 +35,6 @@ export default function LoginForm() {
     validationSchema: LoginSchema,
     onSubmit: ({email, password}) => {
       signIn({email, password});
-
       navigate('/dashboard/overview', { replace: true });
 
     },

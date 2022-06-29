@@ -10,10 +10,11 @@ import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
+import {DRAWER_WIDTH} from "./DashboardSidebar";
 
 // ----------------------------------------------------------------------
 
-const DRAWER_WIDTH = 280;
+// const DRAWER_WIDTH = 200;
 const APPBAR_MOBILE = 64;
 const APPBAR_DESKTOP = 92;
 
@@ -52,14 +53,18 @@ export default function DashboardNavbar({ onOpenSidebar }) {
           <Iconify icon="eva:menu-2-fill" />
         </IconButton>
 
+{/*
         <Searchbar />
+*/}
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
+          {/*
           <Button onClick={() => {navigate('/landing')}} variant='outlined'>
             For Business
           </Button>
           <LanguagePopover />
+          */}
           <NotificationsPopover />
           <AccountPopover />
         </Stack>

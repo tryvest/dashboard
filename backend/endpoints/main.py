@@ -21,7 +21,7 @@ tryApi = api.namespace("tryvestors", description="For tryvestor side requests")
 
 
 class Business:
-    def __init__(self, businessID, name, description, topics, valuation, totalShares, media, logo, tagline, investors, targetMarket, funding):
+    def __init__(self, businessID, name, description, topics, valuation, totalShares, media, logo, tagline, investors, targetMarket, funding, channelID, serverID):
         self.tagline = tagline
         self.logo = logo
         self.media = media
@@ -34,6 +34,8 @@ class Business:
         self.investors = investors
         self.targetMarket = targetMarket
         self.funding = funding
+        self.channelID = channelID
+        self.serverID = serverID
 
 
     @staticmethod
@@ -50,7 +52,9 @@ class Business:
             investors=sourceDict["investors"],
             targetMarket=sourceDict["targetMarket"],
             businessID=str(businessID),
-            funding=int(sourceDict["funding"])
+            funding=int(sourceDict["funding"]),
+            channelID=str(sourceDict["channelID"]),
+            serverID=str(sourceDict["serverID"])
         )
 
     def toFirebaseDict(self):
@@ -65,7 +69,9 @@ class Business:
             "tagline": self.tagline,
             "investors": self.investors,
             "targetMarket": self.targetMarket,
-            "funding": self.funding
+            "funding": self.funding,
+            "channelID": self.channelID,
+            "serverID": self.serverID
         }
 
     def toDict(self):

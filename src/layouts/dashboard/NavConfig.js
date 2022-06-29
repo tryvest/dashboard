@@ -31,7 +31,7 @@ const navConfig = {
 
 
     ],
-    companySide: [
+    businessSide: [
       {
         title: 'business',
         path: '/business/app',
