@@ -18,6 +18,10 @@ import Tasks from "./pages/Tasks";
 import Overview from "./pages/Overview";
 import Announcements from "./pages/Announcements";
 import Community from "./pages/Community"
+import BusinessHomePage from "./pages/companySide/BusinessHomePage";
+import BusinessOverview from "./pages/companySide/BusinessOverview";
+import BusinessCommunity from "./pages/companySide/BusinessCommunity";
+import BusinessAnnouncements from "./pages/companySide/BusinessAnnouncements";
 
 // ----------------------------------------------------------------------
 
@@ -68,10 +72,10 @@ export function BusinessRouter() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { path: 'overview', element: <Overview /> },
-        { path: 'tasks', element: <Tasks /> },
-        { path: 'community', element: <Community /> },
-        { path: 'announcements', element: <Announcements /> },
+        { path: 'overview', element: <BusinessOverview /> },
+        { path: 'home', element: <BusinessHomePage /> },
+        { path: 'community', element: <BusinessCommunity /> },
+        { path: 'announcements', element: <BusinessAnnouncements /> },
       ],
     },
     { path: '/companies',

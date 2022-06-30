@@ -72,6 +72,7 @@
     "react-redux-firestore": "^0.0.1",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.0",
+    "react-switch-selector": "^2.2.1",
     "react-toastify": "^9.0.4",
     "redux": "^4.2.0",
     "redux-devtools-extension": "^2.13.9",

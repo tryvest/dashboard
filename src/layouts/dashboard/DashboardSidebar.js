@@ -98,10 +98,14 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
 
   return (
     <RootStyle>
-      {!isDesktop && (
+      {(
         <Drawer
-          open={isOpenSidebar}
-          onClose={onCloseSidebar}
+          ModalProps ={{
+            keepMounted: true
+          }}
+          variant={!isDesktop ? "temporary" : "persistent"}
+          open={!isDesktop ? isOpenSidebar : true}
+          onClose={!isDesktop ? onCloseSidebar : () => {}}
           PaperProps={{
             sx: { width: DRAWER_WIDTH, bgcolor: theme.palette.primary.dark,},
           }}
@@ -110,20 +114,22 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
         </Drawer>
       )}
 
-      {isDesktop && (
-        <Drawer
-          open
-          variant="persistent"
-          PaperProps={{
-            sx: {
-              width: DRAWER_WIDTH,
-              bgcolor: theme.palette.primary.dark,
-            },
-          }}
-        >
-          {renderContent}
-        </Drawer>
-      )}
+      {/*
+        {isDesktop && (
+          <Drawer
+            open
+            variant="persistent"
+            PaperProps={{
+              sx: {
+                width: DRAWER_WIDTH,
+                bgcolor: theme.palette.primary.dark,
+              },
+            }}
+          >
+            {renderContent}
+          </Drawer>
+        )}
+      */}
     </RootStyle>
   );
 }
