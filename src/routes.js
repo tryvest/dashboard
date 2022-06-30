@@ -22,11 +22,19 @@ import BusinessHomePage from "./pages/companySide/BusinessHomePage";
 import BusinessOverview from "./pages/companySide/BusinessOverview";
 import BusinessCommunity from "./pages/companySide/BusinessCommunity";
 import BusinessAnnouncements from "./pages/companySide/BusinessAnnouncements";
+import Learn from "./pages/Learn";
 
 // ----------------------------------------------------------------------
 
 export function TryvestorRouter() {
   return useRoutes([
+    {
+      path: '/learn',
+      element: <DashboardLayout />,
+      children: [
+        { path: ':id', element: <Learn />},
+      ]
+    },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
