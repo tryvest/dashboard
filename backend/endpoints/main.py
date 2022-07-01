@@ -206,16 +206,75 @@ class SpecificBusiness(Resource):
         termDocsRef = db.collection("termDocuments").where("businessID", "==", businessID)
         termDocsSnapshot = termDocsRef.stream()
         termDocs = []
+        termDocIDs = []
+        termDocIDToObj = {}
+        tryvestorsDict = {}
         for doc in termDocsSnapshot:
-            verifiedTermDocument = TermDocument.fromDict(doc.to_dict(), doc.id).toDict()
+            verifiedTermDocumentObj = TermDocument.fromDict(doc.to_dict(), doc.id)
+            verifiedTermDocument = verifiedTermDocumentObj.toDict()
+            termDocIDToObj[verifiedTermDocumentObj.termDocumentID] = verifiedTermDocumentObj.toDict()
+            termDocIDs.append(verifiedTermDocumentObj.termDocumentID)
             termDocsResponsesSnapshot = db.collection("termDocuments").document(doc.id).collection("responses").stream()
             responsesArr = []
             for response in termDocsResponsesSnapshot:
-                verifiedTermDocumentResponse = TermResponse.fromDict(response.to_dict(), response.id).toDict()
-                responsesArr.append(verifiedTermDocumentResponse)
+                verifiedTermDocumentResponse = TermResponse.fromDict(response.to_dict(), response.id)
+                verifiedTermDocumentResponseDict = verifiedTermDocumentResponse.toDict()
+                responsesArr.append(verifiedTermDocumentResponseDict)
+                if verifiedTermDocumentResponse.tryvestorID not in tryvestorsDict:
+                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID] = {}
+                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"] = []
+                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"] = []
+                if verifiedTermDocumentResponse.verificationStatus == 1:
+                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"].append(verifiedTermDocumentObj.termDocumentID)
+                if verifiedTermDocumentResponse.verificationStatus == -1:
+                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"].append(verifiedTermDocumentObj.termDocumentID)
             verifiedTermDocument["responses"] = responsesArr
             termDocs.append(verifiedTermDocument)
+
+        returnTryvestors = []
+        allTryvestorKeys = tryvestorsDict.keys()
+        numTotalTryvestors = len(allTryvestorKeys)
+        numPendingTryvestors = 0
+        totalNumSharesAwarded = 0
+
+        for key in allTryvestorKeys:
+            tempCompletedTasks = tryvestorsDict[key]['completedTasks']
+            tempRejectedTasks = tryvestorsDict[key]['rejectedTasks']
+            returnCompletedTasks = []
+            returnRejectedTasks = []
+            returnPendingTasks = []
+            tempNumSharesAwardCounter = 0
+            for termDocID in termDocIDs:
+                if termDocID in tempCompletedTasks:
+                    returnCompletedTasks.append(termDocIDToObj[termDocID])
+                elif termDocID in tempRejectedTasks:
+                    returnRejectedTasks.append(termDocIDToObj[termDocID])
+                else:
+                    returnPendingTasks.append(termDocIDToObj[termDocID])
+                tempNumSharesAwardCounter += termDocIDToObj[termDocID]["numSharesAward"]
+            tryvestorObjDictRaw = db.collection('tryvestors').document(key).get()
+            tryvestorObjDictVerified = Tryvestor.fromDict(tryvestorObjDictRaw.to_dict(), tryvestorObjDictRaw.id)
+            tempTryvestorObj = {
+                "tryvestorObj": tryvestorObjDictVerified.toDict(),
+                "completedTasks": returnCompletedTasks,
+                "pendingTasks": returnPendingTasks,
+                "rejectedTasks": returnRejectedTasks,
+                "verificationStatus": 0 if (len(returnPendingTasks) > 0 or len(returnRejectedTasks) > 0) else 1,
+            }
+            if tempTryvestorObj["verificationStatus"] == 1:
+                totalNumSharesAwarded += tempNumSharesAwardCounter
+            else:
+                numPendingTryvestors += 1
+            returnTryvestors.append(tempTryvestorObj)
+
+        tryvestorSummaryInfo = {
+           "numTotalTryvestors": numTotalTryvestors,
+           "numPendingTryvestors": numPendingTryvestors,
+           "numSharesIssued": totalNumSharesAwarded,
+        }
         businessDict["termDocuments"] = termDocs
+        businessDict["tryvestors"] = returnTryvestors
+        businessDict["tryvestorSummaryInfo"] = tryvestorSummaryInfo
         print(businessDict)
         return businessDict
 

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Accordion, AccordionDetails,
     AccordionSummary,
@@ -8,12 +8,14 @@ import {
     IconButton,
     LinearProgress,
     Stack,
-    Typography, Chip
+    Typography, Chip, Box, CircularProgress
 } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import {useTheme} from "@mui/material/styles";
 import SwitchSelector from "react-switch-selector";
 import {fCurrency} from "../../utils/formatNumber";
+import {apiBusinesses} from "../../utils/api/api-businesses";
+import {business} from "../../App";
 
 function BusinessOverview(props) {
     const topCardsSize = {
@@ -21,16 +23,20 @@ function BusinessOverview(props) {
         sm: 6,
         md: 2
     }
-    const topCardFontSize = 13
-    const numTryvestorsTotal = 780
-    const numTryvestorsPending = 116
-    const numSharesIssued = 300
-    const numTotalShares = 70000000
-    const companyValuation = 10000000
+    const topCardFontSize = 16
+
+    // let numTryvestorsTotal = 1
+    // let numTryvestorsPending = 1
+    // let numSharesIssued = 1
+    // let numTotalShares = 1
+    // let companyValuation = 1
     const theme = useTheme()
 
     const [pendingOrCompleted, setPendingOrCompleted] = useState("pending")
-    const [businessInfo, setBusinessInfo] = useState({tryvestors: [
+    const businessID = business.businessID
+    const [businessInfo, setBusinessInfo] = useState()
+    /*
+        {tryvestors: [
             {
                 name: 'person1',
                 username: 'person1@gmail.com',
@@ -52,7 +58,15 @@ function BusinessOverview(props) {
                 completedTasks: ['completed task 1', 'completed task 2', "completed task 4"],
                 statusOfTasks: 0
             }
-        ]})
+        ]}
+    */
+
+    useEffect(() => {
+        apiBusinesses.getSingle(businessID).then((data) => {
+            setBusinessInfo(data)
+        })
+        console.log("updating")
+    }, [businessID])
 
     const selectorOptions = [
         {
@@ -66,12 +80,12 @@ function BusinessOverview(props) {
             selectedBackgroundColor: theme.palette.primary.dark
         }
     ]
-    const initialSelectedIndex = selectorOptions.findIndex(({value}) => value === "pending");
+    const initialSelectedIndex = selectorOptions.findIndex(({value}) => value === pendingOrCompleted);
     const onSelectorChange = (val) => {
         setPendingOrCompleted(val)
     }
 
-    return (
+    return businessInfo ? (
         <Grid container spacing={3}>
             <Grid item xs={12} sm={12} md={12}>
                 <Grid container spacing={2}>
@@ -79,7 +93,7 @@ function BusinessOverview(props) {
                         <Card style={{minHeight: "120px", minWidth: "150px", backgroundColor: theme.palette.primary.dark, color: 'white'}}>
                             <Stack margin={"auto"} style={{alignItems: 'center', textAlign: "center", justifyItems: "center"}}>
                                 <Typography fontWeight={800} fontSize={42}>
-                                    {numTryvestorsTotal}
+                                    {businessInfo ? businessInfo.tryvestorSummaryInfo.numTotalTryvestors : "--"}
                                 </Typography>
                                 <Typography marginTop={"-5px"} fontWeight={600} fontSize={topCardFontSize}>
                                     Current <br/> Tryvestors
@@ -91,7 +105,7 @@ function BusinessOverview(props) {
                         <Card style={{minHeight: "120px", minWidth: "150px", border: '1.5px solid black'}}>
                             <Stack margin={"auto"} style={{alignItems: 'center', textAlign: "center", justifyItems: "center"}}>
                                 <Typography fontWeight={800} fontSize={42}>
-                                    {numTryvestorsPending}
+                                    {businessInfo ? businessInfo.tryvestorSummaryInfo.numPendingTryvestors : "--"}
                                 </Typography>
                                 <Typography marginTop={"-5px"} fontWeight={600} fontSize={topCardFontSize}>
                                     Pending <br/> Tryvestors
@@ -103,7 +117,7 @@ function BusinessOverview(props) {
                         <Card style={{minHeight: "120px", minWidth: "150px", border: '1.5px solid black'}}>
                             <Stack margin={"auto"} style={{alignItems: 'center', textAlign: "center", justifyItems: "center"}}>
                                 <Typography fontWeight={800} fontSize={42}>
-                                    {numSharesIssued}
+                                    {businessInfo ? businessInfo.tryvestorSummaryInfo.numSharesIssued : "--"}
                                 </Typography>
                                 <Typography marginTop={"-5px"} fontWeight={600} fontSize={topCardFontSize}>
                                     Phantom Shares <br/> Issued
@@ -162,23 +176,22 @@ function BusinessOverview(props) {
                     {
                         pendingOrCompleted === "pending" ? (
                             businessInfo?.tryvestors.map((tryvestor) => {
-                                console.log(tryvestor)
-                                if(tryvestor.statusOfTasks !== 1){
-                                    return <PendingTryvestor name={tryvestor.name} email={tryvestor.username} completedTasks={tryvestor.completedTasks} pendingTasks={tryvestor.pendingTasks}/>
+                                if(tryvestor.verificationStatus !== 1){
+                                    return <PendingTryvestor firstName={tryvestor.tryvestorObj.firstName} lastName={tryvestor.tryvestorObj.lastName} rejectedTasks={tryvestor.rejectedTasks} email={tryvestor.tryvestorObj.username} completedTasks={tryvestor.completedTasks} pendingTasks={tryvestor.pendingTasks}/>
                                 }
                                 return <div/>
                             })
                         ) : (
-                            <Stack>
+                            <Stack spacing={1}>
                                 <Stack direction={'row'} spacing={1}>
-                                    <Chip color={'primary'} label={`Total Payout: ${fCurrency(numSharesIssued/numTotalShares * companyValuation)}`}/>
-                                    <Chip label={`Payout per Tryvestor: ${fCurrency((numSharesIssued/(numTryvestorsTotal-numTryvestorsPending))/numTotalShares * companyValuation)}`}/>
+                                    <Chip color={'primary'} label={`Total Payout: ${fCurrency(businessInfo ? businessInfo.tryvestorSummaryInfo.numSharesIssued/businessInfo.totalShares * businessInfo.valuation : 0)}`}/>
+                                    <Chip label={`Payout per Tryvestor: ${fCurrency(businessInfo ? businessInfo.tryvestorSummaryInfo.numSharesIssued/(businessInfo.tryvestorSummaryInfo.numTotalTryvestors-businessInfo.tryvestorSummaryInfo.numPendingTryvestors)/businessInfo.totalShares * businessInfo.valuation : 0)}`}/>
                                 </Stack>
                                 <Stack spacing={1}>
                                     {
                                         businessInfo?.tryvestors.map((tryvestor) => {
-                                            if(tryvestor.statusOfTasks === 1){
-                                                return <CompletedTryvestor name={tryvestor.name} email={tryvestor.username}/>
+                                            if(tryvestor.verificationStatus === 1){
+                                                return <CompletedTryvestor firstName={tryvestor.tryvestorObj.firstName} lastName={tryvestor.tryvestorObj.lastName} email={tryvestor.tryvestorObj.username}/>
                                             }
                                             return <div/>
                                         })
@@ -190,13 +203,12 @@ function BusinessOverview(props) {
                 </Stack>
             </Grid>
         </Grid>
+    ) : (
+        <CircularProgress/>
     )
 }
 
-function PendingTryvestor({name, completedTasks, pendingTasks, email}) {
-    console.log(name)
-    console.log(completedTasks)
-    console.log(pendingTasks)
+function PendingTryvestor({firstName, lastName, completedTasks, rejectedTasks, pendingTasks, email}) {
     const theme = useTheme()
     return (
         <Card style={{width: '100%'}}>
@@ -204,23 +216,34 @@ function PendingTryvestor({name, completedTasks, pendingTasks, email}) {
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                 >
-                    <Stack>
-                        {name}
-                        <LinearProgress variant={"determinate"} value={completedTasks.length / (pendingTasks.length + completedTasks.length) * 100} style={{borderRadius: "7.5px", height: "15px"}}/>
+                    <Stack style={{width: '100%'}}>
+                        <Typography fontWeight={600} fontSize={18}>
+                            {`${firstName.charAt(0).toUpperCase() + firstName.slice(1)} ${lastName.charAt(0).toUpperCase() + lastName.slice(1)}`}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Box sx={{ width: '100%', mr: 1 }}>
+                                <LinearProgress variant={"determinate"} value={completedTasks.length / (pendingTasks.length + completedTasks.length + rejectedTasks.length) * 100} style={{borderRadius: "7.5px", height: "15px"}}/>
+                            </Box>
+                            <Box sx={{ minWidth: 35 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    {`${Math.round(completedTasks.length / (pendingTasks.length + completedTasks.length + rejectedTasks.length) * 100)}%`}
+                                </Typography>
+                            </Box>
+                        </Box>
                     </Stack>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Grid container spacing={1}>
                         <Grid item xs={12} sm={12} md={4}>
-                            <Card style={{backgroundColor: theme.palette.primary.dark, color: 'white'}}>
+                            <Card style={{backgroundColor: theme.palette.primary.dark, color: 'white', height: '100%'}}>
                                 <CardContent>
                                     <Stack>
                                         <Typography fontWeight={800}>
                                             Completed Tasks
                                         </Typography>
-                                        {completedTasks.map((taskName) => {
+                                        {completedTasks.map((task) => {
                                             return (<Typography>
-                                                {taskName}
+                                                {task.title}
                                             </Typography>)
                                         })}
                                     </Stack>
@@ -228,15 +251,20 @@ function PendingTryvestor({name, completedTasks, pendingTasks, email}) {
                             </Card>
                         </Grid>
                         <Grid item xs={12} sm={12} md={4}>
-                            <Card>
+                            <Card style={{height: '100%'}}>
                                 <CardContent>
                                     <Stack>
                                         <Typography fontWeight={800}>
                                             Pending Tasks
                                         </Typography>
-                                        {pendingTasks.map((taskName) => {
+                                        {pendingTasks.map((task) => {
                                             return (<Typography>
-                                                {taskName}
+                                                {task.title}
+                                            </Typography>)
+                                        })}
+                                        {rejectedTasks.map((task) => {
+                                            return (<Typography color={'red'}>
+                                                {task.title}
                                             </Typography>)
                                         })}
                                     </Stack>
@@ -264,15 +292,15 @@ function PendingTryvestor({name, completedTasks, pendingTasks, email}) {
     );
 }
 
-function CompletedTryvestor({name, email}) {
+function CompletedTryvestor({firstName, lastName, email}) {
     return (
         <Card>
             <CardContent>
                 <Stack direction={"row"} spacing={2}>
-                    <Typography fontWeight={'bold'}>
-                        {name}
+                    <Typography fontWeight={'bold'} fontSize={18}>
+                        {`${firstName.charAt(0).toUpperCase() + firstName.slice(1)} ${lastName.charAt(0).toUpperCase() + lastName.slice(1)}`}
                     </Typography>
-                    <Typography>
+                    <Typography fontSize={17}>
                         {email}
                     </Typography>
                 </Stack>

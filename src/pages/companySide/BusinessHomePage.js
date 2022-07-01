@@ -19,6 +19,8 @@ import ReactPlayer from "react-player";
 import {useTheme} from "@mui/material/styles";
 import {useNavigate} from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import MDEditor from '@uiw/react-md-editor';
 import {apiBusinesses} from "../../utils/api/api-businesses";
 import {business} from "../../App";
 import Page from "../../components/Page";
@@ -28,12 +30,14 @@ function BusinessHomePage(props) {
     const theme = useTheme();
     const [userObj, setUserObj] = useState(null)
     const [businessObj, setBusinessObj] = useState(null)
+    const [mdText, setMdText] = useState()
     const navigate = useNavigate()
 
     useEffect(() => {
         if(business){
             apiBusinesses.getSingle(business?.businessID).then((data) => {
                 setBusinessObj(data)
+                setMdText(data.description)
             })
         }
     }, [business])
@@ -115,7 +119,20 @@ function BusinessHomePage(props) {
                                                     })}
                                                 </ul>
                                                 */}
-                                                <ReactMarkdown>{businessObj.description}</ReactMarkdown>
+                                                <div data-color-mode={"light"}>
+                                                    <MDEditor
+                                                        value={mdText}
+                                                        onChange={setMdText}
+                                                        height={600}
+                                                        preview={"edit"}
+                                                        previewOptions={{
+                                                            rehypePlugins: [[rehypeSanitize]],
+                                                        }}
+                                                    />
+                                                </div>
+                                                {/*
+                                                <MDEditor.Markdown source={mdText} style={{ whiteSpace: 'pre-wrap' }} />
+                                                */}
                                             </div>
                                         </Stack>
                                         <Grid container justifyContent={"center"} style={{marginTop: "15px"}}>
