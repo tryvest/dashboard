@@ -20,6 +20,29 @@ busApi = api.namespace("businesses", description="For business side requests")
 tryApi = api.namespace("tryvestors", description="For tryvestor side requests")
 
 
+class GenericUser:
+    def __init__(self, userType, userID):
+        self.userType = userType
+        self.userID = userID
+
+    @staticmethod
+    def fromDict(sourceDict, userID):
+        return GenericUser(
+            userType=sourceDict["userType"],
+            userID=userID
+        )
+
+    def toFirebaseDict(self):
+        return {
+            'userType': self.userType
+        }
+
+    def toDict(self):
+        toReturn = self.toFirebaseDict()
+        toReturn['userID'] = self.userID
+        return toReturn
+
+
 class Business:
     def __init__(self, businessID, name, description, topics, valuation, totalShares, media, logo, tagline, investors, targetMarket, funding, channelID, serverID):
         self.tagline = tagline
@@ -176,6 +199,17 @@ class Tryvestor:
         return toReturn
 
 
+@api.route("/userType")
+class UserType(Resource):
+    @api.doc(
+        params={"userID": {"description": "firestore document id of the user you want to check the type of", "type": "String"}}
+    )
+    def get(self):
+        userID = request.args.get("userID")
+        userDoc = db.collection('users').document(userID).get()
+        toReturn = GenericUser.fromDict(userDoc.to_dict(), userDoc.id)
+        return toReturn.userType
+
 @busApi.route("")  # http://127.0.0.1:5000/api/businesses
 class AllBusinesses(Resource):
     def get(self):
@@ -188,7 +222,16 @@ class AllBusinesses(Resource):
 
     def post(self):
         businessData = request.json
-        busDoc = db.collection("businesses").document()
+
+        genericUserDictForBusiness = {
+            'userType': 'business'
+        }
+        userDoc = db.collection("users").document(businessData["businessID"])
+        userFirebaseInfo = GenericUser.fromDict(sourceDict=genericUserDictForBusiness, userID=userDoc.id).toFirebaseDict()
+        userFirebaseInfo['creationDate'] = datetime.datetime.now()
+        userDoc.set(userFirebaseInfo)
+
+        busDoc = db.collection("businesses").document(userDoc.id)
         toAdd = Business.fromDict(sourceDict=businessData, businessID=busDoc.id).toFirebaseDict()
         toAdd["creationDate"] = datetime.datetime.now()
         busDoc.set(toAdd)
@@ -293,7 +336,16 @@ class AllTryvestors(Resource):
 
     def post(self):
         tryvestorData = request.json
-        tryDoc = db.collection("tryvestors").document(tryvestorData["uid"])
+
+        genericUserDictForTryvestor = {
+            'userType': 'tryvestor'
+        }
+        userDoc = db.collection("users").document(tryvestorData["tryvestorID"])
+        userFirebaseInfo = GenericUser.fromDict(sourceDict=genericUserDictForTryvestor, userID=userDoc.id).toFirebaseDict()
+        userFirebaseInfo['creationDate'] = datetime.datetime.now()
+        userDoc.set(userFirebaseInfo)
+
+        tryDoc = db.collection("tryvestors").document(tryvestorData["tryvestorID"])
         toAdd = Tryvestor.fromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id).toFirebaseDict()
         toAdd["creationDate"] = datetime.datetime.now()
         tryDoc.set(toAdd)

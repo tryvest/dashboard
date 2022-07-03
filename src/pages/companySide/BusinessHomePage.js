@@ -32,6 +32,7 @@ function BusinessHomePage(props) {
     const [businessObj, setBusinessObj] = useState(null)
     const [mdText, setMdText] = useState()
     const navigate = useNavigate()
+    const [editMode, setEditMode] = useState(false)
 
     useEffect(() => {
         if(business){
