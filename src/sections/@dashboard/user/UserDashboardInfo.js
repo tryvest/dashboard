@@ -107,17 +107,17 @@ export default function UserDashboardInfo({title, subheader, userObj, businessIn
             */}
         <Typography variant='h5' sx={{m: 2, fontWeight: '1000'}}>Active Tasks</Typography>
         <Grid container spacing={1}>
-            {fullBusiness?.termDocuments.map((termDoc) => (!termDocIDs.includes(termDoc.termDocumentID) &&
-                <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc}/></Grid>))}
-            {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus === 0 &&
-                <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
-            {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus === -1 &&
-                <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
+            {fullBusiness?.termDocuments.map((termDoc, index) => (!termDocIDs.includes(termDoc.termDocumentID) &&
+                <Grid key={index} item xs={12} sm={12} md={12}><TermDocument {...termDoc}/></Grid>))}
+            {businessInfo?.termDocuments.map((termDoc, index) => (termDoc.termResponse.verificationStatus === 0 &&
+                <Grid key={index} item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
+            {businessInfo?.termDocuments.map((termDoc, index) => (termDoc.termResponse.verificationStatus === -1 &&
+                <Grid key={index} item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
         </Grid>
         <Grid container spacing={1}>
         <Typography variant='h5' sx={{m: 2, fontWeight: '1000'}}>Completed Tasks</Typography>
-        {businessInfo?.termDocuments.map((termDoc) => (termDoc.termResponse.verificationStatus === 1 &&
-            <Grid item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
+        {businessInfo?.termDocuments.map((termDoc, index) => (termDoc.termResponse.verificationStatus === 1 &&
+            <Grid key={index} item xs={12} sm={12} md={12}><TermDocument {...termDoc} submitted/></Grid>))}
         </Grid>
     </Card>) : <div/>;
 }

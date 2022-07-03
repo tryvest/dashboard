@@ -42,7 +42,6 @@ export default function Overview() {
     const theme = useTheme();
     const user = useSelector((state) => state.auth?.user)
     const business = useSelector ((state) => state.business)
-    const [userObj, setUserObj] = useState(null)
     const [businessObj, setBusinessObj] = useState(null)
     const navigate = useNavigate()
     const dispatchBus = useDispatch();
@@ -54,28 +53,28 @@ export default function Overview() {
         }
         return otherwise
     };
-
+/*
     useEffect(() => {
-        if (user) {
-            apiTryvestors.getSingle(user.uid).then((data) => {
-                setUserObj(data);
+
+        if () {
+
                 if(data.businessesRespondedTo.length > 0){
                     switchBusiness(data.businessesRespondedTo[0].businessID)
                 }
-            })
+
         }
 
-    }, [user])
+    }, [user]) */
 
     useEffect(() => {
-        if(business && userObj) {
-            userObj.businessesRespondedTo.forEach((bus) => {
+        if(business && user) {
+            user.businessesRespondedTo.forEach((bus) => {
                 if(bus.businessID === business.businessID){
                     setBusinessObj(bus)
                 }
             })
         }
-    }, [userObj, business])
+    }, [user, business])
 
     const calcTotalPossibleSharesAsPercent = () => {
         let totalPossible = 0
@@ -127,9 +126,9 @@ export default function Overview() {
                                                 {businessObj.tagline}
                                             </Typography>
                                             <Stack direction={"row"} display={"flex"} flexWrap={"wrap"} style={{marginBottom: "20px"}}>
-                                                {businessObj.topics.map((topic) => {
+                                                {businessObj.topics.map((topic, index) => {
                                                     return (
-                                                        <Chip style={{marginBottom: "3px",
+                                                        <Chip key={index} style={{marginBottom: "3px",
                                                             backgroundColor: theme.palette.primary.main,
                                                             color: theme.palette.primary.dark, fontWeight: 200, fontSize: "12px", marginRight: "5px"}}
                                                               size={"small"} label={topic}
@@ -141,17 +140,17 @@ export default function Overview() {
                                         <div style={{marginInline: "-18px", marginTop: "-5px"}}>
                                             {businessObj.media.length ?
                                                 (<Carousel loop scrollSnap>
-                                                    {businessObj.media.map((imgLink) => {
+                                                    {businessObj.media.map((imgLink, index) => {
                                                         if (imgLink.includes('jpg') || imgLink.includes('png')) {
                                                             return (
-                                                                <Carousel.Item>
+                                                                <Carousel.Item key={index}>
                                                                     <img src={imgLink} alt="imageyay"/>
                                                                 </Carousel.Item>)
                                                         }
 
                                                         if (imgLink.includes('mp4')) {
                                                             return (
-                                                                <Carousel.Item>
+                                                                <Carousel.Item key={index}>
                                                                     <ReactPlayer controls url={imgLink}
                                                                                  width={"100%"}/>
                                                                 </Carousel.Item>)
@@ -213,7 +212,7 @@ export default function Overview() {
                                                     textColor = theme.palette.primary.main
                                                 }
                                                 return (
-                                                    <Typography color={textColor} fontSize={15}>
+                                                    <Typography key={num} color={textColor} fontSize={15}>
                                                         {sent.charAt(0).toUpperCase() + sent.slice(1)}
                                                     </Typography>
                                                 )
@@ -246,8 +245,8 @@ export default function Overview() {
                                             <Typography fontWeight={800} fontSize={16}>
                                                 Current Investors:
                                             </Typography>
-                                            {businessObj.investors.map((investor) => (
-                                                    <Typography fontWeight={400} fontSize={15}>
+                                            {businessObj.investors.map((investor, index) => (
+                                                    <Typography key={index} fontWeight={400} fontSize={15}>
                                                         {investor}
                                                     </Typography>
                                                 )
@@ -262,7 +261,7 @@ export default function Overview() {
                                         </Typography>
                                         <Stack spacing={1}>
                                             {businessObj.termDocuments.map((termDocument, num) => (
-                                                <Stack direction={"row"} spacing={1}>
+                                                <Stack direction={"row"} spacing={1} key={num}>
                                                     <div style={{display: "flex", flexShrink: 0, alignItems: "center", justifyContent: "center", width: "30px", height: "30px", backgroundColor: "#D9D9D9", borderRadius: "50%"}}>
                                                         {num + 1}
                                                     </div>
