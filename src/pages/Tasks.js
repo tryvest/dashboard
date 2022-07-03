@@ -30,11 +30,7 @@ export default function Tasks() {
     };
 
     useEffect(() => {
-        if(user){
-            apiTryvestors.getSingle(user.uid).then((data) => {
-                setUserInfo(data)
-            })
-        }
+        setUserInfo(user);
     }, [user])
 
     useEffect(() => {
