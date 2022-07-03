@@ -54,7 +54,7 @@ const AccountStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 DashboardSidebar.propTypes = {
-  business: PropTypes.bool,
+  isBusiness: PropTypes.bool,
   isOpenSidebar: PropTypes.bool,
   onCloseSidebar: PropTypes.func,
 };
@@ -134,9 +134,12 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
   );
 }
 
+CompanySwitcher.propTypes = {
+  user: PropTypes.object,
+};
+
 function CompanySwitcher({user}) {
   const dispatchBus = useDispatch();
-  const [userObj, setUserObj] = useState()
   const [selectedBusinessID, setSelectedBusinessID] = useState()
   const businessID = useSelector(state => state.business.businessID)
   const { switchBusiness } = bindActionCreators(businessActionCreators, dispatchBus);
@@ -162,14 +165,7 @@ function CompanySwitcher({user}) {
     switchBusiness(businessID)
   };
 
-  // const deps = [userObj, selectedBusinessID]
-  // useWhatChanged(deps, "userObj, selectedBusID")
 
-  useEffect(() => {
-    apiTryvestors.getSingle(user.uid).then((data) => {
-      setUserObj(data)
-    })
-  }, [])
 
   const theme = useTheme()
 
@@ -178,13 +174,12 @@ function CompanySwitcher({user}) {
       setSelectedBusinessID(businessID)
       return
     }
-
-    if(userObj && userObj.businessesRespondedTo.length > 0){
-      const selectedBusIDTemp = userObj.businessesRespondedTo[0].businessID
+    if(user && user.businessesRespondedTo.length > 0){
+      const selectedBusIDTemp = user.businessesRespondedTo[0].businessID
       setSelectedBusinessID(selectedBusIDTemp)
       switchBusiness(selectedBusIDTemp)
     }
-  }, [userObj])
+  }, [user])
 
   return (
       selectedBusinessID ?
@@ -195,9 +190,9 @@ function CompanySwitcher({user}) {
           sx={{maxWidth: "100%", width: "100%"}}
           defaultValue={selectedBusinessID}
         >
-          {userObj?.businessesRespondedTo.map((business) => {
+          {user?.businessesRespondedTo.map((business, index) => {
             return (
-                <MenuItem style={{maxWidth: "100%"}} value={business.businessID}>
+                <MenuItem style={{maxWidth: "100%"}} value={business.businessID} key={index}>
                   <div style={{overflow: 'hidden'}}>
                     <Stack display={"flex"} alignItems={"center"} direction={"row"} spacing={1}>
                       <div style={{overflow: "hidden", borderRadius: "50%", height: "5vh", width:"5vh", display: "inline"}}>

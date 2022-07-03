@@ -54,9 +54,7 @@ export default function Community() {
 
     useEffect(() => {
         if (user) {
-            apiTryvestors.getSingle(user.uid).then((data) => {
-                setUserObj(data);
-            })
+            setUserObj(user)
         }
 
     }, [user])
