@@ -28,12 +28,6 @@ import {fShortenNumber, fCurrency} from '../utils/formatNumber'
 import Page from '../components/Page';
 import COMPANIES from '../_mock/companies';
 
-// sections
-import TASKS from '../_mock/tasks';
-import UserDashboardInfo from "../sections/@dashboard/user/UserDashboardInfo";
-import {apiTryvestors} from "../utils/api/api-tryvestors";
-import {apiBusinesses} from "../utils/api/api-businesses";
-
 // ----------------------------------------------------------------------
 
 export default function Community() {
