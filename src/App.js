@@ -12,7 +12,7 @@ import { BaseOptionChartStyle } from './components/chart/BaseOptionChart';
 // ----------------------------------------------------------------------
 
 // export const isBusiness = window.location.host.includes("business")
-export const isBusiness = true
+export const isBusiness = false
 export const business = {businessID: "FB0mjHuGIWOsS3fJ4Idk"}
 
 export default function App() {

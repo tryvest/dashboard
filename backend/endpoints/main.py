@@ -167,13 +167,48 @@ class TermResponse:
         return toReturn
 
 
+class TryvestorAddress:
+    def __init__(self, streetAddress, unitNum, city, state, postalCode, country):
+        self.streetAddress = streetAddress,
+        self.unitNum = unitNum,
+        self.city = city,
+        self.state = state,
+        self.postalCode = postalCode,
+        self.country = country
+
+    @staticmethod
+    def fromDict(sourceDict):
+        return TryvestorAddress(
+            streetAddress=str(sourceDict["streetAddress"]),
+            unitNum=str(sourceDict["unitNum"]),
+            city=str(sourceDict["city"]),
+            state=str(sourceDict["state"]),
+            postalCode=str(sourceDict["postalCode"]),
+            country=str(sourceDict["country"])
+        )
+
+    def toDict(self):
+        return {
+            'streetAddress': self.streetAddress,
+            'unitNum': self.unitNum,
+            'city': self.city,
+            'state': self.state,
+            'postalCode': self.postalCode,
+            'country': self.country
+        }
+
+
 class Tryvestor:
-    def __init__(self, tryvestorID, firstName, lastName, username, interests):
+    def __init__(self, tryvestorID, firstName, lastName, username, dateOfBirth, profilePicture, occupation, location, address):
         self.tryvestorID = tryvestorID
         self.firstName = firstName
         self.lastName = lastName
         self.username = username
-        self.interests = interests
+        self.dateOfBirth = dateOfBirth,
+        self.profilePicture = profilePicture,
+        self.occupation = occupation,
+        self.location = location,
+        self.address = TryvestorAddress.fromDict(address)
 
     @staticmethod
     def fromDict(sourceDict, tryvestorID):
@@ -182,7 +217,11 @@ class Tryvestor:
             firstName=str(sourceDict["firstName"]),
             lastName=str(sourceDict["lastName"]),
             username=str(sourceDict["username"]),
-            interests=sourceDict["interests"]
+            profilePicture=str(sourceDict["profilePicture"]),
+            occupation=str(sourceDict["occupation"]),
+            location=str(sourceDict["location"]),
+            address=sourceDict['address']
+
         )
 
     def toFirebaseDict(self):
@@ -190,7 +229,10 @@ class Tryvestor:
             "firstName": self.firstName,
             "lastName": self.lastName,
             "username": self.username,
-            "interests": self.interests,
+            'profilePicture': self.profilePicture,
+            'occupation': self.occupation,
+            'location': self.location,
+            'address': self.address.toDict()
         }
 
     def toDict(self):
@@ -357,6 +399,13 @@ class AllTryvestors(Resource):
         toAdd["creationDate"] = datetime.datetime.now()
         tryDoc.set(toAdd)
         return tryDoc.id
+
+    def put(self):
+        tryvestorUpdateData = request.json
+        tryvestorID = tryvestorUpdateData.pop('tryvestorID')
+        busDoc = db.collection('tryvestors').document(tryvestorID)
+        print(tryvestorUpdateData)
+        busDoc.update(tryvestorUpdateData)
 
 
 @tryApi.route("/<string:tryvestorID>")
