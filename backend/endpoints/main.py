@@ -237,6 +237,13 @@ class AllBusinesses(Resource):
         busDoc.set(toAdd)
         return busDoc.id
 
+    def put(self):
+        businessUpdateData = request.json
+        businessID = businessUpdateData.pop('businessID')
+        busDoc = db.collection('businesses').document(businessID)
+        print(businessUpdateData)
+        busDoc.update(businessUpdateData)
+
 
 @busApi.route("/<string:businessID>")
 class SpecificBusiness(Resource):

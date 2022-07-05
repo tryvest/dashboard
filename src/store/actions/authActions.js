@@ -8,9 +8,7 @@ export const signIn = creds => {
 
         signInWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async (data) => {
-
           apiTryvestors.getSingle(data.user.uid).then((user) => {
-
             const payload = {...user}
             dispatch({ type: "SIGN_IN", payload });
           })

@@ -4,15 +4,13 @@ import {
     Button,
     Card,
     CardContent,
-    CardHeader,
     Chip,
-    CircularProgress,
-    Container,
     Grid,
     Stack,
-    Typography, SvgIcon,
-    Slider,
-    Box
+    Typography,
+    SvgIcon,
+    Box,
+    TextField
 } from "@mui/material";
 import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
@@ -21,6 +19,7 @@ import {useNavigate} from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import MDEditor from '@uiw/react-md-editor';
+import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
 import {apiBusinesses} from "../../utils/api/api-businesses";
 import {business} from "../../App";
 import Page from "../../components/Page";
@@ -30,23 +29,66 @@ function BusinessHomePage(props) {
     const theme = useTheme();
     const [userObj, setUserObj] = useState(null)
     const [businessObj, setBusinessObj] = useState(null)
-    const [mdText, setMdText] = useState()
     const navigate = useNavigate()
     const [editMode, setEditMode] = useState(false)
+
+    // Editable Fields
+    const [wasChanged, setWasChanged] = useState(false)
+    const [description, setDescription] = useState()
+    const [businessName, setBusinessName] = useState()
+    const [tags, setTags] = useState()
+    const [targetMarket, setTargetMarket] = useState()
+    const [tagline, setTagline] = useState()
+
 
     useEffect(() => {
         if(business){
             apiBusinesses.getSingle(business?.businessID).then((data) => {
                 setBusinessObj(data)
-                setMdText(data.description)
+                setDescription(data.description)
+                setBusinessName(data.name)
+                setTags(data.tags)
+                setTagline(data.tagline)
+                setTargetMarket(data.targetMarket)
             })
         }
     }, [business])
+
+    useEffect(() => {
+        setWasChanged(true)
+    }, [description, businessName, tags, targetMarket, tagline])
+
+    function turnOnEdit() {
+        setEditMode(true)
+    }
+
+    function turnOffEdit() {
+        if (wasChanged){
+            // saving edits to firebase
+            const newBusinessInfo = {
+                'businessID': businessObj.businessID,
+                'tags': tags,
+                'name': businessName,
+                'description': description,
+                'targetMarket': targetMarket,
+                'tagline': tagline
+            }
+            apiBusinesses.put(newBusinessInfo).then(r => console.log(r))
+            setWasChanged(false)
+            console.log('edit was recorded')
+        }
+
+        // edit mode off
+        setEditMode(false)
+    }
+
+    const editTextVariant = 'outlined';
 
     return (
         <Page title="Company Overview">
             {
                 (businessObj) ? (
+                <div>
                     <Grid container spacing={1} style={{margin: "5px"}}>
                         <Grid item xs={12} sm={12} md={9}>
                             <Card>
@@ -55,18 +97,66 @@ function BusinessHomePage(props) {
                                         <Box marginTop={"-25px"} marginX={"-25px"} padding={"20px"} display={"flex"} alignItems={"center"} bgcolor={"#E4E4E4"}>
                                             <Stack paddingY={"10px"} spacing={1} direction={"row"} alignItems={"center"} style={{marginInline: "auto"}}>
                                                 <img style={{height: "60px", width: "60px"}} src={businessObj.logo} alt="Business Logo"/>
-                                                <Typography fontSize={"50px"} fontWeight={"900"}>
-                                                    {businessObj.name}
-                                                </Typography>
+                                                {
+                                                    editMode ? (
+                                                        <div style={{color: 'white'}}>
+                                                            <TextField
+                                                                value={businessName}
+                                                                onChange={(event) => {setBusinessName(event.target.value)}}
+                                                                style={{margin:'10px 0px 10px 0px'}}
+                                                                variant={editTextVariant}
+                                                                label={'Business Name'}
+                                                                multiline
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <Stack alignItems={'center'} spacing={1} direction={'row'}>
+                                                            <Typography fontSize={"50px"} fontWeight={"900"}>
+                                                                {businessName}
+                                                            </Typography>
+                                                            { !editMode &&
+                                                                <Button size={'large'} onClick={() => turnOnEdit()} color={'secondary'} style={{
+                                                                    padding: '5px',
+                                                                }}>
+                                                                    <ModeEditOutlineRoundedIcon/>
+                                                                </Button>
+                                                            }
+                                                        </Stack>
+                                                    )
+                                                }
                                             </Stack>
                                         </Box>
                                         <div>
-                                            <Typography variant={"h3"} fontWeight={"1000"}>
-                                                {businessObj.name}
-                                            </Typography>
-                                            <Typography fontWeight={"400"} color={"rgba(37,39,51,0.87)"} fontStyle={"italic"}>
-                                                {businessObj.tagline}
-                                            </Typography>
+                                            <Stack alignItems={'center'} spacing={1} direction={'row'}>
+                                                <Typography variant={"h3"} fontWeight={"1000"}>
+                                                    {businessName}
+                                                </Typography>
+                                                { !editMode &&
+                                                    <Button onClick={() => turnOnEdit()} color={'secondary'} style={{
+                                                        padding: '5px',
+                                                        minWidth: '40px',
+                                                        maxHeight: '40px'
+                                                    }}>
+                                                        <ModeEditOutlineRoundedIcon/>
+                                                    </Button>
+                                                }
+                                            </Stack>
+                                            {
+                                                editMode ? (
+                                                    <TextField
+                                                        value={tagline}
+                                                        onChange={(event) => {setTagline(event.target.value)}}
+                                                        style={{width: '100%', margin:'10px 0px 10px 0px'}}
+                                                        variant={editTextVariant}
+                                                        label={'Business Tagline'}
+
+                                                    />
+                                                ) : (
+                                                    <Typography fontWeight={"400"} color={"rgba(37,39,51,0.87)"} fontStyle={"italic"}>
+                                                        {tagline}
+                                                    </Typography>
+                                                )
+                                            }
                                             <Stack direction={"row"} display={"flex"} flexWrap={"wrap"} style={{marginBottom: "20px"}}>
                                                 {businessObj.topics.map((topic) => {
                                                     return (
@@ -104,7 +194,7 @@ function BusinessHomePage(props) {
                                         </div>
                                         <Stack style={{marginTop: "10px"}}>
                                             <Typography fontWeight={"800"} fontSize={"25px"}>
-                                                Key Points
+                                                About {businessName}
                                             </Typography>
                                             <div>
                                                 {/*
@@ -120,20 +210,27 @@ function BusinessHomePage(props) {
                                                     })}
                                                 </ul>
                                                 */}
-                                                <div data-color-mode={"light"}>
-                                                    <MDEditor
-                                                        value={mdText}
-                                                        onChange={setMdText}
-                                                        height={600}
-                                                        preview={"edit"}
-                                                        previewOptions={{
-                                                            rehypePlugins: [[rehypeSanitize]],
-                                                        }}
-                                                    />
-                                                </div>
-                                                {/*
-                                                <MDEditor.Markdown source={mdText} style={{ whiteSpace: 'pre-wrap' }} />
-                                                */}
+                                                {
+                                                    editMode ? (
+                                                        <div data-color-mode={"light"}>
+                                                            <MDEditor
+                                                                value={description}
+                                                                onChange={setDescription}
+                                                                minHeight={200}
+                                                                maxHeight={600}
+                                                                preview={"edit"}
+                                                                previewOptions={{
+                                                                    rehypePlugins: [[rehypeSanitize]],
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <div data-color-mode={'light'}>
+                                                            <MDEditor.Markdown source={description} style={{ whiteSpace: 'pre-wrap' }} />
+                                                        </div>
+                                                    )
+
+                                                }
                                             </div>
                                         </Stack>
                                         <Grid container justifyContent={"center"} style={{marginTop: "15px"}}>
@@ -160,19 +257,29 @@ function BusinessHomePage(props) {
                                         <Typography fontWeight={500} fontSize={20} color={"white"}>
                                             Target Market
                                         </Typography>
-                                        <Stack>
-                                            {businessObj.targetMarket.map((sent, num) => {
-                                                let textColor = "white"
-                                                if(num === 0) {
-                                                    textColor = theme.palette.primary.main
-                                                }
-                                                return (
-                                                    <Typography color={textColor} fontSize={15}>
-                                                        {sent.charAt(0).toUpperCase() + sent.slice(1)}
-                                                    </Typography>
-                                                )
-                                            })}
-                                        </Stack>
+                                        {
+                                            editMode ? (
+                                                <div style={{color: 'white'}}>
+                                                    <TextField
+                                                        value={targetMarket}
+                                                        sx={{backgroundColor: 'white'}}
+                                                        fullWidth
+                                                        onChange={(event) => {setTargetMarket(event.target.value)}}
+                                                        style={{margin:'10px 0px 10px 0px'}}
+                                                        variant={editTextVariant}
+                                                        multiline
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <Stack>
+                                                    {
+                                                        <Typography color={'white'} fontSize={15}>
+                                                            {tagline?.charAt(0).toUpperCase() + tagline?.slice(1)}
+                                                        </Typography>
+                                                    }
+                                                </Stack>
+                                            )
+                                        }
                                     </Stack>
                                 </Card>
                                 <Card style={{padding: "15px"}}>
@@ -232,6 +339,16 @@ function BusinessHomePage(props) {
                             </Stack>
                         </Grid>
                     </Grid>
+                    {editMode &&
+                        <div style={{bottom: '15px', position: 'fixed', right: '15px'}}>
+                            <Button size={'large'} variant={'contained'} onClick={() => turnOffEdit()}>
+                                <Typography fontSize={24}>
+                                    Save Edits
+                                </Typography>
+                            </Button>
+                        </div>
+                    }
+                </div>
                 ) : (
                     <div>
                         <Grid container spacing={1}>

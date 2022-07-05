@@ -13,7 +13,7 @@ const apiBusinesses = new ApiCore({
     getAll: true,
     getSingle: true,
     post: true,
-    put: false,
+    put: true,
     patch: false,
     delete: false,
     url,
