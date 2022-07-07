@@ -1,9 +1,12 @@
-import datetime
+from datetime import datetime, date, timezone
 from flask import Flask, request
 from flask_restx import Api, Resource, fields
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
+
+# from dateutils import datetime as dtime
+# from dateutils import date as dt
 
 cred = credentials.Certificate("valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json")
 firebase_admin.initialize_app(cred)
@@ -18,7 +21,11 @@ tryvestorRoute = "/tryvestors"
 api = Api(app=app, prefix=baseRoute)
 busApi = api.namespace("businesses", description="For business side requests")
 tryApi = api.namespace("tryvestors", description="For tryvestor side requests")
+datetime.fromisoformat("2022-07-06T10:36:43.916642-08:00").astimezone(timezone.utc)
 
+# print(db.collection('tryvestors').document('0cx8CV21EwfuyX8vRYvobkyIMWo2').update({
+#     'dateOfBirth': datetime.now(timezone.utc)
+# }))
 
 class GenericUser:
     def __init__(self, userType, userID):
@@ -26,25 +33,26 @@ class GenericUser:
         self.userID = userID
 
     @staticmethod
-    def fromDict(sourceDict, userID):
+    def readFromFirebaseFormat(sourceDict, userID):
         return GenericUser(
             userType=sourceDict["userType"],
-            userID=userID
+            userID=userID,
         )
 
-    def toFirebaseDict(self):
+    def writeToFirebaseFormat(self):
         return {
-            'userType': self.userType
+            'userType': self.userType,
         }
 
-    def toDict(self):
-        toReturn = self.toFirebaseDict()
+    def writeToDict(self):
+        toReturn = self.writeToFirebaseFormat()
         toReturn['userID'] = self.userID
         return toReturn
 
 
 class Business:
-    def __init__(self, businessID, name, description, topics, valuation, totalShares, media, logo, tagline, investors, targetMarket, funding, channelID, serverID):
+    def __init__(self, businessID, name, description, topics, valuation, totalShares, media, logo, tagline, investors,
+                 targetMarket, funding, channelID, serverID, creationDate, tryvestors):
         self.tagline = tagline
         self.logo = logo
         self.media = media
@@ -59,10 +67,11 @@ class Business:
         self.funding = funding
         self.channelID = channelID
         self.serverID = serverID
-
+        self.creationDate = creationDate
+        self.tryvestors = tryvestors
 
     @staticmethod
-    def fromDict(sourceDict, businessID):
+    def readFromFirebaseFormat(sourceDict, businessID):
         return Business(
             tagline=str(sourceDict["tagline"]),
             logo=str(sourceDict["logo"]),
@@ -77,10 +86,12 @@ class Business:
             businessID=str(businessID),
             funding=int(sourceDict["funding"]),
             channelID=str(sourceDict["channelID"]),
-            serverID=str(sourceDict["serverID"])
+            serverID=str(sourceDict["serverID"]),
+            creationDate=sourceDict["creationDate"],
+            tryvestors=sourceDict["tryvestors"]
         )
 
-    def toFirebaseDict(self):
+    def writeToFirebaseFormat(self):
         return {
             "name": self.name,
             "description": self.description,
@@ -94,17 +105,31 @@ class Business:
             "targetMarket": self.targetMarket,
             "funding": self.funding,
             "channelID": self.channelID,
-            "serverID": self.serverID
+            "serverID": self.serverID,
+            'creationDate': self.creationDate,
+            'tryvestors': self.tryvestors
         }
 
-    def toDict(self):
-        toReturn = self.toFirebaseDict()
+    @staticmethod
+    def readFromDict(sourceDict, businessID):
+        sourceDict['creationDate'] = datetime.fromisoformat(sourceDict["creationDate"])
+        return Business.readFromFirebaseFormat(sourceDict, businessID)
+
+    @staticmethod
+    def createFromDict(sourceDict, businessID):
+        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
+        return Business.readFromDict(sourceDict, businessID)
+
+    def writeToDict(self):
+        toReturn = self.writeToFirebaseFormat()
+        toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["businessID"] = self.businessID
         return toReturn
 
 
 class TermDocument:
-    def __init__(self, termDocumentID, formLink, description, resultsLink, businessID, numSharesAward, title):
+    def __init__(self, termDocumentID, formLink, description, resultsLink, businessID, numSharesAward, title,
+                 creationDate):
         self.termDocumentID = termDocumentID
         self.formLink = formLink
         self.description = description
@@ -112,9 +137,10 @@ class TermDocument:
         self.businessID = businessID
         self.numSharesAward = numSharesAward
         self.title = title
+        self.creationDate = creationDate
 
     @staticmethod
-    def fromDict(sourceDict, termDocumentID):
+    def readFromFirebaseFormat(sourceDict, termDocumentID):
         return TermDocument(
             formLink=str(sourceDict["formLink"]),
             description=str(sourceDict["description"]),
@@ -122,47 +148,74 @@ class TermDocument:
             businessID=str(sourceDict["businessID"]),
             numSharesAward=float(sourceDict["numSharesAward"]),
             termDocumentID=str(termDocumentID),
-            title=str(sourceDict["title"])
+            title=str(sourceDict["title"]),
+            creationDate=sourceDict['creationDate']
         )
 
-    def toFirebaseDict(self):
+    def writeToFirebaseFormat(self):
         return {
             "businessID": self.businessID,
             "description": self.description,
             "numSharesAward": float(self.numSharesAward),
             "formLink": self.formLink,
             "resultsLink": self.resultsLink,
-            "title": self.title
+            "title": self.title,
+            "creationDate": self.creationDate
         }
 
-    def toDict(self):
-        toReturn = self.toFirebaseDict()
+    @staticmethod
+    def readFromDict(sourceDict, termDocumentID):
+        sourceDict["creationDate"] = datetime.fromisoformat(sourceDict["creationDate"])
+        Business.readFromFirebaseFormat(sourceDict, termDocumentID)
+
+    @staticmethod
+    def createFromDict(sourceDict, termDocumentID):
+        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
+        return Business.readFromDict(sourceDict, termDocumentID)
+
+    def writeToDict(self):
+        toReturn = self.writeToFirebaseFormat()
+        toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["termDocumentID"] = self.termDocumentID
         return toReturn
 
 
 class TermResponse:
-    def __init__(self, tryvestorID, verificationStatus, termResponseID):
+    def __init__(self, tryvestorID, verificationStatus, termResponseID, creationDate):
         self.tryvestorID = tryvestorID
         self.verificationStatus = verificationStatus
         self.termResponseID = termResponseID
+        self.creationDate = creationDate
 
     @staticmethod
-    def fromDict(sourceDict, termResponseID):
+    def readFromFirebaseFormat(sourceDict, termResponseID):
         return TermResponse(
             termResponseID=str(termResponseID),
             tryvestorID=str(sourceDict["tryvestorID"]),
             verificationStatus=int(sourceDict["verificationStatus"]),
+            creationDate=sourceDict["creationDate"]
         )
 
-    def toFirebaseDict(self):
+    def writeToFirebaseFormat(self):
         return {
             "tryvestorID": self.tryvestorID,
             "verificationStatus": self.verificationStatus,
+            "creationDate": self.creationDate
         }
 
-    def toDict(self):
-        toReturn = self.toFirebaseDict()
+    @staticmethod
+    def readFromDict(sourceDict, termResponseID):
+        sourceDict['creationDate'] = datetime.fromisoformat(sourceDict["creationDate"])
+        return TermResponse.readFromFirebaseFormat(sourceDict, termResponseID)
+
+    @staticmethod
+    def createFromDict(sourceDict, termResponseID):
+        sourceDict['creationDict'] = datetime.now(timezone.utc).isoformat()
+        return TermResponse.readFromDict(sourceDict, termResponseID)
+
+    def writeToDict(self):
+        toReturn = self.writeToFirebaseFormat()
+        toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["termResponseID"] = self.termResponseID
         return toReturn
 
@@ -199,44 +252,54 @@ class TryvestorAddress:
 
 
 class Tryvestor:
-    def __init__(self, tryvestorID, firstName, lastName, username, dateOfBirth, profilePicture, occupation, location, address):
+    def __init__(self, tryvestorID, firstName, lastName, username, age, profilePicture, address,
+                 creationDate):
         self.tryvestorID = tryvestorID
         self.firstName = firstName
         self.lastName = lastName
         self.username = username
-        self.dateOfBirth = dateOfBirth,
-        self.profilePicture = profilePicture,
-        self.occupation = occupation,
-        self.location = location,
+        self.age = age
+        self.profilePicture = profilePicture
         self.address = TryvestorAddress.fromDict(address)
+        self.creationDate = creationDate
 
     @staticmethod
-    def fromDict(sourceDict, tryvestorID):
+    def readFromFirebaseFormat(sourceDict, tryvestorID):
         return Tryvestor(
             tryvestorID=str(tryvestorID),
             firstName=str(sourceDict["firstName"]),
             lastName=str(sourceDict["lastName"]),
             username=str(sourceDict["username"]),
+            age=int(sourceDict["age"]),
             profilePicture=str(sourceDict["profilePicture"]),
-            occupation=str(sourceDict["occupation"]),
-            location=str(sourceDict["location"]),
-            address=sourceDict['address']
-
+            address=sourceDict['address'],
+            creationDate=sourceDict['creationDate']
         )
 
-    def toFirebaseDict(self):
+    def writeToFirebaseFormat(self):
         return {
             "firstName": self.firstName,
             "lastName": self.lastName,
             "username": self.username,
+            "age": self.age,
             'profilePicture': self.profilePicture,
-            'occupation': self.occupation,
-            'location': self.location,
-            'address': self.address.toDict()
+            'address': self.address.toDict(),
+            'creationDate': self.creationDate
         }
 
-    def toDict(self):
-        toReturn = self.toFirebaseDict()
+    @staticmethod
+    def readFromDict(sourceDict, tryvestorID):
+        sourceDict['creationDate'] = datetime.fromisoformat(sourceDict['creationDate'])
+        return Tryvestor.readFromFirebaseFormat(sourceDict, tryvestorID)
+
+    @staticmethod
+    def createFromDict(sourceDict, tryvestorID):
+        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
+        return Tryvestor.readFromDict(sourceDict, tryvestorID)
+
+    def writeToDict(self):
+        toReturn = self.writeToFirebaseFormat()
+        toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["tryvestorID"] = self.tryvestorID
         return toReturn
 
@@ -244,13 +307,15 @@ class Tryvestor:
 @api.route("/userType")
 class UserType(Resource):
     @api.doc(
-        params={"userID": {"description": "firestore document id of the user you want to check the type of", "type": "String"}}
+        params={"userID": {"description": "firestore document id of the user you want to check the type of",
+                           "type": "String"}}
     )
     def get(self):
         userID = request.args.get("userID")
         userDoc = db.collection('users').document(userID).get()
-        toReturn = GenericUser.fromDict(userDoc.to_dict(), userDoc.id)
+        toReturn = GenericUser.readFromFirebaseFormat(userDoc.to_dict(), userDoc.id)
         return toReturn.userType
+
 
 @busApi.route("")  # http://127.0.0.1:5000/api/businesses
 class AllBusinesses(Resource):
@@ -258,7 +323,7 @@ class AllBusinesses(Resource):
         businesses = db.collection("businesses").stream()
         result = []
         for business in businesses:
-            singleBusDict = Business.fromDict(business.to_dict(), business.id).toDict()
+            singleBusDict = Business.readFromFirebaseFormat(business.to_dict(), business.id).writeToDict()
             result.append(singleBusDict)
         return result
 
@@ -269,13 +334,12 @@ class AllBusinesses(Resource):
             'userType': 'business'
         }
         userDoc = db.collection("users").document(businessData["businessID"])
-        userFirebaseInfo = GenericUser.fromDict(sourceDict=genericUserDictForBusiness, userID=userDoc.id).toFirebaseDict()
-        userFirebaseInfo['creationDate'] = datetime.datetime.now()
+        userFirebaseInfo = GenericUser.readFromFirebaseFormat(sourceDict=genericUserDictForBusiness,
+                                                              userID=userDoc.id).writeToFirebaseFormat()
         userDoc.set(userFirebaseInfo)
 
         busDoc = db.collection("businesses").document(userDoc.id)
-        toAdd = Business.fromDict(sourceDict=businessData, businessID=busDoc.id).toFirebaseDict()
-        toAdd["creationDate"] = datetime.datetime.now()
+        toAdd = Business.createFromDict(sourceDict=businessData, businessID=busDoc.id).writeToFirebaseFormat()
         busDoc.set(toAdd)
         return busDoc.id
 
@@ -294,42 +358,51 @@ class SpecificBusiness(Resource):
         if not business.exists:
             return "Error"
         businessDict = business.to_dict()
-        businessDict = Business.fromDict(businessDict, businessID).toDict()
+        businessObj = Business.readFromFirebaseFormat(businessDict, businessID)
+        businessDict = businessObj.writeToDict()
         termDocsRef = db.collection("termDocuments").where("businessID", "==", businessID)
         termDocsSnapshot = termDocsRef.stream()
         termDocs = []
         termDocIDs = []
         termDocIDToObj = {}
         tryvestorsDict = {}
+        for tryvestor in businessObj.tryvestors:
+            tryvestorsDict[tryvestor] = {
+                "completedTasks": [],
+                "pendingTasks": [],
+                "rejectedTasks": []
+            }
         for doc in termDocsSnapshot:
-            verifiedTermDocumentObj = TermDocument.fromDict(doc.to_dict(), doc.id)
-            verifiedTermDocument = verifiedTermDocumentObj.toDict()
-            termDocIDToObj[verifiedTermDocumentObj.termDocumentID] = verifiedTermDocumentObj.toDict()
+            verifiedTermDocumentObj = TermDocument.readFromFirebaseFormat(doc.to_dict(), doc.id)
+            verifiedTermDocument = verifiedTermDocumentObj.writeToDict()
+            termDocIDToObj[verifiedTermDocumentObj.termDocumentID] = verifiedTermDocumentObj.writeToDict()
             termDocIDs.append(verifiedTermDocumentObj.termDocumentID)
             termDocsResponsesSnapshot = db.collection("termDocuments").document(doc.id).collection("responses").stream()
             responsesArr = []
             for response in termDocsResponsesSnapshot:
-                verifiedTermDocumentResponse = TermResponse.fromDict(response.to_dict(), response.id)
-                verifiedTermDocumentResponseDict = verifiedTermDocumentResponse.toDict()
+                verifiedTermDocumentResponse = TermResponse.readFromFirebaseFormat(response.to_dict(), response.id)
+                verifiedTermDocumentResponseDict = verifiedTermDocumentResponse.writeToDict()
                 responsesArr.append(verifiedTermDocumentResponseDict)
                 if verifiedTermDocumentResponse.tryvestorID not in tryvestorsDict:
                     tryvestorsDict[verifiedTermDocumentResponse.tryvestorID] = {}
                     tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"] = []
                     tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"] = []
                 if verifiedTermDocumentResponse.verificationStatus == 1:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"].append(verifiedTermDocumentObj.termDocumentID)
+                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"].append(
+                        verifiedTermDocumentObj.termDocumentID)
                 if verifiedTermDocumentResponse.verificationStatus == -1:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"].append(verifiedTermDocumentObj.termDocumentID)
+                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"].append(
+                        verifiedTermDocumentObj.termDocumentID)
             verifiedTermDocument["responses"] = responsesArr
             termDocs.append(verifiedTermDocument)
 
         returnTryvestors = []
-        allTryvestorKeys = tryvestorsDict.keys()
-        numTotalTryvestors = len(allTryvestorKeys)
+        allTryvestors = businessObj.tryvestors
+        numTotalTryvestors = len(allTryvestors)
         numPendingTryvestors = 0
         totalNumSharesAwarded = 0
 
-        for key in allTryvestorKeys:
+        for key in allTryvestors:
             tempCompletedTasks = tryvestorsDict[key]['completedTasks']
             tempRejectedTasks = tryvestorsDict[key]['rejectedTasks']
             returnCompletedTasks = []
@@ -345,9 +418,10 @@ class SpecificBusiness(Resource):
                     returnPendingTasks.append(termDocIDToObj[termDocID])
                 tempNumSharesAwardCounter += termDocIDToObj[termDocID]["numSharesAward"]
             tryvestorObjDictRaw = db.collection('tryvestors').document(key).get()
-            tryvestorObjDictVerified = Tryvestor.fromDict(tryvestorObjDictRaw.to_dict(), tryvestorObjDictRaw.id)
+            tryvestorObjDictVerified = Tryvestor.readFromFirebaseFormat(tryvestorObjDictRaw.to_dict(),
+                                                                        tryvestorObjDictRaw.id)
             tempTryvestorObj = {
-                "tryvestorObj": tryvestorObjDictVerified.toDict(),
+                "tryvestorObj": tryvestorObjDictVerified.writeToDict(),
                 "completedTasks": returnCompletedTasks,
                 "pendingTasks": returnPendingTasks,
                 "rejectedTasks": returnRejectedTasks,
@@ -360,9 +434,9 @@ class SpecificBusiness(Resource):
             returnTryvestors.append(tempTryvestorObj)
 
         tryvestorSummaryInfo = {
-           "numTotalTryvestors": numTotalTryvestors,
-           "numPendingTryvestors": numPendingTryvestors,
-           "numSharesIssued": totalNumSharesAwarded,
+            "numTotalTryvestors": numTotalTryvestors,
+            "numPendingTryvestors": numPendingTryvestors,
+            "numSharesIssued": totalNumSharesAwarded,
         }
         businessDict["termDocuments"] = termDocs
         businessDict["tryvestors"] = returnTryvestors
@@ -379,7 +453,7 @@ class AllTryvestors(Resource):
         for tryvestor in tryvestors:
             tryID = tryvestor.id
             tryvestorDict = tryvestor.to_dict()
-            singleTryJson = Tryvestor.fromDict(sourceDict=tryvestorDict, tryvestorID=tryID).toDict()
+            singleTryJson = Tryvestor.readFromFirebaseFormat(sourceDict=tryvestorDict, tryvestorID=tryID).writeToDict()
             result.append(singleTryJson)
         return result
 
@@ -390,13 +464,12 @@ class AllTryvestors(Resource):
             'userType': 'tryvestor'
         }
         userDoc = db.collection("users").document(tryvestorData["tryvestorID"])
-        userFirebaseInfo = GenericUser.fromDict(sourceDict=genericUserDictForTryvestor, userID=userDoc.id).toFirebaseDict()
-        userFirebaseInfo['creationDate'] = datetime.datetime.now()
+        userFirebaseInfo = GenericUser.readFromFirebaseFormat(sourceDict=genericUserDictForTryvestor,
+                                                              userID=userDoc.id).writeToFirebaseFormat()
         userDoc.set(userFirebaseInfo)
 
         tryDoc = db.collection("tryvestors").document(tryvestorData["tryvestorID"])
-        toAdd = Tryvestor.fromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id).toFirebaseDict()
-        toAdd["creationDate"] = datetime.datetime.now()
+        toAdd = Tryvestor.createFromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id).writeToFirebaseFormat()
         tryDoc.set(toAdd)
         return tryDoc.id
 
@@ -415,7 +488,7 @@ class SpecificTryvestor(Resource):
         if not tryvestorDoc.exists:
             return "Error"
         tryvestorDict = tryvestorDoc.to_dict()
-        tryvestor = Tryvestor.fromDict(sourceDict=tryvestorDict, tryvestorID=tryvestorID).toDict()
+        tryvestor = Tryvestor.readFromFirebaseFormat(sourceDict=tryvestorDict, tryvestorID=tryvestorID).writeToDict()
         allTermResponses = db.collection_group("responses").where("tryvestorID", "==", tryvestorID).stream()
         businessesRespondedToArr = []
         """
@@ -430,21 +503,21 @@ class SpecificTryvestor(Resource):
             toAdd = {}
 
             # Term response both as a term response object and a dictionary
-            termResponse = TermResponse.fromDict(sourceDict=termResponseSnapshot.to_dict(),
-                                                 termResponseID=termResponseSnapshot.id)
-            termResponseDict = termResponse.toDict()
+            termResponse = TermResponse.readFromFirebaseFormat(sourceDict=termResponseSnapshot.to_dict(),
+                                                               termResponseID=termResponseSnapshot.id)
+            termResponseDict = termResponse.writeToDict()
 
             # Term document both as a term document object and a dictionary
             termResponseRef = termResponseSnapshot.reference
             termDocumentSnapshot = termResponseRef.parent.parent.get()
-            termDocument = TermDocument.fromDict(sourceDict=termDocumentSnapshot.to_dict(),
+            termDocument = TermDocument.readFromFirebaseFormat(sourceDict=termDocumentSnapshot.to_dict(),
                                                  termDocumentID=termDocumentSnapshot.id)
-            termDocumentDict = termDocument.toDict()
+            termDocumentDict = termDocument.writeToDict()
 
             # Business both as a business object and a dictionary
             businessSnapshot = db.collection("businesses").document(termDocument.businessID).get()
-            business = Business.fromDict(sourceDict=businessSnapshot.to_dict(), businessID=businessSnapshot.id)
-            businessDict = business.toDict()
+            business = Business.readFromFirebaseFormat(sourceDict=businessSnapshot.to_dict(), businessID=businessSnapshot.id)
+            businessDict = business.writeToDict()
 
             # Make the response into a termDocument with nested response
             termDocumentDict["termResponse"] = termResponseDict
@@ -544,7 +617,7 @@ class VerifyResponse(Resource):
             "responses").where("tryvestorID", "==", tryvestorID).stream()
         toReturn = []
         for response in responseDocArray:
-            cleanedResponse = TermResponse.fromDict(response.to_dict(), response.id).toDict()
+            cleanedResponse = TermResponse.readFromFirebaseFormat(response.to_dict(), response.id).writeToDict()
             toReturn.append(cleanedResponse)
         return toReturn
 
@@ -558,11 +631,10 @@ class TermDocumentUsers(Resource):
         termDocResponses = db.collection("termDocuments").document(termDocUpdateData["termDocID"]).collection(
             "responses")
         userDocID = list(userDocSnapshot)[0].id
-        newResponse = TermResponse.fromDict({
+        newResponse = TermResponse.createFromDict({
             "tryvestorID": userDocID,
             "verificationStatus": 0,
-        }, "FillerID").toFirebaseDict()
-        newResponse["creationDate"] = datetime.datetime.now()
+        }, "FillerID").writeToFirebaseFormat()
         dateCreated, response = termDocResponses.add(newResponse)
         return response.id
 
@@ -572,7 +644,7 @@ class TermDocumentUsers(Resource):
         termDocResponses = db.collection("termDocuments").document(termDocID).collection("responses").stream()
         returnableResponses = []
         for response in termDocResponses:
-            cleanedResponse = TermResponse.fromDict(response.to_dict(), response.id).toDict()
+            cleanedResponse = TermResponse.readFromFirebaseFormat(response.to_dict(), response.id).writeToDict()
             returnableResponses.append(cleanedResponse)
         return returnableResponses
 
@@ -585,7 +657,7 @@ class UserByUsername(Resource):
         users = db.collection("tryvestors").where("username", "==", inputUsername).get()
         toReturn = []
         for doc in users:
-            cleanedTryvestor = Tryvestor.fromDict(doc.to_dict(), doc.id).toDict()
+            cleanedTryvestor = Tryvestor.readFromFirebaseFormat(doc.to_dict(), doc.id).writeToDict()
             toReturn.append(cleanedTryvestor)
         return toReturn[0]
 
@@ -609,8 +681,7 @@ class TermDocuments(Resource):
     def post(self):
         termDocData = request.json
         termDoc = db.collection("termDocuments").document()
-        toAdd = TermDocument.fromDict(sourceDict=termDocData, termDocumentID=termDoc.id).toFirebaseDict()
-        toAdd["creationDate"] = datetime.datetime.now()
+        toAdd = TermDocument.createFromDict(sourceDict=termDocData, termDocumentID=termDoc.id).writeToFirebaseFormat()
         termDoc.set(toAdd)
         return termDoc.id
 
