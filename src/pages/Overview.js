@@ -205,19 +205,9 @@ export default function Overview() {
                                         <Typography fontWeight={500} fontSize={20} color={"white"}>
                                             Target Market
                                         </Typography>
-                                        <Stack>
-                                            {businessObj.targetMarket.map((sent, num) => {
-                                                let textColor = "white"
-                                                if(num === 0) {
-                                                    textColor = theme.palette.primary.main
-                                                }
-                                                return (
-                                                    <Typography key={num} color={textColor} fontSize={15}>
-                                                        {sent.charAt(0).toUpperCase() + sent.slice(1)}
-                                                    </Typography>
-                                                )
-                                            })}
-                                        </Stack>
+                                        <Typography color={"white"} fontSize={15}>
+                                            {businessObj?.targetMarket.charAt(0).toUpperCase() + businessObj?.targetMarket.slice(1)}
+                                        </Typography>
                                     </Stack>
                                 </Card>
                                 <Card style={{padding: "15px"}}>

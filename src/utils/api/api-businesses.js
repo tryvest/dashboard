@@ -1,5 +1,6 @@
 import axios from "axios";
 import {ApiCore} from "./core";
+import {BASE_URL} from "./provider";
 import {handleError, handleResponse} from "./response";
 
 
@@ -23,35 +24,49 @@ const apiBusinesses = new ApiCore({
 
 apiBusinesses.postTermDocument = (model) => {
     return axios
-        .post(`${url}/termDocuments`, model)
+        .post(`${BASE_URL}/businesses/termDocuments`, model)
         .then(handleResponse)
         .catch(handleError);
 }
 
 apiBusinesses.postTermDocumentResponse = (model) => {
     return axios
-        .post(`${url}/termDocuments/reponses`, model)
+        .post(`${BASE_URL}/businesses/termDocuments/reponses`, model)
         .then(handleResponse)
         .catch(handleError);
 }
 
 apiBusinesses.getTermDocumentResponses = (termDocID) => {
     return axios
-        .get(`${url}/termDocuments/responses`, {params: {termDocID}})
+        .get(`${BASE_URL}/businesses/termDocuments/responses`, {params: {termDocID}})
         .then(handleResponse)
         .catch(handleError);
 }
 
 apiBusinesses.getTermDocumentResults = () => {
     return axios
-        .get(`${url}/termDocuments/results`)
+        .get(`${BASE_URL}/businesses/termDocuments/results`)
         .then(handleResponse)
         .catch(handleError);
 }
 
 apiBusinesses.putVerifyResponse = (model) => {
     return axios
-        .put(`${url}/termDocuments/verifyResponse`, model)
+        .put(`${BASE_URL}/businesses/termDocuments/verifyResponse`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.createAnnouncement = (model) => {
+    return axios
+        .post(`${BASE_URL}/businesses/announcements`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.updateSingleAnnouncement = (model, announcementID) => {
+    return axios
+        .post(`${BASE_URL}/businesses/announcements/${announcementID}`, model)
         .then(handleResponse)
         .catch(handleError);
 }
