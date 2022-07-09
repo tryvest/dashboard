@@ -34,13 +34,9 @@ export default function DashboardApp() {
 
     useEffect(() => {
         if (user) {
-            apiTryvestors.getSingle(user.uid).then((data) => {
-                setUserObj(data);
-                console.log(data.businessesRespondedTo)
-            })
+            setUserObj(user)
         }
-
-    }, [user, userObj])
+    }, [user])
 
     return (<Page title="Dashboard">
         <Container maxWidth="xl">

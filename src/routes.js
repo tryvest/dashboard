@@ -14,19 +14,35 @@ import DashboardApp from './pages/DashboardApp';
 import Landing from './pages/companySide/Landing';
 import Company from './pages/Company'
 import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage";
+import Tasks from "./pages/Tasks";
+import Overview from "./pages/Overview";
+import Announcements from "./pages/Announcements";
+import Community from "./pages/Community"
+import BusinessHomePage from "./pages/companySide/BusinessHomePage";
+import BusinessOverview from "./pages/companySide/BusinessOverview";
+import BusinessCommunity from "./pages/companySide/BusinessCommunity";
+import BusinessAnnouncements from "./pages/companySide/BusinessAnnouncements";
+import Learn from "./pages/Learn";
 
 // ----------------------------------------------------------------------
 
-export default function Router() {
+export function TryvestorRouter() {
   return useRoutes([
+    {
+      path: '/learn',
+      element: <DashboardLayout />,
+      children: [
+        { path: ':id', element: <Learn />},
+      ]
+    },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <DashboardApp /> },
-        { path: 'discover', element: <Discover /> },
-        { path: 'messages', element: <User /> },
-        { path: 'profile', element: <Profile /> },
+        { path: 'overview', element: <Overview /> },
+        { path: 'tasks', element: <Tasks /> },
+        { path: 'community', element: <Community /> },
+        { path: 'announcements', element: <Announcements /> },
       ],
     },
     { path: '/companies',
@@ -46,7 +62,48 @@ export default function Router() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/discover" /> },
+        { path: '/', element: <Navigate to="/dashboard/overview" /> },
+        { path: 'login', element: <Login /> },
+        { path: 'register', element: <Register /> },
+        { path: 'landing', element: <Landing />},
+        { path: '404', element: <NotFound /> },
+        { path: '*', element: <Navigate to="/404" /> },
+      ],
+    },
+    { path: '*', element: <Navigate to="/404" replace /> },
+  ]);
+}
+
+export function BusinessRouter() {
+  return useRoutes([
+    {
+      path: '/dashboard',
+      element: <DashboardLayout />,
+      children: [
+        { path: 'overview', element: <BusinessOverview /> },
+        { path: 'home', element: <BusinessHomePage /> },
+        { path: 'community', element: <BusinessCommunity /> },
+        { path: 'announcements', element: <BusinessAnnouncements /> },
+      ],
+    },
+    { path: '/companies',
+      element: <DashboardLayout />,
+      children: [
+        { path: ':id', element: <Company />},
+      ]
+    },
+    {
+      path: '/termDocuments',
+      element: <EmptyPage />,
+      children: [
+        { path: ':embedURL', element: <AirtableEmbedPage />},
+      ]
+    },
+    {
+      path: '/',
+      element: <LogoOnlyLayout />,
+      children: [
+        { path: '/', element: <Navigate to="/dashboard/overview" /> },
         { path: 'login', element: <Login /> },
         { path: 'register', element: <Register /> },
         { path: 'landing', element: <Landing />},
@@ -58,7 +115,7 @@ export default function Router() {
       path: '/business',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <DashboardApp />}
+        { path: 'app', element: <Overview />}
       ],
     },
     { path: '*', element: <Navigate to="/404" replace /> },

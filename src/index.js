@@ -11,6 +11,7 @@ import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { createFirestoreInstance } from 'redux-firestore';
 import { ReactReduxFirebaseProvider, getFirebase, isLoaded } from 'react-redux-firebase';
+import {composeWithDevTools} from "redux-devtools-extension";
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
@@ -21,7 +22,9 @@ import firebase from './firebaseConfig'
 
 const store = createStore(
     rootReducer,
-    applyMiddleware(thunk.withExtraArgument({getFirebase})),
+    composeWithDevTools(
+        applyMiddleware(thunk.withExtraArgument({getFirebase}))
+    ),
 );
 
 const rrfProps = {
