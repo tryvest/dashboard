@@ -194,9 +194,6 @@ function CompanySwitcher({user}) {
                 <MenuItem style={{maxWidth: "100%"}} value={business.businessID} key={index}>
                   <div style={{overflow: 'hidden'}}>
                     <Stack display={"flex"} alignItems={"center"} direction={"row"} spacing={1}>
-                      <div style={{overflow: "hidden", borderRadius: "50%", height: "5vh", width:"5vh", display: "inline"}}>
-                        <img src={business.logo} alt={"businessLogo"}/>
-                      </div>
                       <Typography fontSize={"medium"} fontWeight={"900"} color={"#f1f1f1"}>
                         {business.name.charAt(0).toUpperCase() + business.name.slice(1)}
                       </Typography>

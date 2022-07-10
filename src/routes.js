@@ -7,21 +7,22 @@ import EmptyPage from './layouts/EmptyPage';
 import Profile from './pages/Profile';
 import User from './pages/User';
 import Login from './pages/Login';
+import BusinessLogin from './pages/business/BusinessLogin';
 import NotFound from './pages/Page404';
 import Register from './pages/Register';
 import Discover from './pages/Discover';
 import DashboardApp from './pages/DashboardApp';
-import Landing from './pages/companySide/Landing';
+import Landing from './pages/business/Landing';
 import Company from './pages/Company'
 import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage";
 import Tasks from "./pages/Tasks";
 import Overview from "./pages/Overview";
 import Announcements from "./pages/Announcements";
 import Community from "./pages/Community"
-import BusinessHomePage from "./pages/companySide/BusinessHomePage";
-import BusinessOverview from "./pages/companySide/BusinessOverview";
-import BusinessCommunity from "./pages/companySide/BusinessCommunity";
-import BusinessAnnouncements from "./pages/companySide/BusinessAnnouncements";
+import BusinessHomePage from "./pages/business/BusinessHomePage";
+import BusinessOverview from "./pages/business/BusinessOverview";
+import BusinessCommunity from "./pages/business/BusinessCommunity";
+import BusinessAnnouncements from "./pages/business/BusinessAnnouncements";
 import Learn from "./pages/Learn";
 
 // ----------------------------------------------------------------------
@@ -104,7 +105,7 @@ export function BusinessRouter() {
       element: <LogoOnlyLayout />,
       children: [
         { path: '/', element: <Navigate to="/dashboard/overview" /> },
-        { path: 'login', element: <Login /> },
+        { path: 'login', element: <BusinessLogin /> },
         { path: 'register', element: <Register /> },
         { path: 'landing', element: <Landing />},
         { path: '404', element: <NotFound /> },
