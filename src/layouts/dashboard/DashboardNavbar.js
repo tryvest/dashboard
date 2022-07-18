@@ -12,7 +12,6 @@ import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
 import {DRAWER_WIDTH} from "./DashboardSidebar";
-import {business, isBusiness} from "../../App";
 import {apiBusinesses} from "../../utils/api/api-businesses";
 
 // ----------------------------------------------------------------------
@@ -48,7 +47,8 @@ DashboardNavbar.propTypes = {
 export default function DashboardNavbar({ onOpenSidebar }) {
 
   const navigate = useNavigate()
-  const businessID = business.businessID
+  const userType = useSelector((state) => state.auth?.userType)
+  const businessID = useSelector((state) => state.auth?.userType)
   const [businessInfo, setBusinessInfo] = useState()
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function DashboardNavbar({ onOpenSidebar }) {
           <NotificationsPopover />
           <div style={{height: "100%", padding: "5px", paddingLeft: '15px', borderLeft: "0.05em solid #DFE0EB"}}>
             {
-              iff(isBusiness,
+              iff(userType === "business",
                   (
                       businessInfo ? (
                           <Typography style={{color: "black"}}>

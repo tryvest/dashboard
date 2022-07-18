@@ -6,24 +6,26 @@ import {BASE_URL} from "../../utils/api/provider";
 import {handleError, handleResponse} from "../../utils/api/response";
 
 const auth = getAuth()
-export const signIn = creds => {
-
+export const tryvestorSignIn = creds => {
   return (dispatch, getState, { getFirebase }) => {
-        // const navigate = useNavigate()
+        const navigate = useNavigate()
         signInWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async (data) => {
           const userType = axios
-              .get(`http://127.0.0.1:5000/api/userType?userID=${data.user.uid}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
-              .then(handleResponse)
+              .get(`${BASE_URL}/userType?userID=${data.user.uid}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+              .then((response) => {
+                  if (response.results === "business") {
+                    navigate('/business/login')
+                  }
+              })
               .catch(handleError);
 
-          if (userType !== 'tryvestor'){
-            // navigate('/business/login')
-          }
-
           apiTryvestors.getSingle(data.user.uid).then((user) => {
-            const payload = {...user}
-            dispatch({ type: "SIGN_IN", payload });
+              const payload1 = {...user}
+              dispatch({ type: "SIGN_IN_USER", payload1 });
+
+              const userType = "tryvestor"
+              dispatch({ type: "SET_USER_TYPE", userType})
           })
 
         })
@@ -31,6 +33,35 @@ export const signIn = creds => {
           dispatch({ type: "SIGN_IN_ERR" }, err);
         });
   };
+};
+
+export const businessSignIn = creds => {
+    return (dispatch, getState, { getFirebase }) => {
+        const navigate = useNavigate()
+        signInWithEmailAndPassword(auth, creds.email, creds.password)
+            .then(async (data) => {
+                const userType = axios
+                    .get(`${BASE_URL}/userType?userID=${data.user.uid}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+                    .then((response) => {
+                        if (response.results === "tryvestor") {
+                            navigate('/tryvestor/login')
+                        }
+                    })
+                    .catch(handleError);
+
+                apiTryvestors.getSingle(data.user.uid).then((user) => {
+                    const payload1 = {...user}
+                    dispatch({ type: "SIGN_IN_BUSINESS", payload1});
+
+                    const userType = "business"
+                    dispatch({ type: "SET_USER_TYPE", userType})
+                })
+
+            })
+            .catch(err => {
+                dispatch({ type: "SIGN_IN_ERR" }, err);
+            });
+    };
 };
 
 export const logOut = () => {

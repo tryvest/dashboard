@@ -20,7 +20,7 @@ import firebase from './firebaseConfig'
 
 // ----------------------------------------------------------------------
 
-const store = createStore(
+export const store = createStore(
     rootReducer,
     composeWithDevTools(
         applyMiddleware(thunk.withExtraArgument({getFirebase}))

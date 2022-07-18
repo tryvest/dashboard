@@ -15,7 +15,7 @@ import {authActionCreators} from "../../../../store";
 
 export default function LoginForm() {
   const dispatch = useDispatch();
-  const { signIn } = bindActionCreators(authActionCreators, dispatch);
+  const { businessSignIn } = bindActionCreators(authActionCreators, dispatch);
 
   const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ export default function LoginForm() {
     },
     validationSchema: LoginSchema,
     onSubmit: ({email, password}) => {
-      signIn({email, password});
+      businessSignIn({email, password});
       navigate('/dashboard/overview', { replace: true });
 
     },

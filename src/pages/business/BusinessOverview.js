@@ -13,9 +13,10 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import {useTheme} from "@mui/material/styles";
 import SwitchSelector from "react-switch-selector";
+import {useSelector} from "react-redux";
 import {fCurrency} from "../../utils/formatNumber";
 import {apiBusinesses} from "../../utils/api/api-businesses";
-import {business} from "../../App";
+import {BUSINESS} from "../../UserTypes";
 
 function BusinessOverview(props) {
     const topCardsSize = {
@@ -33,8 +34,9 @@ function BusinessOverview(props) {
     const theme = useTheme()
 
     const [pendingOrCompleted, setPendingOrCompleted] = useState("pending")
-    const businessID = business.businessID
     const [businessInfo, setBusinessInfo] = useState()
+    const user = useSelector((state) => state.auth?.user)
+    const userType = useSelector((state) => state.auth?.userType)
     /*
         {tryvestors: [
             {
@@ -62,11 +64,12 @@ function BusinessOverview(props) {
     */
 
     useEffect(() => {
-        apiBusinesses.getSingle(businessID).then((data) => {
+        if(userType === BUSINESS && user)
+        apiBusinesses.getSingle(user.uid).then((data) => {
             setBusinessInfo(data)
         })
         console.log("updating")
-    }, [businessID])
+    }, [user])
 
     const selectorOptions = [
         {

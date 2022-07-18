@@ -53,12 +53,12 @@ const AccountStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 DashboardSidebar.propTypes = {
-  isBusiness: PropTypes.bool,
+  userType: PropTypes.string,
   isOpenSidebar: PropTypes.bool,
   onCloseSidebar: PropTypes.func,
 };
 
-export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSidebar }) {
+export default function DashboardSidebar({ userType, isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
 
   const isDesktop = useResponsive('up', 'lg');
@@ -83,14 +83,16 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
           <Logo sx={{zIndex: 10}} />
       </div>
 
-      {isBusiness ?
+      {
+        userType === "business" ? (
           <NavSection navConfig={navConfig.businessSide} />
-          :
+        ) : (
           <>
-          {user && <div style={{paddingInline: "5px"}}><CompanySwitcher user={user}/></div>}
-          <NavSection navConfig={navConfig.userSide} />
-          <Box sx={{flexGrow: 1}} />
-        </>
+            {user && <div style={{paddingInline: "5px"}}><CompanySwitcher user={user}/></div>}
+            <NavSection navConfig={navConfig.userSide} />
+            <Box sx={{flexGrow: 1}} />
+          </>
+        )
       }
     </Box>
   );

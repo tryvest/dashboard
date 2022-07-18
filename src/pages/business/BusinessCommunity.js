@@ -1,23 +1,26 @@
 import React, {useEffect, useState} from "react";
 import WidgetBot from '@widgetbot/react-embed'
+import {useSelector} from "react-redux";
 import Page from '../../components/Page';
 import {apiBusinesses} from "../../utils/api/api-businesses";
-import {business} from "../../App";
+import {BUSINESS} from "../../UserTypes";
 
 // ----------------------------------------------------------------------
 
 export default function BusinessCommunity() {
     const [businessInfo, setBusinessInfo] = useState(null)
     const [serverInfo, setServerInfo] = useState(null)
+    const user = useSelector((state) => state.auth?.user)
+    const userType = useSelector((state) => state.auth?.userType)
 
     useEffect(() => {
-        if (business) {
-            apiBusinesses.getSingle(business.businessID).then((data) => {
+        if (userType === BUSINESS) {
+            apiBusinesses.getSingle(user.businessID).then((data) => {
                 setBusinessInfo(data);
             })
         }
 
-    }, [business])
+    }, [user])
 
     useEffect(() => {
         if(businessInfo) {

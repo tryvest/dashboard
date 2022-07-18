@@ -10,12 +10,13 @@ import {useDispatch, useSelector} from "react-redux";
 import {bindActionCreators} from "redux";
 import Iconify from '../../../components/Iconify';
 import {authActionCreators} from "../../../store";
+import {tryvestorSignIn} from "../../../store/actions/authActions";
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
   const dispatch = useDispatch();
-  const { signIn } = bindActionCreators(authActionCreators, dispatch);
+  const { tryvestorSignIn } = bindActionCreators(authActionCreators, dispatch);
 
   const navigate = useNavigate();
 
@@ -34,7 +35,7 @@ export default function LoginForm() {
     },
     validationSchema: LoginSchema,
     onSubmit: ({email, password}) => {
-      signIn({email, password});
+      tryvestorSignIn({email, password});
       navigate('/dashboard/overview', { replace: true });
 
     },

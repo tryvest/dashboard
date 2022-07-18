@@ -12,7 +12,7 @@ import NotFound from './pages/Page404';
 import Register from './pages/Register';
 import Discover from './pages/Discover';
 import DashboardApp from './pages/DashboardApp';
-import Landing from './pages/business/Landing';
+import Landing from './pages/general/Landing';
 import Company from './pages/Company'
 import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage";
 import Tasks from "./pages/Tasks";
@@ -120,5 +120,36 @@ export function BusinessRouter() {
       ],
     },
     { path: '*', element: <Navigate to="/404" replace /> },
+  ]);
+}
+
+export function GenericRouter() {
+  return useRoutes([
+    {
+      path: '/',
+      element: <LogoOnlyLayout/>,
+      children: [
+        {path: '/', element: <Landing/>},
+        {path: '404', element: <NotFound/>},
+        {path: '*', element: <Navigate to="/404"/>},
+      ],
+    },
+    {
+      path: '/business',
+      element: <DashboardLayout/>,
+      children: [
+        {path: 'login', element: <BusinessLogin/>},
+        {path: 'register', element: <Register/>},
+      ],
+    },
+    {
+      path: '/tryvestor',
+      element: <DashboardLayout/>,
+      children: [
+        {path: 'login', element: <BusinessLogin/>},
+        {path: 'register', element: <Register/>},
+      ],
+    },
+    {path: '*', element: <Navigate to="/404" replace/>},
   ]);
 }
