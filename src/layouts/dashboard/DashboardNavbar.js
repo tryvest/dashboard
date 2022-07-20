@@ -5,15 +5,14 @@ import {Box, Stack, AppBar, Toolbar, IconButton, Button, Typography} from '@mui/
 // components
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
+import {useSelector} from "react-redux";
 import Iconify from '../../components/Iconify';
 //
-import Searchbar from './Searchbar';
-import AccountPopover from './AccountPopover';
+import Searchbar from './Searchbar';import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
 import {DRAWER_WIDTH} from "./DashboardSidebar";
 import {apiBusinesses} from "../../utils/api/api-businesses";
-
 // ----------------------------------------------------------------------
 
 // const DRAWER_WIDTH = 200;

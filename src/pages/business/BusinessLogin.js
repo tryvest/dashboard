@@ -10,6 +10,7 @@ import Logo from '../../components/Logo';
 // sections
 import { BusinessLoginForm } from '../../sections/auth/login';
 import AuthSocial from '../../sections/auth/AuthSocial';
+import {BUSINESS, TRYVESTOR} from "../../UserTypes";
 
 
 // ----------------------------------------------------------------------
@@ -96,7 +97,7 @@ export default function Login() {
               {!smUp && (
                   <Typography variant="body2" align="center" sx={{ mt: 3, color: '#fff'}}>
                     Don’t have an account?{' '}
-                    <Link variant="subtitle2" component={RouterLink} to="/register">
+                    <Link variant="subtitle2" component={RouterLink} to={`${BUSINESS}/register`}>
                       Get started
                     </Link>
                   </Typography>

@@ -372,7 +372,7 @@ function PayoutSlider({currentVal, percentCompanyOwned, businessName}) {
                             {fCurrency(currentVal)}
                         </Typography>
                     </Stack>
-                    <Stack>
+                    <Stack alignItems={"start"}>
                         <Typography fontSize={15} fontWeight={150}>
                             NEW VALUE OF {businessName.toUpperCase()}
                         </Typography>
@@ -380,7 +380,7 @@ function PayoutSlider({currentVal, percentCompanyOwned, businessName}) {
                             {fCurrency(newValuation)}
                         </Typography>
                     </Stack>
-                    <Stack>
+                    <Stack alignItems={"start"}>
                         <Typography color={theme.palette.primary.main} fontSize={15} fontWeight={150}>
                             Approximated Payout
                         </Typography>

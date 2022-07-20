@@ -15,7 +15,7 @@ export default function BusinessCommunity() {
 
     useEffect(() => {
         if (userType === BUSINESS) {
-            apiBusinesses.getSingle(user.businessID).then((data) => {
+            apiBusinesses.getSingle(user?.uid).then((data) => {
                 setBusinessInfo(data);
             })
         }

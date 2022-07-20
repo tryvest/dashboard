@@ -9,10 +9,10 @@ import User from './pages/User';
 import Login from './pages/Login';
 import BusinessLogin from './pages/business/BusinessLogin';
 import NotFound from './pages/Page404';
-import Register from './pages/Register';
+import TryvestorRegister from './pages/TryvestorRegister';
 import Discover from './pages/Discover';
 import DashboardApp from './pages/DashboardApp';
-import Landing from './pages/general/Landing';
+import {Founders, Landing} from './pages/general/Landing';
 import Company from './pages/Company'
 import AirtableEmbedPage from "./sections/@dashboard/companies/AirtableEmbedPage";
 import Tasks from "./pages/Tasks";
@@ -65,7 +65,7 @@ export function TryvestorRouter() {
       children: [
         { path: '/', element: <Navigate to="/dashboard/overview" /> },
         { path: 'login', element: <Login /> },
-        { path: 'register', element: <Register /> },
+        { path: 'register', element: <TryvestorRegister /> },
         { path: 'landing', element: <Landing />},
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" /> },
@@ -106,7 +106,7 @@ export function BusinessRouter() {
       children: [
         { path: '/', element: <Navigate to="/dashboard/overview" /> },
         { path: 'login', element: <BusinessLogin /> },
-        { path: 'register', element: <Register /> },
+        { path: 'register', element: <TryvestorRegister /> },
         { path: 'landing', element: <Landing />},
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" /> },
@@ -131,25 +131,28 @@ export function GenericRouter() {
       children: [
         {path: '/', element: <Landing/>},
         {path: '404', element: <NotFound/>},
-        {path: '*', element: <Navigate to="/404"/>},
+        {path: 'founder', element: <Founders/>},
+        {path: '*', element: <Navigate to="/"/>},
+        // {path: '*', element: <Navigate to="/404"/>},
       ],
     },
     {
       path: '/business',
-      element: <DashboardLayout/>,
+      element: <LogoOnlyLayout/>,
       children: [
         {path: 'login', element: <BusinessLogin/>},
-        {path: 'register', element: <Register/>},
+        {path: 'register', element: <TryvestorRegister/>},
       ],
     },
     {
       path: '/tryvestor',
-      element: <DashboardLayout/>,
+      element: <LogoOnlyLayout/>,
       children: [
-        {path: 'login', element: <BusinessLogin/>},
-        {path: 'register', element: <Register/>},
+        {path: 'login', element: <Login/>},
+        {path: 'register', element: <TryvestorRegister/>},
       ],
     },
-    {path: '*', element: <Navigate to="/404" replace/>},
+    {path: '*', element: <Navigate to="/" replace/>},
+    // {path: '*', element: <Navigate to="/404" replace/>},
   ]);
 }
