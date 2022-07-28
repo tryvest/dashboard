@@ -53,12 +53,12 @@ const AccountStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 DashboardSidebar.propTypes = {
-  isBusiness: PropTypes.bool,
+  userType: PropTypes.string,
   isOpenSidebar: PropTypes.bool,
   onCloseSidebar: PropTypes.func,
 };
 
-export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSidebar }) {
+export default function DashboardSidebar({ userType, isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
 
   const isDesktop = useResponsive('up', 'lg');
@@ -83,14 +83,16 @@ export default function DashboardSidebar({ isBusiness, isOpenSidebar, onCloseSid
           <Logo sx={{zIndex: 10}} />
       </div>
 
-      {isBusiness ?
+      {
+        userType === "business" ? (
           <NavSection navConfig={navConfig.businessSide} />
-          :
+        ) : (
           <>
-          {user && <div style={{paddingInline: "5px"}}><CompanySwitcher user={user}/></div>}
-          <NavSection navConfig={navConfig.userSide} />
-          <Box sx={{flexGrow: 1}} />
-        </>
+            {user && <div style={{paddingInline: "5px"}}><CompanySwitcher user={user}/></div>}
+            <NavSection navConfig={navConfig.userSide} />
+            <Box sx={{flexGrow: 1}} />
+          </>
+        )
       }
     </Box>
   );
@@ -194,9 +196,6 @@ function CompanySwitcher({user}) {
                 <MenuItem style={{maxWidth: "100%"}} value={business.businessID} key={index}>
                   <div style={{overflow: 'hidden'}}>
                     <Stack display={"flex"} alignItems={"center"} direction={"row"} spacing={1}>
-                      <div style={{overflow: "hidden", borderRadius: "50%", height: "5vh", width:"5vh", display: "inline"}}>
-                        <img src={business.logo} alt={"businessLogo"}/>
-                      </div>
                       <Typography fontSize={"medium"} fontWeight={"900"} color={"#f1f1f1"}>
                         {business.name.charAt(0).toUpperCase() + business.name.slice(1)}
                       </Typography>

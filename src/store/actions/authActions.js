@@ -1,54 +1,97 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
-import {apiTryvestors} from "../../utils/api/api-tryvestors";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { apiTryvestors } from '../../utils/api/api-tryvestors';
+import { BASE_URL } from '../../utils/api/provider';
+import { handleError, handleResponse } from '../../utils/api/response';
+import { BUSINESS, TRYVESTOR } from '../../UserTypes';
 
-const auth = getAuth()
+const auth = getAuth();
 
-export const signIn = creds => {
+export const tryvestorSignIn = (creds, navigate) => {
   return (dispatch, getState, { getFirebase }) => {
+    console.log('got into here at least');
+    signInWithEmailAndPassword(auth, creds.email, creds.password)
+      .then(async (data) => {
+        const userType = axios
+          .get(`${BASE_URL}/userType?userID=${data.user.uid}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+          .then((response) => {
+            if (response.results === BUSINESS) {
+              navigate('/business/login');
+            }
 
-        signInWithEmailAndPassword(auth, creds.email, creds.password)
-        .then(async (data) => {
-          apiTryvestors.getSingle(data.user.uid).then((user) => {
-            const payload = {...user}
-            dispatch({ type: "SIGN_IN", payload });
+            apiTryvestors.getSingle(data.user.uid).then((user) => {
+              const payload1 = { ...user };
+              const userType = TRYVESTOR;
+              dispatch({ type: 'SIGN_IN_USER', user: payload1, userType});
+              /*              
+                const userType = TRYVESTOR;
+                dispatch({ type: 'SET_USER_TYPE', userType });
+              */
+            });
           })
-
-        })
-        .catch(err => {
-          dispatch({ type: "SIGN_IN_ERR" }, err);
-        });
+          .catch(handleError);
+      })
+      .catch((err) => {
+        dispatch({ type: 'SIGN_IN_ERR' }, err);
+      });
   };
 };
 
-export const logOut = () => {
+export const businessSignIn = (creds) => {
   return (dispatch, getState, { getFirebase }) => {
+    const navigate = useNavigate();
+    signInWithEmailAndPassword(auth, creds.email, creds.password)
+      .then(async (data) => {
+        const userType = axios
+          .get(`${BASE_URL}/userType?userID=${data.user.uid}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+          .then((response) => {
+            if (response.results === TRYVESTOR) {
+              navigate('/tryvestor/login');
+            }
 
-        auth.signOut().then(() => {
-          dispatch({ type: "SIGN_OUT" });
-        });
+            apiTryvestors.getSingle(data.user.uid).then((user) => {
+              const payload1 = { ...user };
+              dispatch({ type: 'SIGN_IN_BUSINESS', payload1 });
+
+              const userType = BUSINESS;
+              dispatch({ type: 'SET_USER_TYPE', userType });
+            });
+          })
+          .catch(handleError);
+      })
+      .catch((err) => {
+        dispatch({ type: 'SIGN_IN_ERR' }, err);
+      });
   };
 };
 
-export const signUp = creds => {
+export const logOut = (navigate) => {
   return (dispatch, getState, { getFirebase }) => {
-
-
-    createUserWithEmailAndPassword(auth, creds.email, creds.password)
-    .then(async (res) => {
-      const data = {
-        "tryvestorID": res.user.uid,
-        "username": creds.email,
-        "firstName": creds.firstName,
-        "lastName": creds.lastName,
-        "interests": creds.topics,
-      }
-
-      await apiTryvestors.post(data)
-      dispatch({ type: "SIGN_UP", payload: data });
-
-    })
-    .catch(err => {
-      dispatch({ type: "SIGN_UP_ERR" }, err);
+    auth.signOut().then(() => {
+      dispatch({ type: 'SIGN_OUT' });
+      navigate('/')
     });
+  };
+};
+
+export const signUp = (creds) => {
+  return (dispatch, getState, { getFirebase }) => {
+    createUserWithEmailAndPassword(auth, creds.email, creds.password)
+      .then(async (res) => {
+        const data = {
+          tryvestorID: res.user.uid,
+          username: creds.email,
+          firstName: creds.firstName,
+          lastName: creds.lastName,
+          interests: creds.topics,
+        };
+
+        await apiTryvestors.post(data);
+        dispatch({ type: 'SIGN_UP', payload: data });
+      })
+      .catch((err) => {
+        dispatch({ type: 'SIGN_UP_ERR' }, err);
+      });
   };
 };

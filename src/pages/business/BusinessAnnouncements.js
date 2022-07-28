@@ -16,17 +16,16 @@ import {
 import CardActions from '@mui/material/CardActions';
 
 // components
-import rehypeSanitize from "rehype-sanitize";
-import {styled, useTheme} from "@mui/material/styles";
+import {useTheme} from "@mui/material/styles";
 import AddIcon from '@mui/icons-material/Add';
 import { useFormik, Form, FormikProvider } from 'formik';
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
-import MDEditor from "@uiw/react-md-editor";
+import {useSelector} from "react-redux";
 import {truncate} from "../../utils/sharedMethods";
-import {business} from "../../App";
 import {apiBusinesses} from "../../utils/api/api-businesses";
 import Page from '../../components/Page';
+import {BUSINESS} from "../../UserTypes";
 
 // ----------------------------------------------------------------------
 
@@ -81,6 +80,8 @@ const ANNOUNCEMENTS = [
 
 const Announcements = () => {
     const theme = useTheme();
+    const user = useSelector((state) => state.auth?.user)
+    const userType = useSelector((state) => state.auth?.userType)
 
     // modal stuff
     const [addModalOpen, setAddModalOpen] = useState(false)
@@ -106,7 +107,7 @@ const Announcements = () => {
         onSubmit: ({category, title, body}) => {
             console.log("got into here")
             const announcementData = {
-                businessID: business.businessID,
+                businessID: user.uid,
                 category,
                 title,
                 body,
@@ -134,7 +135,7 @@ const Announcements = () => {
     return (
         <Page title="Dashboard: Announcements">
             <Container>
-                {business ? (
+                {userType === BUSINESS && user ? (
                     <Grid container>
                             <Grid item xs={12} sm={12} md={12}>
                                 <div>

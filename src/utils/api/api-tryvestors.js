@@ -29,4 +29,5 @@ apiTryvestors.getByUsername = (username) => {
         .catch(handleError);
 }
 
+
 export {apiTryvestors};

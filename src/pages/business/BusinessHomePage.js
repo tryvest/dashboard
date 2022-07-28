@@ -16,21 +16,22 @@ import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
 import {useTheme} from "@mui/material/styles";
 import {useNavigate} from "react-router-dom";
-import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import MDEditor from '@uiw/react-md-editor';
 import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
 import {apiBusinesses} from "../../utils/api/api-businesses";
-import {business} from "../../App";
 import Page from "../../components/Page";
-import {fCurrency, fShortenNumber} from "../../utils/formatNumber";
+import {fCurrency} from "../../utils/formatNumber";
+import {BUSINESS} from "../../UserTypes";
 
 function BusinessHomePage(props) {
     const theme = useTheme();
-    const [userObj, setUserObj] = useState(null)
+    // const [userObj, setUserObj] = useState(null)
     const [businessObj, setBusinessObj] = useState(null)
     const navigate = useNavigate()
     const [editMode, setEditMode] = useState(false)
+    const user = useSelector((state) => state.auth?.user)
+    const userType = useSelector((state) => state.auth?.userType)
 
     // Editable Fields
     const [wasChanged, setWasChanged] = useState(false)
@@ -42,8 +43,8 @@ function BusinessHomePage(props) {
 
 
     useEffect(() => {
-        if(business){
-            apiBusinesses.getSingle(business?.businessID).then((data) => {
+        if(userType === BUSINESS && user){
+            apiBusinesses.getSingle(user.uid).then((data) => {
                 setBusinessObj(data)
                 setDescription(data.description)
                 setBusinessName(data.name)
@@ -52,7 +53,7 @@ function BusinessHomePage(props) {
                 setTargetMarket(data.targetMarket)
             })
         }
-    }, [business])
+    }, [user])
 
     useEffect(() => {
         setWasChanged(true)
