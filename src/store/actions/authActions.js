@@ -1,7 +1,8 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { apiTryvestors } from '../../utils/api/api-tryvestors';
+import { apiTryvestors, } from '../../utils/api/api-tryvestors';
+import { api } from '../../utils/api/api';
 import { BASE_URL } from '../../utils/api/provider';
 import { handleError, handleResponse } from '../../utils/api/response';
 import { BUSINESS, TRYVESTOR } from '../../UserTypes';
@@ -10,27 +11,20 @@ const auth = getAuth();
 
 export const tryvestorSignIn = (creds, navigate) => {
   return (dispatch, getState, { getFirebase }) => {
-    console.log('got into here at least');
+    console.log('in: tryvestorSignIn');
     signInWithEmailAndPassword(auth, creds.email, creds.password)
       .then(async (data) => {
-        const userType = axios
-          .get(`${BASE_URL}/userType?userID=${data.user.uid}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
-          .then((response) => {
-            if (response.results === BUSINESS) {
-              navigate('/business/login');
-            }
-
-            apiTryvestors.getSingle(data.user.uid).then((user) => {
-              const payload1 = { ...user };
-              const userType = TRYVESTOR;
-              dispatch({ type: 'SIGN_IN_USER', user: payload1, userType});
-              /*              
-                const userType = TRYVESTOR;
-                dispatch({ type: 'SET_USER_TYPE', userType });
-              */
-            });
-          })
-          .catch(handleError);
+        api.getUserType(data.user.uid)
+            .then(userType => {
+              if (userType !== TRYVESTOR) {
+                navigate('/business/login');
+              }
+              apiTryvestors.getSingle(data.user.uid).then((user) => {
+                const payload = { ...user };
+                dispatch({ type: 'SIGN_IN_USER', user: payload, userType});
+              });
+            })
+            .catch(handleError);
       })
       .catch((err) => {
         dispatch({ type: 'SIGN_IN_ERR' }, err);
