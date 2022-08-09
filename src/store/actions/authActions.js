@@ -21,6 +21,7 @@ export const tryvestorSignIn = (creds, navigate) => {
               }
               apiTryvestors.getSingle(data.user.uid).then((user) => {
                 const payload = { ...user };
+                navigate('/dashboard/overview', { replace: false });
                 dispatch({ type: 'SIGN_IN_USER', user: payload, userType});
               });
             })
