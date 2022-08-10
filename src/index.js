@@ -12,6 +12,9 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { createFirestoreInstance } from 'redux-firestore';
 import { ReactReduxFirebaseProvider, getFirebase, isLoaded } from 'react-redux-firebase';
 import {composeWithDevTools} from "redux-devtools-extension";
+import { persistStore, persistReducer } from 'redux-persist'
+import {PersistGate} from "redux-persist/integration/react";
+import localStorage from 'redux-persist/lib/storage' // defaults to localStorage for web and AsyncStorage for react-native
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
@@ -19,13 +22,21 @@ import rootReducer from './store/reducers/rootReducer'
 import firebase from './firebaseConfig'
 
 // ----------------------------------------------------------------------
+const persistConfig = {
+  key: 'root',
+  storage: localStorage
+}
+
+export const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const store = createStore(
-    rootReducer,
+    persistedReducer,
     composeWithDevTools(
         applyMiddleware(thunk.withExtraArgument({getFirebase}))
     ),
 );
+
+export const persistor = persistStore(store);
 
 const rrfProps = {
   firebase,
@@ -56,7 +67,9 @@ ReactDOM.render(
     <BrowserRouter>
       <Provider store={store}>
         <ReactReduxFirebaseProvider {...rrfProps}>
+          <PersistGate loading={null} persistor={persistor}>
             <App />
+          </PersistGate>
         </ReactReduxFirebaseProvider>
       </Provider>
     </BrowserRouter>
