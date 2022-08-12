@@ -56,7 +56,13 @@ class Tryvestor:
 
     @staticmethod
     def createFromDict(sourceDict, tryvestorID):
+        sourceDict['address'] = TryvestorAddress.createNewUser()
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
+        sourceDict['SSNPrefix'] = None
+        sourceDict['SSNSuffix'] = None
+        sourceDict['SSNVerificationStatus'] = 0
+        sourceDict['IDVerificationStatus'] = 0
+        sourceDict['defaultPlaidItemAccessToken'] = None
         return Tryvestor.readFromDict(sourceDict, tryvestorID)
 
     def writeToDict(self):
@@ -73,6 +79,16 @@ class TryvestorAddress:
         self.city = city
         self.state = state
         self.postalCode = postalCode
+
+    @staticmethod
+    def createNewUser():
+        return TryvestorAddress(
+            streetAddress=None,
+            unit=None,
+            city=None,
+            state=None,
+            postalCode=None,
+        )
 
     @staticmethod
     def fromDict(sourceDict):

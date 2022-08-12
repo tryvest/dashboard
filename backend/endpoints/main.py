@@ -13,7 +13,7 @@ from dataModels.universal.GenericUser import GenericUser
 from dataModels.tryvestors.Loyalty import Loyalty
 from dataModels.tryvestors.UserInstitution import UserInstitution
 from dataModels.tryvestors.UserTransaction import UserTransaction
-from dataModels.tryvestors.TryvestorWithAddress import Tryvestor
+from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddress
 
 # Business Data Model Imports
 from dataModels.businesses.Business import Business
@@ -207,9 +207,10 @@ class AllTryvestors(Resource):
     def put(self):
         tryvestorUpdateData = request.json
         tryvestorID = tryvestorUpdateData.pop('tryvestorID')
-        busDoc = db.collection('tryvestors').document(tryvestorID)
-        print(tryvestorUpdateData)
-        busDoc.update(tryvestorUpdateData)
+        if tryvestorUpdateData.get("address") is not None:
+            tryvestorUpdateData["address"] = TryvestorAddress.fromDict(tryvestorUpdateData["address"]).toDict()
+        tryDoc = db.collection('tryvestors').document(tryvestorID)
+        tryDoc.update(tryvestorUpdateData)
 
 
 @tryApi.route("/<string:tryvestorID>")
