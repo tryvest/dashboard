@@ -13,7 +13,7 @@ from dataModels.universal.GenericUser import GenericUser
 from dataModels.tryvestors.Loyalty import Loyalty
 from dataModels.tryvestors.UserInstitution import UserInstitution
 from dataModels.tryvestors.UserTransaction import UserTransaction
-from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddress
+from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddress, encryptSSN
 
 # Business Data Model Imports
 from dataModels.businesses.Business import Business
@@ -74,106 +74,27 @@ class AllBusinesses(Resource):
         busDoc.set(toAdd)
         return busDoc.id
 
-    def put(self):
-        businessUpdateData = request.json
-        businessID = businessUpdateData.pop('businessID')
-        busDoc = db.collection('businesses').document(businessID)
-        print(businessUpdateData)
-        busDoc.update(businessUpdateData)
-
 
 @busApi.route("/<string:businessID>")
 class SpecificBusiness(Resource):
     def get(self, businessID):
+        # Reading Business data from Firebase
         business = db.collection("businesses").document(businessID).get()
         if not business.exists:
             return "Error"
         businessDict = business.to_dict()
+
+        # Filtering the business demographics data
         businessObj = Business.readFromFirebaseFormat(businessDict, businessID)
         businessDict = businessObj.writeToDict()
-        termDocsRef = db.collection("termDocuments").where("businessID", "==", businessID)
-        termDocsSnapshot = termDocsRef.stream()
-        termDocs = []
-        termDocIDs = []
-        termDocIDToObj = {}
-        tryvestorsDict = {}
-        for tryvestor in businessObj.tryvestors:
-            tryvestorsDict[tryvestor] = {
-                "completedTasks": [],
-                "pendingTasks": [],
-                "rejectedTasks": []
-            }
-        for doc in termDocsSnapshot:
-            verifiedTermDocumentObj = TermDocument.readFromFirebaseFormat(doc.to_dict(), doc.id)
-            verifiedTermDocument = verifiedTermDocumentObj.writeToDict()
-            termDocIDToObj[verifiedTermDocumentObj.termDocumentID] = verifiedTermDocumentObj.writeToDict()
-            termDocIDs.append(verifiedTermDocumentObj.termDocumentID)
-            termDocsResponsesSnapshot = db.collection("termDocuments").document(doc.id).collection("responses").stream()
-            responsesArr = []
-            for response in termDocsResponsesSnapshot:
-                verifiedTermDocumentResponse = TermResponse.readFromFirebaseFormat(response.to_dict(), response.id)
-                verifiedTermDocumentResponseDict = verifiedTermDocumentResponse.writeToDict()
-                responsesArr.append(verifiedTermDocumentResponseDict)
-                if verifiedTermDocumentResponse.tryvestorID not in tryvestorsDict:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID] = {}
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"] = []
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"] = []
-                if verifiedTermDocumentResponse.verificationStatus == 1:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"].append(
-                        verifiedTermDocumentObj.termDocumentID)
-                if verifiedTermDocumentResponse.verificationStatus == -1:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"].append(
-                        verifiedTermDocumentObj.termDocumentID)
-            verifiedTermDocument["responses"] = responsesArr
-            termDocs.append(verifiedTermDocument)
 
-        returnTryvestors = []
-        allTryvestors = businessObj.tryvestors
-        numTotalTryvestors = len(allTryvestors)
-        numPendingTryvestors = 0
-        totalNumSharesAwarded = 0
-
-        for key in allTryvestors:
-            tempCompletedTasks = tryvestorsDict[key]['completedTasks']
-            tempRejectedTasks = tryvestorsDict[key]['rejectedTasks']
-            returnCompletedTasks = []
-            returnRejectedTasks = []
-            returnPendingTasks = []
-            tempNumSharesAwardCounter = 0
-            for termDocID in termDocIDs:
-                if termDocID in tempCompletedTasks:
-                    returnCompletedTasks.append(termDocIDToObj[termDocID])
-                elif termDocID in tempRejectedTasks:
-                    returnRejectedTasks.append(termDocIDToObj[termDocID])
-                else:
-                    returnPendingTasks.append(termDocIDToObj[termDocID])
-                tempNumSharesAwardCounter += termDocIDToObj[termDocID]["numSharesAward"]
-            tryvestorObjDictRaw = db.collection('tryvestors').document(key).get()
-            tryvestorObjDictVerified = Tryvestor.readFromFirebaseFormat(tryvestorObjDictRaw.to_dict(),
-                                                                        tryvestorObjDictRaw.id)
-            tempTryvestorObj = {
-                "tryvestorObj": tryvestorObjDictVerified.writeToDict(),
-                "completedTasks": returnCompletedTasks,
-                "pendingTasks": returnPendingTasks,
-                "rejectedTasks": returnRejectedTasks,
-                "verificationStatus": 0 if (len(returnPendingTasks) > 0 or len(returnRejectedTasks) > 0) else 1,
-            }
-            if tempTryvestorObj["verificationStatus"] == 1:
-                totalNumSharesAwarded += tempNumSharesAwardCounter
-            else:
-                numPendingTryvestors += 1
-            returnTryvestors.append(tempTryvestorObj)
-
-        tryvestorSummaryInfo = {
-            "numTotalTryvestors": numTotalTryvestors,
-            "numPendingTryvestors": numPendingTryvestors,
-            "numSharesIssued": totalNumSharesAwarded,
-        }
-        businessDict["termDocuments"] = termDocs
-        businessDict["tryvestors"] = returnTryvestors
-        businessDict["tryvestorSummaryInfo"] = tryvestorSummaryInfo
-        print(businessDict)
         return businessDict
+
+    def put(self, businessID):
+        businessUpdateData = request.json
+        busDoc = db.collection('businesses').document(businessID)
+        print(businessUpdateData)
+        busDoc.update(businessUpdateData)
 
 
 @tryApi.route("")
@@ -194,145 +115,47 @@ class AllTryvestors(Resource):
         genericUserDictForTryvestor = {
             'userType': 'tryvestor'
         }
-        userDoc = db.collection("users").document(tryvestorData["tryvestorID"])
+        userDoc = db.collection("users").document(tryvestorData["UID"])
         userFirebaseInfo = GenericUser.readFromFirebaseFormat(sourceDict=genericUserDictForTryvestor,
                                                               userID=userDoc.id).writeToFirebaseFormat()
         userDoc.set(userFirebaseInfo)
 
-        tryDoc = db.collection("tryvestors").document(tryvestorData["tryvestorID"])
+        tryDoc = db.collection("tryvestors").document(tryvestorData["UID"])
         toAdd = Tryvestor.createFromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id).writeToFirebaseFormat()
         tryDoc.set(toAdd)
         return tryDoc.id
-
-    def put(self):
-        tryvestorUpdateData = request.json
-        tryvestorID = tryvestorUpdateData.pop('tryvestorID')
-        if tryvestorUpdateData.get("address") is not None:
-            tryvestorUpdateData["address"] = TryvestorAddress.fromDict(tryvestorUpdateData["address"]).toDict()
-        tryDoc = db.collection('tryvestors').document(tryvestorID)
-        tryDoc.update(tryvestorUpdateData)
 
 
 @tryApi.route("/<string:tryvestorID>")
 class SpecificTryvestor(Resource):
     def get(self, tryvestorID):
+        # Getting data from firebase
         tryvestorDoc = db.collection("tryvestors").document(tryvestorID).get()
         if not tryvestorDoc.exists:
             return "Error"
         tryvestorDict = tryvestorDoc.to_dict()
+
+        # Converting / filtering the base demographic data of tryvestor
         tryvestor = Tryvestor.readFromFirebaseFormat(sourceDict=tryvestorDict, tryvestorID=tryvestorID).writeToDict()
-        allTermResponses = db.collection_group("responses").where("tryvestorID", "==", tryvestorID).stream()
-        businessesRespondedToArr = []
-        """
-        Get all responses
-        For each response:
-            store the verification status
-            then go up a level and store: numSharesAward, businessID, refToTermDoc
-            then go to the business with given businessID and return business as dict
-            then go to termDoc and return term doc as dict
-        """
-        for termResponseSnapshot in allTermResponses:
-            toAdd = {}
-
-            # Term response both as a term response object and a dictionary
-            termResponse = TermResponse.readFromFirebaseFormat(sourceDict=termResponseSnapshot.to_dict(),
-                                                               termResponseID=termResponseSnapshot.id)
-            termResponseDict = termResponse.writeToDict()
-
-            # Term document both as a term document object and a dictionary
-            termResponseRef = termResponseSnapshot.reference
-            termDocumentSnapshot = termResponseRef.parent.parent.get()
-            termDocument = TermDocument.readFromFirebaseFormat(sourceDict=termDocumentSnapshot.to_dict(),
-                                                               termDocumentID=termDocumentSnapshot.id)
-            termDocumentDict = termDocument.writeToDict()
-
-            # Business both as a business object and a dictionary
-            businessSnapshot = db.collection("businesses").document(termDocument.businessID).get()
-            business = Business.readFromFirebaseFormat(sourceDict=businessSnapshot.to_dict(),
-                                                       businessID=businessSnapshot.id)
-            businessDict = business.writeToDict()
-
-            # Make the response into a termDocument with nested response
-            termDocumentDict["termResponse"] = termResponseDict
-
-            # Get the business index if it exists
-            indexOfBusiness = -1
-            for numIndex, alreadyAddedBus in enumerate(businessesRespondedToArr):
-                if business.businessID == alreadyAddedBus["businessID"]:
-                    indexOfBusiness = numIndex
-                    break
-
-            statusOfTasks = termResponse.verificationStatus
-
-            # Add and/or append termDocuments based on if the business already exists + update summary information
-            if indexOfBusiness == -1:
-                businessDict["termDocuments"] = [termDocumentDict]
-                numSharesAwarded = termDocument.numSharesAward if termResponse.verificationStatus == 1 else 0
-                numSharesPending = termDocument.numSharesAward if termResponse.verificationStatus == 0 else 0
-                numSharesRejected = termDocument.numSharesAward if termResponse.verificationStatus == -1 else 0
-                businessDict["interactionSummaryInfo"] = {
-                    "numSharesAwarded": numSharesAwarded,
-                    "numSharesPending": numSharesPending,
-                    "numSharesRejected": numSharesRejected,
-                    "valuePerShare": (float(business.valuation) / float(business.totalShares)),
-                    "percentBusinessOwned": float(numSharesAwarded) / float(business.totalShares),
-                    "businessName": business.name,
-                    "businessLogoLink": business.logo,
-                    "statusOfTasks": statusOfTasks
-                }
-                businessesRespondedToArr.append(businessDict)
-                indexOfBusiness = len(businessesRespondedToArr) - 1
-                print("Business Added Index" + str(indexOfBusiness))
-                print("Business Added Verification Status" + str(statusOfTasks))
-            else:
-                # Add the term document to the businesses responded to array
-                businessesRespondedToArr[indexOfBusiness]["termDocuments"].append(termDocumentDict)
-
-                # Update the interactionSummaryInfo field of this particular business using newly added term document
-                numSharesAwarded = termDocument.numSharesAward if termResponse.verificationStatus == 1 else 0
-                numSharesPending = termDocument.numSharesAward if termResponse.verificationStatus == 0 else 0
-                numSharesRejected = termDocument.numSharesAward if termResponse.verificationStatus == -1 else 0
-                tempBusInteractionInfo = businessesRespondedToArr[indexOfBusiness]["interactionSummaryInfo"]
-                print("Business Edited Index" + str(indexOfBusiness))
-                print("Business Edited Verification Status Before" + str(statusOfTasks))
-                busInteractionInfo = {
-                    "numSharesAwarded": int(tempBusInteractionInfo["numSharesAwarded"]) + numSharesAwarded,
-                    "numSharesPending": int(tempBusInteractionInfo["numSharesPending"]) + numSharesPending,
-                    "numSharesRejected": int(tempBusInteractionInfo["numSharesRejected"]) + numSharesRejected,
-                    "valuePerShare": (float(business.valuation) / float(business.totalShares)),
-                    "percentBusinessOwned": float(int(tempBusInteractionInfo["numSharesAwarded"]) + numSharesAwarded)
-                                            / float(business.totalShares),
-                    "businessName": business.name,
-                    "businessLogoLink": business.logo,
-                    "statusOfTasks": 0 if statusOfTasks == 0 else tempBusInteractionInfo["statusOfTasks"]
-                }
-                print("Business Edited Verification Status After" + str(busInteractionInfo["statusOfTasks"]))
-                businessesRespondedToArr[indexOfBusiness]["interactionSummaryInfo"] = busInteractionInfo
-        tryvestor["businessesRespondedTo"] = businessesRespondedToArr
         return tryvestor
 
-'''
-    # Crucial Information
-    numSharesAwarded = (termDocument.numSharesAward if termResponse.verificationStatus == 1 else 0)
-    percentBusinessOwned = float(numSharesAwarded) / float(business.totalShares) * 100
-    valueSharesAwarded = percentBusinessOwned / 100 * business.valuation
-    businessName = business.name
-    businessLogoLink = business.logo
-    print("gothere")
-    # Summary info that they will most likely use
-    summaryInfo = {
-        "numSharesAwarded": numSharesAwarded,
-        "valueShares": valueSharesAwarded,
-        "percentBusinessOwned": percentBusinessOwned,
-        "businessName": businessName,
-        "businessLogoLink": businessLogoLink,
-        "verificationStatus": termResponse.verificationStatus
-    }
-    toAdd["summaryInfo"] = summaryInfo
-'''
+    def patch(self, tryvestorID):
+        tryvestorUpdateData = request.json
+        # If updating address, making sure it's formatted properly
+        if tryvestorUpdateData.get("address") is not None:
+            tryvestorUpdateData["address"] = TryvestorAddress.fromDict(tryvestorUpdateData["address"]).toDict()
+
+        # If updating SSN, encrypting it using the encryptSSN function
+        if tryvestorUpdateData.get("SSN") is not None:
+            prefix, suffix = encryptSSN(tryvestorUpdateData["SSN"])
+            tryvestorUpdateData["SSNPrefix"] = prefix
+            tryvestorUpdateData["SSNSuffix"] = suffix
+
+        tryDoc = db.collection('tryvestors').document(tryvestorID)
+        tryDoc.update(tryvestorUpdateData)
 
 @tryApi.route("/byUsername")
-class UserByUsername(Resource):
+class UserIDByUsername(Resource):
     @api.doc(params={"username": {"description": "username of the user (likely email)", "type": "String"}})
     def get(self):
         inputUsername = request.args.get("username")
@@ -341,7 +164,7 @@ class UserByUsername(Resource):
         for doc in users:
             cleanedTryvestor = Tryvestor.readFromFirebaseFormat(doc.to_dict(), doc.id).writeToDict()
             toReturn.append(cleanedTryvestor)
-        return toReturn[0]
+        return toReturn[0]["tryvestorID"]
 
 if __name__ == "__main__":
     app.run(port=5000)

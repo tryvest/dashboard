@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 class Tryvestor:
     def __init__(self, tryvestorID, firstName, lastName, username, DOB, address, creationDate, SSNPrefix, SSNSuffix,
-                 SSNVerificationStatus, IDVerificationStatus, defaultPlaidItemAccessToken):
+                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultPlaidItemAccessToken):
         self.tryvestorID = tryvestorID
         self.firstName = firstName
         self.lastName = lastName
@@ -15,6 +15,7 @@ class Tryvestor:
         self.SSNSuffix = SSNSuffix
         self.SSNVerificationStatus = SSNVerificationStatus
         self.IDVerificationStatus = IDVerificationStatus
+        self.IDLink = IDLink
         self.defaultPlaidItemAccessToken = defaultPlaidItemAccessToken
 
     @staticmethod
@@ -31,6 +32,7 @@ class Tryvestor:
             SSNSuffix=str(sourceDict["SSNSuffix"]),
             SSNVerificationStatus=int(sourceDict("SSNVerificationStatus")),
             IDVerificationStatus=int(sourceDict("IDVerificationStatus")),
+            IDLink=str(sourceDict("IDLink")),
             defaultPlaidItemAccessToken=str(sourceDict("defaultPlaidItemAccessToken"))
         )
 
@@ -46,6 +48,7 @@ class Tryvestor:
             'SSNSuffix': self.SSNSuffix,
             'SSNVerificationStatus': self.SSNVerificationStatus,
             'IDVerificationStatus': self.IDVerificationStatus,
+            'IDLink': self.IDLink,
             'defaultPlaidItemAccessToken': self.defaultPlaidItemAccessToken
         }
 
@@ -62,6 +65,7 @@ class Tryvestor:
         sourceDict['SSNSuffix'] = None
         sourceDict['SSNVerificationStatus'] = 0
         sourceDict['IDVerificationStatus'] = 0
+        sourceDict['IDLink'] = None
         sourceDict['defaultPlaidItemAccessToken'] = None
         return Tryvestor.readFromDict(sourceDict, tryvestorID)
 
@@ -109,3 +113,8 @@ class TryvestorAddress:
             'state': self.state,
             'postalCode': self.postalCode,
         }
+
+
+def encryptSSN(rawSSN):
+    cleanedSSN = ''.join(c for c in rawSSN if c.isdigit())
+    return cleanedSSN[:5], cleanedSSN[5:]
