@@ -90,7 +90,7 @@ class SpecificBusiness(Resource):
 
         return businessDict
 
-    def put(self, businessID):
+    def patch(self, businessID):
         businessUpdateData = request.json
         busDoc = db.collection('businesses').document(businessID)
         print(businessUpdateData)
