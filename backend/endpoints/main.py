@@ -47,6 +47,27 @@ class UserType(Resource):
         toReturn = GenericUser.readFromFirebaseFormat(userDoc.to_dict(), userDoc.id)
         return toReturn.userType
 
+# Categories
+@api.route("/categories")
+class Categories(Resource):
+    def get(self):
+        categories = db.collection('categories').get()
+        toReturn = []
+        for category in categories:
+            cleanedCategory = Category.readFromFirebaseFormat(category.to_dict(), category.ID).writeToDict()
+            toReturn.append(cleanedCategory)
+        return toReturn
+
+    def post(self):
+        print("got here 1")
+        categoryData = request.json
+        print('got here 11/*--')
+        categoryDoc = db.collection("categories").document()
+        print("got 1")
+        cleanedCategory = Category.createFromDict(categoryData, categoryDoc.id).writeToFirebaseFormat()
+        print("got2")
+        categoryDoc.set(cleanedCategory)
+
 
 @busApi.route("")  # http://127.0.0.1:5000/api/businesses
 class AllBusinesses(Resource):
@@ -165,6 +186,8 @@ class UserIDByUsername(Resource):
             cleanedTryvestor = Tryvestor.readFromFirebaseFormat(doc.to_dict(), doc.id).writeToDict()
             toReturn.append(cleanedTryvestor)
         return toReturn[0]["tryvestorID"]
+
+
 
 if __name__ == "__main__":
     app.run(port=5000)
