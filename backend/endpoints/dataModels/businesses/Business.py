@@ -22,18 +22,18 @@ class Business:
     def readFromFirebaseFormat(sourceDict, businessID):
         return Business(
             businessID=businessID,
-            name=str(sourceDict("name")),
-            tagline=str(sourceDict("tagline")),
-            description=str(sourceDict("description")),
-            logo=str(sourceDict("logo")),
-            totalShares=int(sourceDict("totalShares")),
-            valuation=int(sourceDict("valuation")),
-            companyCategory=str(sourceDict("companyCategory")),
-            websiteLink=str(sourceDict("websiteLink")),
-            EIN=str(sourceDict("EIN")),
-            EINPhotoSubmissionLink=str(sourceDict("EINPhotoSubmissionLink")),
-            EINVerificationStatus=str(sourceDict("EINVerificationStatus")),
-            creationDate=sourceDict("creationDate"),
+            name=str(sourceDict["name"]),
+            tagline=str(sourceDict["tagline"]),
+            description=str(sourceDict["description"]),
+            logo=str(sourceDict["logo"]),
+            totalShares=int(sourceDict["totalShares"]),
+            valuation=int(sourceDict["valuation"]),
+            companyCategory=str(sourceDict["companyCategory"]),
+            websiteLink=str(sourceDict["websiteLink"]),
+            EIN=str(sourceDict["EIN"]),
+            EINPhotoSubmissionLink=str(sourceDict["EINPhotoSubmissionLink"]),
+            EINVerificationStatus=int(sourceDict["EINVerificationStatus"]),
+            creationDate=sourceDict["creationDate"],
         )
 
     def writeToFirebaseFormat(self):
@@ -60,6 +60,7 @@ class Business:
     @staticmethod
     def createFromDict(sourceDict, businessID):
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
+        sourceDict['EINVerificationStatus'] = 0
         return Business.readFromDict(sourceDict, businessID)
 
     def writeToDict(self):
@@ -67,3 +68,9 @@ class Business:
         toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["businessID"] = self.businessID
         return toReturn
+
+
+def encryptEIN(rawEIN):
+    cleanedEIN = ''.join(c for c in rawEIN if c.isdigit())
+    return cleanedEIN
+

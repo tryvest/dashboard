@@ -16,7 +16,7 @@ from dataModels.tryvestors.UserTransaction import UserTransaction
 from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddress, encryptSSN
 
 # Business Data Model Imports
-from dataModels.businesses.Business import Business
+from dataModels.businesses.Business import Business, encryptEIN
 from dataModels.businesses.BusinessInstitution import BusinessInstitution
 
 cred = credentials.Certificate("valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json")
@@ -59,13 +59,10 @@ class Categories(Resource):
         return toReturn
 
     def post(self):
-        print("got here 1")
         categoryData = request.json
-        print('got here 11/*--')
         categoryDoc = db.collection("categories").document()
-        print("got 1")
+        categoryData["categoryName"] = categoryData["categoryName"].lower()
         cleanedCategory = Category.createFromDict(categoryData, categoryDoc.id).writeToFirebaseFormat()
-        print("got2")
         categoryDoc.set(cleanedCategory)
 
 
@@ -89,6 +86,9 @@ class AllBusinesses(Resource):
         userFirebaseInfo = GenericUser.readFromFirebaseFormat(sourceDict=genericUserDictForBusiness,
                                                               userID=userDoc.id).writeToFirebaseFormat()
         userDoc.set(userFirebaseInfo)
+
+        # Encrypt EIN
+        businessData["EIN"] = encryptEIN(businessData["EIN"])
 
         busDoc = db.collection("businesses").document(userDoc.id)
         toAdd = Business.createFromDict(sourceDict=businessData, businessID=busDoc.id).writeToFirebaseFormat()
