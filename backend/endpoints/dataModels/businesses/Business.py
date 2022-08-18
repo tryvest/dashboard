@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 
 class Business:
-    def __init__(self, businessID, name, tagline, description, logo, totalShares, valuation, companyCategoryID,
+    def __init__(self, businessID, name, tagline, description, logo, totalShares, valuation, categoryID,
                  websiteLink, creationDate, EIN, EINPhotoSubmissionLink, EINVerificationStatus):
         self.businessID = businessID
         self.name = name
@@ -11,7 +11,7 @@ class Business:
         self.logo = logo
         self.totalShares = totalShares
         self.valuation = valuation
-        self.companyCategoryID = companyCategoryID
+        self.categoryID = categoryID
         self.websiteLink = websiteLink
         self.EIN = EIN
         self.EINPhotoSubmissionLink = EINPhotoSubmissionLink
@@ -28,7 +28,7 @@ class Business:
             logo=str(sourceDict["logo"]),
             totalShares=int(sourceDict["totalShares"]),
             valuation=int(sourceDict["valuation"]),
-            companyCategoryID=str(sourceDict["companyCategoryID"]),
+            categoryID=str(sourceDict["categoryID"]),
             websiteLink=str(sourceDict["websiteLink"]),
             EIN=str(sourceDict["EIN"]),
             EINPhotoSubmissionLink=str(sourceDict["EINPhotoSubmissionLink"]),
@@ -44,7 +44,7 @@ class Business:
             "logo": self.logo,
             "totalShares": self.totalShares,
             "valuation": self.valuation,
-            "companyCategoryID": self.companyCategoryID,
+            "categoryID": self.categoryID,
             "websiteLink": self.websiteLink,
             "EIN": self.EIN,
             "EINPhotoSubmissionLink": self.EINPhotoSubmissionLink,

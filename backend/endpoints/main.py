@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta, timezone, time
+from datetime import datetime, timezone, time
+from dateutil.relativedelta import relativedelta
+
 from flask import Flask, request
 from flask_restx import Api, Resource, fields
 import firebase_admin
@@ -11,7 +13,7 @@ from dataModels.universal.Category import Category
 from dataModels.universal.GenericUser import GenericUser
 
 # Tryvestor Data Model Imports
-from dataModels.tryvestors.Loyalty import Loyalty
+from dataModels.tryvestors.Loyalty import Loyalty, defaultLoyaltiesBusinessesByCategory
 from dataModels.tryvestors.UserInstitution import UserInstitution
 from dataModels.tryvestors.UserTransaction import UserTransaction
 from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddress, encryptSSN
@@ -20,7 +22,7 @@ from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddre
 from dataModels.businesses.Business import Business, encryptEIN
 from dataModels.businesses.BusinessInstitution import BusinessInstitution
 
-from random import randint
+from random import randint, choice
 
 cred = credentials.Certificate("valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json")
 firebase_admin.initialize_app(cred)
@@ -50,16 +52,13 @@ class UserType(Resource):
         toReturn = GenericUser.readFromFirebaseFormat(userDoc.to_dict(), userDoc.id)
         return toReturn.userType
 
+
 # Categories
 @api.route("/categories")
 class Categories(Resource):
     def get(self):
-        categories = db.collection('categories').get()
-        toReturn = []
-        for category in categories:
-            cleanedCategory = Category.readFromFirebaseFormat(category.to_dict(), category.ID).writeToDict()
-            toReturn.append(cleanedCategory)
-        return toReturn
+        allCategories = Categories.getAllCategoriesHelper()
+        return allCategories
 
     def post(self):
         categoryData = request.json
@@ -68,35 +67,24 @@ class Categories(Resource):
         cleanedCategory = Category.createFromDict(categoryData, categoryDoc.id).writeToFirebaseFormat()
         categoryDoc.set(cleanedCategory)
 
+    @staticmethod
+    def getAllCategoriesHelper():
+        categories = db.collection('categories').get()
+        toReturn = []
+        for category in categories:
+            cleanedCategory = Category.readFromFirebaseFormat(category.to_dict(), category.id).writeToDict()
+            toReturn.append(cleanedCategory)
+        return toReturn
+
 
 @busApi.route("")  # http://127.0.0.1:5000/api/businesses
 class AllBusinesses(Resource):
     def get(self):
-        businesses = db.collection("businesses").stream()
         sortBy = request.args.get("sortBy")
-        allBusinesses = []
-        for business in businesses:
-            singleBusDict = Business.readFromFirebaseFormat(business.to_dict(), business.id).writeToDict()
-            allBusinesses.append(singleBusDict)
+        allBusinesses = AllBusinesses.getAllBusinessesHelper()
 
-        print(sortBy)
         if sortBy == "category":
-            # Initializing return object
-            companiesByCategory = {}
-
-            # Populating return object with arrays for each cateogry that exists
-            categories = db.collection('categories').get()
-            for category in categories:
-                cleanedCategory = Category.readFromFirebaseFormat(category.to_dict(), category.id)
-                companiesByCategory[cleanedCategory.categoryID] = []
-
-            # Reading through all businesses and organizing them by categoryID
-            for business in allBusinesses:
-                businessAsObj = Business.readFromDict(business, business["businessID"])
-                companiesByCategory[businessAsObj.companyCategory].append(businessAsObj.writeToDict())
-
-            # Return grouped Stuff
-            return companiesByCategory
+            return AllBusinesses.organizeBusinessesByCategoryHelper(allBusinesses)
 
         # default return all
         return allBusinesses
@@ -120,6 +108,34 @@ class AllBusinesses(Resource):
         busDoc.set(toAdd)
         return busDoc.id
 
+    @staticmethod
+    def getAllBusinessesHelper():
+        businesses = db.collection("businesses").stream()
+        toReturn = []
+        for business in businesses:
+            singleBusDict = Business.readFromFirebaseFormat(business.to_dict(), business.id).writeToDict()
+            toReturn.append(singleBusDict)
+        return toReturn
+
+    @staticmethod
+    def organizeBusinessesByCategoryHelper(allBusinesses):
+        # Initializing return object
+        businessesByCategory = {}
+
+        # Populating return object with arrays for each cateogry that exists
+        categories = db.collection('categories').get()
+        for category in categories:
+            cleanedCategory = Category.readFromFirebaseFormat(category.to_dict(), category.id)
+            businessesByCategory[cleanedCategory.categoryID] = []
+
+        # Reading through all businesses and organizing them by categoryID
+        for business in allBusinesses:
+            businessAsObj = Business.readFromDict(business, business["businessID"])
+            businessesByCategory[businessAsObj.categoryID].append(businessAsObj.writeToDict())
+
+        # Return grouped Stuff
+        return businessesByCategory
+
 
 @busApi.route("/<string:businessID>")
 class SpecificBusiness(Resource):
@@ -142,15 +158,11 @@ class SpecificBusiness(Resource):
         print(businessUpdateData)
         busDoc.update(businessUpdateData)
 
+
 @busApi.route("/<string:businessID>/campaigns")
 class SpecificBusinessCampaigns(Resource):
     def get(self, businessID):
-        campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by('startDate', direction=firestore.Query.DESCENDING).get()
-
-        toReturn = []
-        for campaign in campaigns:
-            toReturn.append(Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict())
-
+        toReturn = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(businessID)
         return toReturn
 
     def post(self, businessID):
@@ -160,7 +172,14 @@ class SpecificBusinessCampaigns(Resource):
         campaignDoc.set(cleanedCampaign)
         return campaignDoc.id
 
-
+    @staticmethod
+    def returnAllCampaignsForSpecificBusiness(businessID):
+        campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by('startDate',
+                                                                                                      direction=firestore.Query.DESCENDING).get()
+        toReturn = []
+        for campaign in campaigns:
+            toReturn.append(Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict())
+        return toReturn
 
 
 @tryApi.route("")
@@ -176,8 +195,10 @@ class AllTryvestors(Resource):
         return result
 
     def post(self):
+        # Initializing data for tryvestor post request
         tryvestorData = request.json
 
+        # Making the generic user object and setting in firebase
         genericUserDictForTryvestor = {
             'userType': 'tryvestor'
         }
@@ -186,10 +207,47 @@ class AllTryvestors(Resource):
                                                               userID=userDoc.id).writeToFirebaseFormat()
         userDoc.set(userFirebaseInfo)
 
+        # Making the tryvestor document using the provided Tryvestor UID and setting the doc with the data
         tryDoc = db.collection("tryvestors").document(tryvestorData["UID"])
-        toAdd = Tryvestor.createFromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id).writeToFirebaseFormat()
-        tryDoc.set(toAdd)
-        return tryDoc.id
+        cleanedTryvestor = Tryvestor.createFromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id)
+        tryDoc.set(cleanedTryvestor.writeToFirebaseFormat())
+
+        # Setting the default loyalties for all categories and initializing array of history of loyalties
+        categories = Categories.getAllCategoriesHelper()
+        selectedLoyaltiesByCategory = {}
+        for category in categories:
+            categoryID = category["categoryID"]
+
+            # Getting all businesses organized by category
+            allBusinesses = AllBusinesses.getAllBusinessesHelper()
+            allBusinessesByCategory = AllBusinesses.organizeBusinessesByCategoryHelper(allBusinesses)
+
+            # Finding the business ID, if we have one set then good, otherwise choose a random business:
+            if defaultLoyaltiesBusinessesByCategory.get(categoryID) is not None:
+                businessID = defaultLoyaltiesBusinessesByCategory[categoryID]
+            else:
+                businessID = choice(allBusinessesByCategory[categoryID])
+
+            # Finding the most recent campaign for a business
+            campaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(businessID)
+            campaignID = campaignsForBusiness[0]["campaignID"]
+
+            # Making it so user can immediately change loyalty, and adding a loyalty per category
+            sourceDict = {
+                "businessID": businessID,
+                "categoryID": categoryID,
+                "campaignID": campaignID,
+                "unlockDate": datetime.now(timezone.utc).isoformat(),
+                "endDate": None
+            }
+            loyaltyDoc = tryDoc.collection("loyalties").document()
+            newLoyalty = Loyalty.createFromDict(sourceDict, loyaltyDoc.id)
+            selectedLoyaltiesByCategory[categoryID] = [newLoyalty.writeToDict()]
+            loyaltyDoc.set(newLoyalty.writeToFirebaseFormat())
+
+        tryvestorToReturn = cleanedTryvestor.writeToDict()
+        tryvestorToReturn["selectedLoyaltiesByCategory"] = selectedLoyaltiesByCategory
+        return tryvestorToReturn
 
 
 @tryApi.route("/<string:tryvestorID>")
@@ -220,23 +278,33 @@ class SpecificTryvestor(Resource):
         tryDoc = db.collection('tryvestors').document(tryvestorID)
         tryDoc.update(tryvestorUpdateData)
 
+
 @tryApi.route("/<string:tryvestorID>/loyalties")
-class SpecificTryvestorCampaigns(Resource):
+class SpecificTryvestorLoyalties(Resource):
     def get(self, tryvestorID):
-        campaigns = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('startDate', direction=firestore.Query.DESCENDING).get()
-
+        loyalties = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('startDate',
+                                                                            direction=firestore.Query.DESCENDING).get()
         toReturn = []
-        for campaign in campaigns:
-            toReturn.append(Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict())
-
+        for loyalty in loyalties:
+            toReturn.append(Campaign.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id).writeToDict())
         return toReturn
 
-    def post(self, businessID):
-        campaignData = request.json
-        campaignDoc = db.collection("businesses").document(businessID).collection("campaigns").document()
-        cleanedCampaign = Campaign.createFromDict(campaignData, campaignDoc.id).writeToFirebaseFormat()
-        campaignDoc.set(cleanedCampaign)
-        return campaignDoc.id
+    def post(self, tryvestorID):
+        # Initializing data dict and making firestore doc
+        loyaltyData = request.json
+        loyaltyDoc = db.collection("tryvestors").document(tryvestorID).collection("loyalties").document()
+
+        # Setting unlock and end dates appropriately
+        defaultTimeBeforeUnlock = relativedelta(months=3)
+        loyaltyData['unlockDate'] = datetime.combine(datetime.now(timezone.utc).date() + defaultTimeBeforeUnlock,
+                                                     time(), tzinfo=timezone.utc).isoformat()
+        loyaltyData['endDate'] = None
+
+        # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
+        cleanedLoyalty = Loyalty.createFromDict(loyaltyData, loyaltyDoc.id)
+        loyaltyDoc.set(cleanedLoyalty.writeToFirebaseFormat())
+        return cleanedLoyalty.writeToDict()
+
 
 @tryApi.route("/byUsername")
 class UserIDByUsername(Resource):
@@ -250,13 +318,14 @@ class UserIDByUsername(Resource):
             toReturn.append(cleanedTryvestor)
         return toReturn[0]["tryvestorID"]
 
+
 def fixTryvestors():
     allTryvestors = db.collection('tryvestors').get()
     for tryvestorDoc in allTryvestors:
         tryDict = tryvestorDoc.to_dict()
         print(tryDict['address'])
-        # tryDict['DOB'] = datetime.fromisoformat(datetime.combine(datetime.now(tz=timezone.utc).date() - timedelta(days=365*tryDict["age"]),
-        #                                   time(tzinfo=timezone.utc), tzinfo=timezone.utc).isoformat())
+        # tryDict['DOB'] = datetime.fromisoformat(datetime.combine(datetime.now(tz=timezone.utc).date()
+        #   - timedelta(days=365*tryDict["age"]), time(tzinfo=timezone.utc), tzinfo=timezone.utc).isoformat())
         pre, suf = encryptSSN(str(randint(100000000, 999999999)))
         tryDict['SSNPrefix'] = pre
         tryDict['SSNSuffix'] = suf
@@ -267,6 +336,6 @@ def fixTryvestors():
         fixedTryvestor = Tryvestor.readFromFirebaseFormat(tryDict, tryvestorDoc.id).writeToFirebaseFormat()
         tryvestorDoc.reference.set(fixedTryvestor)
 
+
 if __name__ == "__main__":
-    fixTryvestors()
     app.run(port=5000)

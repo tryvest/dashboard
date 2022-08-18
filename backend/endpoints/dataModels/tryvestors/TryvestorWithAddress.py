@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date, time
 
 
 class Tryvestor:
@@ -20,12 +20,13 @@ class Tryvestor:
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, tryvestorID):
+        print(sourceDict)
         return Tryvestor(
             tryvestorID=str(tryvestorID),
             firstName=str(sourceDict["firstName"]),
             lastName=str(sourceDict["lastName"]),
             username=str(sourceDict["username"]),
-            DOB=str(sourceDict["DOB"]),
+            DOB=sourceDict["DOB"],
             address=TryvestorAddress.fromDict(sourceDict['address']),
             creationDate=sourceDict['creationDate'],
             SSNPrefix=str(sourceDict["SSNPrefix"]),
@@ -57,11 +58,13 @@ class Tryvestor:
     @staticmethod
     def readFromDict(sourceDict, tryvestorID):
         sourceDict['creationDate'] = datetime.fromisoformat(sourceDict['creationDate'])
+        sourceDict['DOB'] = datetime.combine(date.fromisoformat(sourceDict['DOB']), time(tzinfo=timezone.utc),
+                                             tzinfo=timezone.utc)
         return Tryvestor.readFromFirebaseFormat(sourceDict, tryvestorID)
 
     @staticmethod
     def createFromDict(sourceDict, tryvestorID):
-        sourceDict['address'] = TryvestorAddress.createNewUser()
+        sourceDict['address'] = TryvestorAddress.createNewUser().toDict()
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
         sourceDict['SSNPrefix'] = None
         sourceDict['SSNSuffix'] = None
@@ -75,6 +78,7 @@ class Tryvestor:
         toReturn = self.writeToFirebaseFormat()
         toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["tryvestorID"] = self.tryvestorID
+        toReturn['DOB'] = date.isoformat(toReturn['DOB'].date())
         return toReturn
 
 
@@ -98,6 +102,7 @@ class TryvestorAddress:
 
     @staticmethod
     def fromDict(sourceDict):
+        print(sourceDict)
         return TryvestorAddress(
             streetAddress=str(sourceDict["streetAddress"]),
             unit=None if (sourceDict.get("unitNum") is None or sourceDict.get("unitNum") == "") else str(

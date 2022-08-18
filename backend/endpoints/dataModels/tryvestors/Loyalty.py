@@ -1,9 +1,6 @@
-from datetime import datetime, timezone, time
-from dateutil.relativedelta import relativedelta
+from datetime import datetime, timezone
 
-defaultTimeBeforeUnlock = relativedelta(months=3)
-
-defaultLoyaltiesByCategory = {
+defaultLoyaltiesBusinessesByCategory = {
     "BIiAyr9v4VSFDdtzYDkW": "EHNhQ8fUZX0vYmnHVKky",
     "TDTZwO4K22IxvtHgpRbq": "05AFSVZFZUmKqTkTUCRZ",
     "UF87cNpZonGrqe6qmSd6": "Rn8nzVxboMWEYWtqL3oq",
@@ -54,9 +51,6 @@ class Loyalty:
     @staticmethod
     def createFromDict(sourceDict, loyaltyID):
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
-        sourceDict['unlockDate'] = datetime.combine(datetime.now(timezone.utc).date() + defaultTimeBeforeUnlock,
-                                                    time(), tzinfo=timezone.utc).isoformat()
-        sourceDict['endDate'] = None
         return Loyalty.readFromDict(sourceDict, loyaltyID)
 
     def writeToDict(self):
