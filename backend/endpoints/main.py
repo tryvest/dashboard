@@ -282,11 +282,12 @@ class SpecificTryvestor(Resource):
 @tryApi.route("/<string:tryvestorID>/loyalties")
 class SpecificTryvestorLoyalties(Resource):
     def get(self, tryvestorID):
-        loyalties = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('startDate',
+        print(tryvestorID)
+        loyalties = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('creationDate',
                                                                             direction=firestore.Query.DESCENDING).get()
         toReturn = []
         for loyalty in loyalties:
-            toReturn.append(Campaign.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id).writeToDict())
+            toReturn.append(Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id).writeToDict())
         return toReturn
 
     def post(self, tryvestorID):
