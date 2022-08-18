@@ -3,11 +3,19 @@ from dateutil.relativedelta import relativedelta
 
 defaultTimeBeforeUnlock = relativedelta(months=3)
 
+defaultLoyaltiesByCategory = {
+    "BIiAyr9v4VSFDdtzYDkW": "EHNhQ8fUZX0vYmnHVKky",
+    "TDTZwO4K22IxvtHgpRbq": "05AFSVZFZUmKqTkTUCRZ",
+    "UF87cNpZonGrqe6qmSd6": "Rn8nzVxboMWEYWtqL3oq",
+    "qFmRegM4u1jvGa21l8p8": "qH6LdUxPAxjwgYeTsvr0"
+}
+
 
 class Loyalty:
-    def __init__(self, loyaltyID, businessID, categoryID, creationDate, unlockDate, endDate):
+    def __init__(self, loyaltyID, businessID, campaignID, categoryID, creationDate, unlockDate, endDate):
         self.loyaltyID = loyaltyID
         self.businessID = businessID
+        self.campaignID = campaignID
         self.categoryID = categoryID
         self.creationDate = creationDate
         self.unlockDate = unlockDate
@@ -18,6 +26,7 @@ class Loyalty:
         return Loyalty(
             loyaltyID=str(loyaltyID),
             businessID=str(sourceDict["businessID"]),
+            campaignID=str(sourceDict["campaignID"]),
             categoryID=str(sourceDict["categoryID"]),
             creationDate=sourceDict['creationDate'],
             unlockDate=sourceDict['unlockDate'],
@@ -27,6 +36,7 @@ class Loyalty:
     def writeToFirebaseFormat(self):
         return {
             "businessID": self.businessID,
+            "campaignID": self.campaignID,
             "categoryID": self.categoryID,
             "creationDate": self.creationDate,
             "unlockDate": self.unlockDate,

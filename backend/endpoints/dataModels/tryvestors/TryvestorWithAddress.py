@@ -26,17 +26,19 @@ class Tryvestor:
             lastName=str(sourceDict["lastName"]),
             username=str(sourceDict["username"]),
             DOB=str(sourceDict["DOB"]),
-            address=TryvestorAddress.fromDict(sourceDict['address']).toDict(),
+            address=TryvestorAddress.fromDict(sourceDict['address']),
             creationDate=sourceDict['creationDate'],
             SSNPrefix=str(sourceDict["SSNPrefix"]),
             SSNSuffix=str(sourceDict["SSNSuffix"]),
-            SSNVerificationStatus=int(sourceDict("SSNVerificationStatus")),
-            IDVerificationStatus=int(sourceDict("IDVerificationStatus")),
-            IDLink=str(sourceDict("IDLink")),
-            defaultPlaidItemAccessToken=str(sourceDict("defaultPlaidItemAccessToken"))
+            SSNVerificationStatus=int(sourceDict["SSNVerificationStatus"]),
+            IDVerificationStatus=int(sourceDict["IDVerificationStatus"]),
+            IDLink=str(sourceDict["IDLink"]),
+            defaultPlaidItemAccessToken=str(sourceDict["defaultPlaidItemAccessToken"])
         )
 
     def writeToFirebaseFormat(self):
+        print('after this')
+        print(self.address)
         return {
             "firstName": self.firstName,
             "lastName": self.lastName,
