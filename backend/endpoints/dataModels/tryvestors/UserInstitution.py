@@ -2,11 +2,12 @@ from datetime import datetime, timezone
 
 
 class UserInstitution:
-    def __init__(self, userInstitutionID, plaidItemAccessToken, cursor, creationDate):
+    def __init__(self, userInstitutionID, plaidItemAccessToken, cursor, creationDate, isActive):
         self.userInstitutionID = userInstitutionID
         self.plaidItemAccessToken = plaidItemAccessToken
         self.cursor = cursor
         self.creationDate = creationDate
+        self.isActive = isActive
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, userInstitutionID):
@@ -15,6 +16,7 @@ class UserInstitution:
             plaidItemAccessToken=str(sourceDict["plaidItemAccessToken"]),
             cursor=str(sourceDict["cursor"]),
             creationDate=sourceDict['creationDate'],
+            isActive=sourceDict['isActive']
         )
 
     def writeToFirebaseFormat(self):
@@ -22,6 +24,7 @@ class UserInstitution:
             "plaidItemAccessToken": self.plaidItemAccessToken,
             "cursor": self.cursor,
             "creationDate": self.creationDate,
+            'isActive': self.isActive
         }
 
     @staticmethod

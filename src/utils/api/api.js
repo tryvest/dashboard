@@ -4,9 +4,9 @@ import {ApiCore} from "./core";
 import {BASE_URL} from "./provider";
 import {handleError, handleResponse} from "./response";
 
-const url = 'tryvestors';
-const plural = 'tryvestors';
-const single = 'tryvestor';
+const url = '';
+const plural = '';
+const single = '';
 
 // plural and single may be used for message logic if needed in the ApiCore class.
 

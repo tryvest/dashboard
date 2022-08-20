@@ -10,7 +10,7 @@ const authReducer = (state = {}, action) => {
       return {...state, user: action.user, userType: action.userType};
     case "SIGN_IN_BUSINESS":
       toast("Welcome back..");
-      return {...state, business: action.payload};
+      return {...state, business: action.payload, userType: action.userType};
     case "SIGN_IN_ERR":
       toast.error("Sign in error...");
       return state;

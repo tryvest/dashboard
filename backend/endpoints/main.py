@@ -2,7 +2,7 @@ from datetime import datetime, timezone, time
 from dateutil.relativedelta import relativedelta
 
 from flask import Flask, request
-from flask_restx import Api, Resource, fields
+from flask_restx import Api, Resource
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
@@ -213,6 +213,14 @@ class AllTryvestors(Resource):
         tryDoc.set(cleanedTryvestor.writeToFirebaseFormat())
 
         # Setting the default loyalties for all categories and initializing array of history of loyalties
+        selectedLoyaltiesByCategory = AllTryvestors.addingLoyaltiesByCategoryToTryvestor()
+
+        tryvestorToReturn = cleanedTryvestor.writeToDict()
+        tryvestorToReturn["selectedLoyaltiesByCategory"] = selectedLoyaltiesByCategory
+        return tryvestorToReturn
+
+    @staticmethod
+    def addingLoyaltiesByCategoryToTryvestor(tryDoc):
         categories = Categories.getAllCategoriesHelper()
         selectedLoyaltiesByCategory = {}
         for category in categories:
@@ -244,10 +252,6 @@ class AllTryvestors(Resource):
             newLoyalty = Loyalty.createFromDict(sourceDict, loyaltyDoc.id)
             selectedLoyaltiesByCategory[categoryID] = [newLoyalty.writeToDict()]
             loyaltyDoc.set(newLoyalty.writeToFirebaseFormat())
-
-        tryvestorToReturn = cleanedTryvestor.writeToDict()
-        tryvestorToReturn["selectedLoyaltiesByCategory"] = selectedLoyaltiesByCategory
-        return tryvestorToReturn
 
 
 @tryApi.route("/<string:tryvestorID>")
@@ -284,7 +288,7 @@ class SpecificTryvestorLoyalties(Resource):
     def get(self, tryvestorID):
         print(tryvestorID)
         loyalties = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('creationDate',
-                                                                            direction=firestore.Query.DESCENDING).get()
+                                                                                                       direction=firestore.Query.DESCENDING).get()
         toReturn = []
         for loyalty in loyalties:
             toReturn.append(Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id).writeToDict())
@@ -324,19 +328,32 @@ def fixTryvestors():
     allTryvestors = db.collection('tryvestors').get()
     for tryvestorDoc in allTryvestors:
         tryDict = tryvestorDoc.to_dict()
-        print(tryDict['address'])
+        # print(tryDict['address'])
         # tryDict['DOB'] = datetime.fromisoformat(datetime.combine(datetime.now(tz=timezone.utc).date()
         #   - timedelta(days=365*tryDict["age"]), time(tzinfo=timezone.utc), tzinfo=timezone.utc).isoformat())
-        pre, suf = encryptSSN(str(randint(100000000, 999999999)))
-        tryDict['SSNPrefix'] = pre
-        tryDict['SSNSuffix'] = suf
-        tryDict['SSNVerificationStatus'] = 0
-        tryDict['IDVerificationStatus'] = 0
-        tryDict["IDLink"] = "http://tryvest.us"
-        tryDict["defaultPlaidItemAccessToken"] = None
+        # pre, suf = encryptSSN(str(randint(100000000, 999999999)))
+        # tryDict['SSNPrefix'] = pre
+        # tryDict['SSNSuffix'] = suf
+        # tryDict['SSNVerificationStatus'] = 0
+        # tryDict['IDVerificationStatus'] = 0
+        # tryDict["IDLink"] = "http://tryvest.us"
+        # tryDict["defaultUserInstitutionID"] = None
+        tryDict["defaultUserInstitutionID"] = tryDict["defaultPlaidItemAccessToken"]
+        tryDict["DOB"] = datetime.fromisoformat(tryDict["DOB"])
         fixedTryvestor = Tryvestor.readFromFirebaseFormat(tryDict, tryvestorDoc.id).writeToFirebaseFormat()
         tryvestorDoc.reference.set(fixedTryvestor)
 
 
+# Function for adding default loyalties in existing
+def makeTryvestorsHaveDefaultLoyalties():
+    allTryvestors = db.collection('tryvestors').get()
+    for tryDocSnapshot in allTryvestors:
+        existingLoyalties = tryDocSnapshot.collection('loyalties').stream()
+        for loyalty in existingLoyalties:
+            Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty["loyaltyID"])
+        AllTryvestors.addingLoyaltiesByCategoryToTryvestor(tryDocSnapshot.reference)
+
+
 if __name__ == "__main__":
+    fixTryvestors()
     app.run(port=5000)
