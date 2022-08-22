@@ -15,6 +15,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 
 import {createUserWithEmailAndPassword} from "firebase/auth";
+import {useDispatch, useSelector} from "react-redux";
 import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
 import { login } from '../../../features/userSlice';
 import Iconify from '../../../components/Iconify';
@@ -26,7 +27,7 @@ import {TRYVESTOR} from "../../../UserTypes";
 
 const RegisterForm = () => {
 
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
@@ -70,11 +71,11 @@ const RegisterForm = () => {
     createUserWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async (res) => {
           const userData = {
-            tryvestorID: res.user.uid,
-            username: creds.email,
+            UID: res.user.uid,
             firstName: creds.firstName,
             lastName: creds.lastName,
-            interests: creds.topics,
+            username: creds.email,
+            DOB: "", // Add dob field
           };
 
           await apiTryvestors.post(userData);
@@ -82,7 +83,7 @@ const RegisterForm = () => {
           const payload = {
             userType: TRYVESTOR,
             uid: res.user.uid,
-            data: userData, // TODO: put correct data here
+            data: userData,
           }
           dispatch(login(payload));
         })

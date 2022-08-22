@@ -7,6 +7,7 @@ import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormContr
 import { LoadingButton } from '@mui/lab';
 // component
 import {signInWithEmailAndPassword} from "firebase/auth";
+import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
 import Iconify from '../../../components/Iconify';
 import {api} from "../../../utils/api/api";
@@ -19,7 +20,7 @@ import { auth } from '../../../firebase'
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
@@ -38,7 +39,7 @@ export default function LoginForm() {
     },
     validationSchema: LoginSchema,
     onSubmit: ({email, password}) => {
-      logIn({email, password});
+      signIn({email, password});
     },
   });
 
@@ -48,7 +49,7 @@ export default function LoginForm() {
     setShowPassword((show) => !show);
   };
 
-  const logIn = (creds) => {
+  const signIn = (creds) => {
     signInWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async (data) => {
           api.getUserType(data.user.uid)
@@ -56,13 +57,15 @@ export default function LoginForm() {
                 if (userType !== TRYVESTOR) {
                   navigate('/business/login');
                 }
+                console.log("UID: ", data);
                 apiTryvestors.getSingle(data.user.uid).then((user) => {
                   const payload = {
                     userType: TRYVESTOR,
                     uid: data.user.uid,
                     data: user
                   };
-                  navigate('/dashboard/overview', {replace: false});
+                  console.log(payload)
+                  navigate('/dashboard/overview');
                   dispatch(login(payload));
                 });
               })
