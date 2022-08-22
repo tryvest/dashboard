@@ -7,8 +7,6 @@ import businessReducer from './businessReducer'
 const rootReducer = combineReducers({
   auth: authReducer,
   business: businessReducer,
-  firestore: firestoreReducer,
-  firebase: firebaseReducer
 });
 
 export default rootReducer

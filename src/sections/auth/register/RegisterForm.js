@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import { useState } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
-import { styled, useTheme } from '@mui/material/styles';
+
 // material
 import {
   Stack,
@@ -13,25 +13,20 @@ import {
   Autocomplete, Chip
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-// import {connect} from 'react-redux';
-// component
-// eslint-disable-next-line import/no-duplicates
-import { useSelector, useDispatch } from "react-redux"
-import { bindActionCreators } from 'redux'
+
+import {createUserWithEmailAndPassword} from "firebase/auth";
+import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
+import { login } from '../../../features/userSlice';
 import Iconify from '../../../components/Iconify';
-import { authActionCreators } from "../../../store/index"
+import {apiTryvestors} from "../../../utils/api/api-tryvestors";
+import { auth } from '../../../firebase'
+import {TRYVESTOR} from "../../../UserTypes";
 // ----------------------------------------------------------------------
 
 
 const RegisterForm = () => {
 
-  const state = useSelector((state) => state.user);
-
-  const dispatch = useDispatch();
-
-  const { signUp } = bindActionCreators(authActionCreators, dispatch);
-
-  const theme = useTheme()
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
@@ -71,6 +66,30 @@ const RegisterForm = () => {
 
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
 
+  const signUp = (creds) => {
+    createUserWithEmailAndPassword(auth, creds.email, creds.password)
+        .then(async (res) => {
+          const userData = {
+            tryvestorID: res.user.uid,
+            username: creds.email,
+            firstName: creds.firstName,
+            lastName: creds.lastName,
+            interests: creds.topics,
+          };
+
+          await apiTryvestors.post(userData);
+
+          const payload = {
+            userType: TRYVESTOR,
+            uid: res.user.uid,
+            data: userData, // TODO: put correct data here
+          }
+          dispatch(login(payload));
+        })
+        .catch((err) => {
+          console.log('error signing up: ', err);
+        });
+  }
   return (
     <FormikProvider value={formik}>
       <Form autoComplete="off" noValidate onSubmit={handleSubmit}>

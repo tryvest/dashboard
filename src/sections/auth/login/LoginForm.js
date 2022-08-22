@@ -6,17 +6,20 @@ import { useFormik, Form, FormikProvider } from 'formik';
 import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
-import {useDispatch, useSelector} from "react-redux";
-import {bindActionCreators} from "redux";
+import {signInWithEmailAndPassword} from "firebase/auth";
+import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
 import Iconify from '../../../components/Iconify';
-import {authActionCreators} from "../../../store";
-import {tryvestorSignIn} from "../../../store/actions/authActions";
+import {api} from "../../../utils/api/api";
+import {TRYVESTOR} from "../../../UserTypes";
+import {apiTryvestors} from "../../../utils/api/api-tryvestors";
+import { login } from "../../../features/userSlice";
+import {handleError} from "../../../utils/api/response";
+import { auth } from '../../../firebase'
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const dispatch = useDispatch();
-  const { tryvestorSignIn } = bindActionCreators(authActionCreators, dispatch);
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
@@ -35,8 +38,7 @@ export default function LoginForm() {
     },
     validationSchema: LoginSchema,
     onSubmit: ({email, password}) => {
-      tryvestorSignIn({email, password}, navigate);
-
+      logIn({email, password});
     },
   });
 
@@ -46,6 +48,30 @@ export default function LoginForm() {
     setShowPassword((show) => !show);
   };
 
+  const logIn = (creds) => {
+    signInWithEmailAndPassword(auth, creds.email, creds.password)
+        .then(async (data) => {
+          api.getUserType(data.user.uid)
+              .then(userType => {
+                if (userType !== TRYVESTOR) {
+                  navigate('/business/login');
+                }
+                apiTryvestors.getSingle(data.user.uid).then((user) => {
+                  const payload = {
+                    userType: TRYVESTOR,
+                    uid: data.user.uid,
+                    data: user
+                  };
+                  navigate('/dashboard/overview', {replace: false});
+                  dispatch(login(payload));
+                });
+              })
+              .catch(handleError);
+        })
+        .catch((err) => {
+          console.log('error logging in: ', err);
+        });
+  }
   return (
     <FormikProvider value={formik}>
       <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
