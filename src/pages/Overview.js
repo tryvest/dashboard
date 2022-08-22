@@ -136,9 +136,6 @@ export default function Overview() {
                                                 })}
                                             </Stack>
                                         </div>
-                                        <div style={{marginInline: "-18px", marginTop: "-5px"}}>
-
-                                        </div>
                                         <Stack style={{marginTop: "10px"}}>
                                             <Typography fontWeight={"800"} fontSize={"25px"}>
                                                 Key Points

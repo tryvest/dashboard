@@ -112,9 +112,6 @@ export default function Business() {
                     >
                       {business.description}
                     </Typography>
-                    <div style={{maxHeight: '500px', maxWidth: '800px', margin: '10px'}}>
-
-                    </div>
                   </CardContent>
                 )
               </Card>
