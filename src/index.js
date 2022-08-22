@@ -15,7 +15,7 @@ import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
 import rootReducer from './store/reducers/rootReducer'
 import firebase from './firebase';
-import { store } from "./store";
+import { store } from "./store.ts";
 // ----------------------------------------------------------------------
 
 const rrfProps = {

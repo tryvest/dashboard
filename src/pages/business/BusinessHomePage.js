@@ -169,9 +169,6 @@ function BusinessHomePage(props) {
                                                 })}
                                             </Stack>
                                         </div>
-                                        <div style={{marginInline: "-18px", marginTop: "-5px"}}>
-
-                                        </div>
                                         <Stack style={{marginTop: "10px"}}>
                                             <Typography fontWeight={"800"} fontSize={"25px"}>
                                                 About {businessName}
