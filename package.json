@@ -89,6 +89,7 @@
   "devDependencies": {
     "@babel/core": "^7.17.9",
     "@babel/eslint-parser": "^7.17.0",
+    "@reduxjs/toolkit": "^1.8.5",
     "@simbathesailor/use-what-changed": "^2.0.0",
     "eslint": "^8.9.0",
     "eslint-config-airbnb": "^19.0.4",

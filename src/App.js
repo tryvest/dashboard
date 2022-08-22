@@ -1,7 +1,8 @@
 // routes
 import {StylesProvider} from '@mui/styles'
 import {useEffect} from "react";
-import {useSelector} from "react-redux";
+import { useDispatch, useSelector} from "react-redux";
+import {onAuthStateChanged} from "firebase/auth";
 import {BusinessRouter, GenericRouter, TryvestorRouter} from './routes';
 // theme
 import ThemeProvider from './theme';
@@ -12,6 +13,9 @@ import ScrollToTop from './ScrollToTop';
 import { BaseOptionChartStyle } from './components/chart/BaseOptionChart';
 import {store} from "./index";
 import {BUSINESS, TRYVESTOR} from "./UserTypes";
+import { login, logout, selectUser } from './features/userSlice';
+import { auth } from './firebase';
+
 // ----------------------------------------------------------------------
 
 // export const isBusiness = window.location.host.includes("business")
@@ -34,7 +38,28 @@ function RouterChoice() {
     return selectRouter(userType)
 }
 
+
 export default function App() {
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (userAuth) => {
+      if (userAuth) {
+        // user is logged in, send the user's details to redux, store the current user in the state
+        dispatch(
+            login({
+              email: userAuth.email,
+              uid: userAuth.uid,
+
+            })
+        );
+      } else {
+        dispatch(logout());
+      }
+    });
+  }, []);
+
     return (
         <StylesProvider injectFirst>
             <ThemeProvider>

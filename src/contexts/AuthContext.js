@@ -1,6 +1,6 @@
 import React, {useContext, useState, useEffect } from 'react'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
-import '../firebaseConfig'
+import '../firebase'
 
 
 const auth = getAuth()
