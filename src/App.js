@@ -10,7 +10,7 @@ import './styles.css'
 // components
 import ScrollToTop from './ScrollToTop';
 import { BaseOptionChartStyle } from './components/chart/BaseOptionChart';
-import {store} from "./index";
+import {store} from "./store.ts";
 import {BUSINESS, TRYVESTOR} from "./UserTypes";
 // ----------------------------------------------------------------------
 
