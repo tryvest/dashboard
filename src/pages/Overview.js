@@ -67,7 +67,7 @@ export default function Overview() {
 
     useEffect(() => {
         if(business && user) {
-            user.businessesRespondedTo.forEach((bus) => {
+            user.businessesRespondedTo?.forEach((bus) => {
                 if(bus.businessID === business.businessID){
                     setBusinessObj(bus)
                 }

@@ -100,7 +100,7 @@ export default function DashboardSidebar({ userType, isOpenSidebar, onCloseSideb
           }}
           variant={!isDesktop ? "temporary" : "persistent"}
           open={!isDesktop ? isOpenSidebar : true}
-          onClose={!isDesktop ? onCloseSidebar : () => {}}
+          // onClose={!isDesktop ? onCloseSidebar : () => {}}
           PaperProps={{
             sx: { width: DRAWER_WIDTH, bgcolor: theme.palette.primary.dark,},
           }}
