@@ -29,5 +29,12 @@ api.getUserType = (uid) => {
       .catch(handleError);
 }
 
+api.createPlaidLinkToken = () => {
+  return axios
+      .post(`${BASE_URL}/plaid/create_link_token`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+      .then(handleResponse)
+      .catch(handleError);
+}
+
 
 export {api};

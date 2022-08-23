@@ -24,6 +24,7 @@ import BusinessOverview from "./pages/business/BusinessOverview";
 import BusinessCommunity from "./pages/business/BusinessCommunity";
 import BusinessAnnouncements from "./pages/business/BusinessAnnouncements";
 import Learn from "./pages/Learn";
+import Link from "./utils/plaid/plaid-button"
 
 // ----------------------------------------------------------------------
 
@@ -123,13 +124,16 @@ export function BusinessRouter() {
   ]);
 }
 
+
 export function GenericRouter() {
   return useRoutes([
     {
       path: '/',
       element: <LogoOnlyLayout/>,
       children: [
-        {path: '/', element: <Landing/>},
+        // {path: '/', element: <Landing/>},
+        {path: '/', element: <Navigate to={'plaid'}/>},
+        {path: 'plaid', element: <Link/>},
         {path: '404', element: <NotFound/>},
         {path: 'founder', element: <Founders/>},
         {path: '*', element: <Navigate to="/"/>},

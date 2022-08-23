@@ -354,6 +354,86 @@ def makeTryvestorsHaveDefaultLoyalties():
         AllTryvestors.addingLoyaltiesByCategoryToTryvestor(tryDocSnapshot.reference)
 
 
+# Plaid Stuff
+import plaid
+from plaid.model.link_token_create_request import LinkTokenCreateRequest
+import os
+from plaid.api import plaid_api
+from plaid.model.products import Products
+from plaid.model.country_code import CountryCode
+from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
+import json
+from flask import jsonify
+from dotenv import load_dotenv
+load_dotenv()
+
+
+# Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', "62ef0e6f20b6d70013c6dd0a")
+PLAID_SECRET = os.getenv('PLAID_SECRET', "67b72d84fca21565d31219bf20b357")
+# Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
+# password: pass_good)
+# Use `development` to test with live users and credentials and `production`
+# to go live
+PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
+# PLAID_PRODUCTS is a comma-separated list of products to use when initializing
+# Link. Note that this list must contain 'assets' in order for the app to be
+# able to create and retrieve asset reports.
+PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions, auth').split(',')
+# PLAID_COUNTRY_CODES is a comma-separated list of countries for which users
+# will be able to select institutions from.
+PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US, CA').split(',')
+PLAID_REDIRECT_URI = None
+
+host = plaid.Environment.Sandbox
+
+if PLAID_ENV == 'sandbox':
+    host = plaid.Environment.Sandbox
+
+if PLAID_ENV == 'development':
+    host = plaid.Environment.Development
+
+if PLAID_ENV == 'production':
+    host = plaid.Environment.Production
+
+configuration = plaid.Configuration(
+    host=host,
+    api_key={
+        'clientId': PLAID_CLIENT_ID,
+        'secret': PLAID_SECRET,
+        'plaidVersion': '2020-09-14'
+    }
+)
+
+api_client = plaid.ApiClient(configuration)
+client = plaid_api.PlaidApi(api_client)
+
+products = []
+for product in PLAID_PRODUCTS:
+    products.append(Products(product))
+
+
+@api.route('/plaid/create_link_token')
+class Plaid(Resource):
+    def post(self):
+        try:
+            request = LinkTokenCreateRequest(
+                products=products,
+                client_name="Plaid Quickstart",
+                country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
+                language='en',
+                user=LinkTokenCreateRequestUser(
+                    client_user_id=str(time())
+                )
+            )
+            if PLAID_REDIRECT_URI != None:
+                request['redirect_uri'] = PLAID_REDIRECT_URI
+            # create link token
+            response = client.link_token_create(request)
+            return jsonify(response.to_dict())
+        except plaid.ApiException as e:
+            return json.loads(e.body)
+
+
 if __name__ == "__main__":
-    fixTryvestors()
     app.run(port=5000)
