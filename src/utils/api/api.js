@@ -31,7 +31,14 @@ api.getUserType = (uid) => {
 
 api.createPlaidLinkToken = () => {
   return axios
-      .post(`${BASE_URL}/plaid/create_link_token`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+      .post(`${BASE_URL}/plaid/createLinkToken`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+      .then(handleResponse)
+      .catch(handleError);
+}
+
+api.exchangePublicTokenForAccessToken = (model) => {
+  return axios
+      .post(`${BASE_URL}/plaid/exchangePublicToken`, model) // .get(`${BASE_URL}/byUsername`, {params: {username}})
       .then(handleResponse)
       .catch(handleError);
 }

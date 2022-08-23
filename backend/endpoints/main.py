@@ -14,13 +14,16 @@ from dataModels.universal.GenericUser import GenericUser
 
 # Tryvestor Data Model Imports
 from dataModels.tryvestors.Loyalty import Loyalty, defaultLoyaltiesBusinessesByCategory
-from dataModels.tryvestors.UserInstitution import UserInstitution
+from dataModels.tryvestors.UserItem import UserItem
 from dataModels.tryvestors.UserTransaction import UserTransaction
 from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddress, encryptSSN
 
 # Business Data Model Imports
 from dataModels.businesses.Business import Business, encryptEIN
-from dataModels.businesses.BusinessInstitution import BusinessInstitution
+from dataModels.businesses.BusinessItem import BusinessItem
+
+# User Types IMport
+from dataModels.universal.UserTypes import Tryvestor, Business
 
 from random import randint, choice
 
@@ -181,6 +184,30 @@ class SpecificBusinessCampaigns(Resource):
             toReturn.append(Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict())
         return toReturn
 
+@busApi.route("/<string:businessID>/businessItems")
+class SpecificBusinessItems(Resource):
+    def get(self, businessID):
+        print(businessID)
+        businessItems = db.collection("tryvestors").document(businessID).collection("businessItems").order_by(
+            'creationDate', direction=firestore.Query.DESCENDING).get()
+        toReturn = []
+        for businessItem in businessItems:
+            toReturn.append(UserItem.readFromFirebaseFormat(businessItem.to_dict(), businessItem.id).writeToDict())
+        return toReturn
+
+    @staticmethod
+    def addNewBusinessItem(businessItemData):
+        # UID extraction
+        businessID = businessItemData.pop("UID")
+
+        # Initializing firestore doc
+        businessItemDoc = db.collection("businesses").document(businessID).collection("businessItems").document()
+
+        # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
+        cleanedBusinessItem = BusinessItem.createFromDict(businessItemData, businessItemDoc.id)
+        businessItemDoc.set(cleanedBusinessItem.writeToFirebaseFormat())
+        return cleanedBusinessItem.writeToDict()
+
 
 @tryApi.route("")
 class AllTryvestors(Resource):
@@ -310,6 +337,29 @@ class SpecificTryvestorLoyalties(Resource):
         loyaltyDoc.set(cleanedLoyalty.writeToFirebaseFormat())
         return cleanedLoyalty.writeToDict()
 
+@tryApi.route("/<string:tryvestorID>/userItems")
+class SpecificTryvestorItems(Resource):
+    def get(self, tryvestorID):
+        print(tryvestorID)
+        userItems = db.collection("tryvestors").document(tryvestorID).collection("userItems").order_by(
+            'creationDate', direction=firestore.Query.DESCENDING).get()
+        toReturn = []
+        for userItem in userItems:
+            toReturn.append(UserItem.readFromFirebaseFormat(userItem.to_dict(), userItem.id).writeToDict())
+        return toReturn
+
+    @staticmethod
+    def addNewUserItem(userItemData):
+        # UID extraction
+        tryvestorID = userItemData.pop("UID")
+
+        # Initializing firestore doc
+        userItemDoc = db.collection("tryvestors").document(tryvestorID).collection("userItems").document()
+
+        # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
+        cleanedUserItem = UserItem.createFromDict(userItemData, userItemDoc.id)
+        userItemDoc.set(cleanedUserItem.writeToFirebaseFormat())
+        return cleanedUserItem.writeToDict()
 
 @tryApi.route("/byUsername")
 class UserIDByUsername(Resource):
@@ -337,8 +387,8 @@ def fixTryvestors():
         # tryDict['SSNVerificationStatus'] = 0
         # tryDict['IDVerificationStatus'] = 0
         # tryDict["IDLink"] = "http://tryvest.us"
-        # tryDict["defaultUserInstitutionID"] = None
-        tryDict["defaultUserInstitutionID"] = tryDict["defaultPlaidItemAccessToken"]
+        # tryDict["defaultUserItemID"] = None
+        tryDict["defaultUserItemID"] = tryDict["defaultUserItemID"]
         tryDict["DOB"] = datetime.fromisoformat(tryDict["DOB"])
         fixedTryvestor = Tryvestor.readFromFirebaseFormat(tryDict, tryvestorDoc.id).writeToFirebaseFormat()
         tryvestorDoc.reference.set(fixedTryvestor)
@@ -357,6 +407,7 @@ def makeTryvestorsHaveDefaultLoyalties():
 # Plaid Stuff
 import plaid
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
+from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 import os
 from plaid.api import plaid_api
 from plaid.model.products import Products
@@ -413,8 +464,8 @@ for product in PLAID_PRODUCTS:
     products.append(Products(product))
 
 
-@api.route('/plaid/create_link_token')
-class Plaid(Resource):
+@api.route('/plaid/createLinkToken')
+class PlaidCreateLinkToken(Resource):
     def post(self):
         try:
             request = LinkTokenCreateRequest(
@@ -430,7 +481,52 @@ class Plaid(Resource):
                 request['redirect_uri'] = PLAID_REDIRECT_URI
             # create link token
             response = client.link_token_create(request)
-            return jsonify(response.to_dict())
+            response = response.to_dict()
+
+            # Defining the dictionary for the data returned by the plaid API
+            returnDict = {
+                "expiration": response["expiration"],
+                "link_token": response["link_token"],
+                "request_id": response["request_id"],
+            }
+            return jsonify(returnDict)
+
+        except plaid.ApiException as e:
+            return json.loads(e.body)
+
+@api.route('/plaid/exchangePublicToken') # Formerly Named "/set_access_token"
+class PlaidExchangePublicToken(Resource):
+    def post(self):
+        requestData = request.json
+        publicToken = requestData["publicToken"]
+        userType = requestData["userType"]
+
+        try:
+            exchange_request = ItemPublicTokenExchangeRequest(public_token=publicToken)
+            exchange_response = client.item_public_token_exchange(exchange_request)
+            # access_token = exchange_response['access_token']
+            # item_id = exchange_response['item_id']
+            # if 'transfer' in PLAID_PRODUCTS:
+            #     transfer_id = authorize_and_create_transfer(access_token)
+            exchangeAsDict = exchange_response.to_dict()
+            exchangeAsDict['isOk'] = True
+            itemDataToAdd = {
+                "UID": requestData["UID"],
+                "plaidAccessToken": exchangeAsDict["access_token"],
+                "plaidItemID": exchangeAsDict["item_id"],
+                "plaidRequestID": exchangeAsDict["request_id"]
+            }
+
+            toReturn = {}
+            if userType is Tryvestor:
+                toReturn = SpecificTryvestorItems.addNewUserItem(userItemData=itemDataToAdd)
+            elif userType is Business:
+                toReturn = SpecificBusinessItems.addNewBusinessItem(businessItemData=itemDataToAdd)
+
+            # Setting status isOk to true
+            toReturn["isOk"] = True
+            return toReturn
+
         except plaid.ApiException as e:
             return json.loads(e.body)
 

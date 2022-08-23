@@ -1,93 +1,105 @@
-/*
-import React, { useEffect, useState } from "react";
-import { usePlaidLink } from "react-plaid-link";
-import Button from "plaid-threads/Button";
+import React, { useEffect, useContext, useState } from 'react';
+import { usePlaidLink } from 'react-plaid-link';
+import Button from 'plaid-threads/Button';
+import {CircularProgress} from "@mui/material";
 import {useSelector} from "react-redux";
-import {api} from "../api/api";
-
+import { api } from '../api/api';
+import { TRYVESTOR, BUSINESS } from '../../UserTypes'
 
 const Link = () => {
-    const [linkToken, setLinkToken] = useState()
+  const [linkToken, setLinkToken] = useState(null);
 
-    useEffect(() => {
-        api.createPlaidLinkToken().then((data) => {
-            setLinkToken(data.link_token)
-            console.log(data)
-        })
-    }, [])
+  // const currentUserUID = useSelector(state => state.user?.uid)
+  // const currentUserType = useSelector(state => state.user?.userType)
+  const currentUserUID = "0cx8CV21EwfuyX8vRYvobkyIMWo2"
+  const currentUserType = TRYVESTOR
 
-    const onSuccess = React.useCallback(
-        (publicToken) => {
-            // send public_token to server
-            const setToken = async () => {
-                const response = await fetch("/api/set_access_token", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-                    },
-                    body: `public_token=${publicToken}`,
-                });
-                if (!response.ok) {
-                    console.log({
-                        type: "SET_STATE",
-                        state: {
-                            itemId: `no item_id retrieved`,
-                            accessToken: `no access_token retrieved`,
-                            isItemAccess: false,
-                        },
-                    });
-                    return;
-                }
-                const data = await response.json();
-                console.log({
-                    type: "SET_STATE",
-                    state: {
-                        itemId: data.item_id,
-                        accessToken: data.access_token,
-                        isItemAccess: true,
-                    },
-                });
-            };
-            setToken();
-            console.log({ type: "SET_STATE", state: { linkSuccess: true } });
-            window.history.pushState("", "", "/");
-        },
-        []
-    );
+  const generateToken = async () => {
+    api.createPlaidLinkToken().then((data) => {
+      setLinkToken(data.link_token);
+    });
+  };
 
-    const isOauth = false;
-    const config = {
-        token: linkToken,
-        receivedRedirectUri: window.location.href,
-        onSuccess,
-        env: "sandbox",
-        isOauth: false
-    };
 
-    if (window.location.href.includes("?oauth_state_id=")) {
-        // TODO: figure out how to delete this ts-ignore
-        // @ts-ignore
-        config.receivedRedirectUri = window.location.href;
-    }
+  useEffect(() => {
+    generateToken()
+  }, [])
 
-    const { open, ready } = usePlaidLink(config);
-
-    useEffect(() => {
-        if (ready) {
-            open();
-        }
-    }, [ready, open, isOauth]);
-
-    return linkToken ?
-            (<Button type="button" large onClick={() => open()} disabled={!ready}>
-                Launch Link
-            </Button>) : (<div/>)
+  return linkToken ? (
+    <LinkHelper currentUserUID={currentUserUID} currentUserType={currentUserType} linkToken={linkToken} />
+  ) : (
+    <CircularProgress/>
+  )
 };
 
-Link.displayName = "Link";
+const LinkHelper = (props) => {
+  const { linkToken, currentUserUID, currentUserType } = props;
+  const onSuccess = React.useCallback(
+    (publicToken) => {
+      console.log(publicToken)
+      // send public_token to server
+      const convertAndAddPublicToken = async () => {
+        const body = {
+          publicToken,
+          "UID": currentUserUID,
+          "userType": currentUserType
+        }
+        const response = await api.exchangePublicTokenForAccessToken(body)
+        console.log(response)
+        if (!response.isOk) {
+          console.log('Not ok it seems')
+          return;
+        }
+        const data = await response.json();
+        console.log("Looks like it worked, the returned data is below")
+        console.log(data)
+        /* dispatch({
+          type: 'SET_STATE',
+          state: {
+            itemId: data.item_id,
+            accessToken: data.access_token,
+            isItemAccess: true,
+          },
+        }); */
+      };
+      convertAndAddPublicToken();
+      // window.history.pushState('', '', '/');
+    },
+    []
+  );
+
+  let isOauth = false;
+  const config = {
+    token: linkToken,
+    onSuccess,
+  };
+
+  if (window.location.href.includes('?oauth_state_id=')) {
+    // TODO: figure out how to delete this ts-ignore
+    // @ts-ignore
+    config.receivedRedirectUri = window.location.href;
+    isOauth = true;
+  }
+
+  const { open, ready } = usePlaidLink(config);
+
+  useEffect(() => {
+    if (isOauth && ready) {
+      open();
+    }
+  }, [ready, open, isOauth]);
+
+  return (
+    <Button type="button" large onClick={() => open()} disabled={!ready}>
+      Launch Link
+    </Button>
+  );
+};
+
+Link.displayName = 'Link';
 
 export default Link;
-*/
+/*
 // APP COMPONENT
 // Upon rendering of App component, make a request to create and
 // obtain a link token to be used in the Link component
@@ -143,9 +155,9 @@ const Link = (props) => {
     const [isReady, setIsReady] = useState(ready)
 
     useEffect(() => {
-        /*if (isOauth && ready) {
+        /!*if (isOauth && ready) {
             open();
-        }*/
+        }*!/
         if(ready){
             setIsReady(true)
         }
@@ -160,3 +172,4 @@ const Link = (props) => {
 export default App;
 
 
+*/
