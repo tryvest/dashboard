@@ -1,2 +1,2 @@
-Tryvestor = "Tryvestor"
-Business = "Business"
+TRYVESTOR = "tryvestor"
+BUSINESS = "business"

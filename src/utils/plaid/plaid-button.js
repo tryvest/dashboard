@@ -50,7 +50,7 @@ const LinkHelper = (props) => {
           console.log('Not ok it seems')
           return;
         }
-        const data = await response.json();
+        const data = await response.json;
         console.log("Looks like it worked, the returned data is below")
         console.log(data)
         /* dispatch({

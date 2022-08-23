@@ -23,7 +23,7 @@ from dataModels.businesses.Business import Business, encryptEIN
 from dataModels.businesses.BusinessItem import BusinessItem
 
 # User Types IMport
-from dataModels.universal.UserTypes import Tryvestor, Business
+from dataModels.universal.UserTypes import TRYVESTOR, BUSINESS
 
 from random import randint, choice
 
@@ -518,10 +518,14 @@ class PlaidExchangePublicToken(Resource):
             }
 
             toReturn = {}
-            if userType is Tryvestor:
+            print(userType)
+            print(TRYVESTOR)
+            print(userType == TRYVESTOR)
+            if userType == TRYVESTOR:
                 toReturn = SpecificTryvestorItems.addNewUserItem(userItemData=itemDataToAdd)
-            elif userType is Business:
+            elif userType == BUSINESS:
                 toReturn = SpecificBusinessItems.addNewBusinessItem(businessItemData=itemDataToAdd)
+            print(toReturn)
 
             # Setting status isOk to true
             toReturn["isOk"] = True
