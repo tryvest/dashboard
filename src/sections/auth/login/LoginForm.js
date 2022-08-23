@@ -57,16 +57,14 @@ export default function LoginForm() {
                 if (userType !== TRYVESTOR) {
                   navigate('/business/login');
                 }
-                console.log("UID: ", data);
                 apiTryvestors.getSingle(data.user.uid).then((user) => {
                   const payload = {
                     userType: TRYVESTOR,
                     uid: data.user.uid,
                     data: user
                   };
-                  console.log(payload)
-                  navigate('/dashboard/overview');
                   dispatch(login(payload));
+                  navigate('/dashboard/overview');
                 });
               })
               .catch(handleError);

@@ -60,7 +60,7 @@ export default function AccountPopover() {
 
   }
 
-  const user = useSelector((state) => state.auth?.user)
+  const user = useSelector((state) => state.user?.user)
 
   return (
     <>

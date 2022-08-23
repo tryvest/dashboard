@@ -29,8 +29,8 @@ function BusinessHomePage(props) {
     const [businessObj, setBusinessObj] = useState(null)
     const navigate = useNavigate()
     const [editMode, setEditMode] = useState(false)
-    const user = useSelector((state) => state.auth?.user)
-    const userType = useSelector((state) => state.auth?.userType)
+    const user = useSelector((state) => state.user?.user)
+    const userType = useSelector((state) => state.user?.userType)
 
     // Editable Fields
     const [wasChanged, setWasChanged] = useState(false)

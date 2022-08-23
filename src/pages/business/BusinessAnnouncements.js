@@ -80,8 +80,8 @@ const ANNOUNCEMENTS = [
 
 const Announcements = () => {
     const theme = useTheme();
-    const user = useSelector((state) => state.auth?.user)
-    const userType = useSelector((state) => state.auth?.userType)
+    const user = useSelector((state) => state.user?.user)
+    const userType = user.userType
 
     // modal stuff
     const [addModalOpen, setAddModalOpen] = useState(false)

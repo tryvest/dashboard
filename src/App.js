@@ -15,6 +15,7 @@ import {store} from "./store.ts";
 import {BUSINESS, TRYVESTOR} from "./UserTypes";
 import { login, logout, selectUser } from './features/userSlice';
 import { auth } from './firebase';
+import {apiTryvestors} from "./utils/api/api-tryvestors";
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +35,7 @@ const selectRouter = (userType) => {
 }
 
 function RouterChoice() {
-    const userType = useSelector(state => state.auth?.userType)
+    const userType = useSelector(state => state.user?.user?.userType)
     return selectRouter(userType)
 }
 
@@ -46,14 +47,16 @@ export default function App() {
   useEffect(() => {
     onAuthStateChanged(auth, (userAuth) => {
       if (userAuth) {
-        // user is logged in, send the user's details to redux, store the current user in the state
-        dispatch(
-            login({
-              email: userAuth.email,
-              uid: userAuth.uid,
 
-            })
-        );
+        apiTryvestors.getSingle(userAuth.uid).then((user) => {
+          const payload = {
+            userType: TRYVESTOR,
+            uid: userAuth.uid,
+            data: user
+          };
+          dispatch(login(payload));
+        });
+        // user is logged in, send the user's details to redux, store the current user in the state
       } else {
         dispatch(logout());
       }

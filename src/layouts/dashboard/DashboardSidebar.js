@@ -56,7 +56,7 @@ export default function DashboardSidebar({ userType, isOpenSidebar, onCloseSideb
   const { pathname } = useLocation();
 
   const isDesktop = useResponsive('up', 'lg');
-  const user = useSelector((state) => state.auth?.user)
+  const user = useSelector((state) => state.user?.user)
   const theme = useTheme();
 
   useEffect(() => {
