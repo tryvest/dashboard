@@ -34,7 +34,7 @@ const MainStyle = styled('div')(({ theme }) => ({
 
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
-  const userType = useSelector((state) => state.auth?.userType)
+  const userType = useSelector((state) => state.user?.userType)
 
   const { host } = window.location
 

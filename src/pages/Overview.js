@@ -38,8 +38,9 @@ import {apiBusinesses} from "../utils/api/api-businesses";
 // ----------------------------------------------------------------------
 
 export default function Overview() {
+    console.log('Inside Overview')
     const theme = useTheme();
-    const user = useSelector((state) => state.auth?.user)
+    const user = useSelector((state) => state.user?.user)
     const business = useSelector ((state) => state.business)
     const [businessObj, setBusinessObj] = useState(null)
     const navigate = useNavigate()

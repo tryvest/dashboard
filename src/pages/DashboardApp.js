@@ -20,7 +20,7 @@ import {apiTryvestors} from "../utils/api/api-tryvestors";
 
 export default function DashboardApp() {
     const theme = useTheme();
-    const user = useSelector((state) => state.auth?.user)
+    const user = useSelector((state) => state.user?.user)
     // const [responses, setResponses] =  useState(null)
     const [userObj, setUserObj] = useState(null)
     const navigate = useNavigate()

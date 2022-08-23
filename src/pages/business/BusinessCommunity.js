@@ -10,8 +10,8 @@ import {BUSINESS} from "../../UserTypes";
 export default function BusinessCommunity() {
     const [businessInfo, setBusinessInfo] = useState(null)
     const [serverInfo, setServerInfo] = useState(null)
-    const user = useSelector((state) => state.auth?.user)
-    const userType = useSelector((state) => state.auth?.userType)
+    const user = useSelector((state) => state.user?.user)
+    const userType = useSelector((state) => state.user?.userType)
 
     useEffect(() => {
         if (userType === BUSINESS) {

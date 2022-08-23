@@ -31,7 +31,7 @@ import COMPANIES from '../_mock/companies';
 
 export default function Community() {
     const theme = useTheme();
-    const user = useSelector((state) => state.auth?.user)
+    const user = useSelector((state) => state.user?.user)
     const businessID = useSelector((state) => state.business.businessID)
     const [userObj, setUserObj] = useState(null)
     const [serverInfo, setServerInfo] = useState(null)
