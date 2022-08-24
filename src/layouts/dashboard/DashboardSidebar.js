@@ -136,7 +136,7 @@ CompanySwitcher.propTypes = {
 function CompanySwitcher({user}) {
   const dispatchBus = useDispatch();
   const [selectedBusinessID, setSelectedBusinessID] = useState()
-  const businessID = useSelector(state => state.business.businessID)
+  const businessID = 1; // useSelector(state => state.business.businessID)
   const { switchBusiness } = bindActionCreators(businessActionCreators, dispatchBus);
 
   const style = "MuiListItemIcon-root css-121b4uz-MuiListItemIcon-root"
@@ -185,7 +185,7 @@ function CompanySwitcher({user}) {
           sx={{maxWidth: "100%", width: "100%"}}
           defaultValue={selectedBusinessID}
         >
-          {user?.businessesRespondedTo.map((business, index) => {
+          {user?.businessesRespondedTo?.map((business, index) => {
             return (
                 <MenuItem style={{maxWidth: "100%"}} value={business.businessID} key={index}>
                   <div style={{overflow: 'hidden'}}>
