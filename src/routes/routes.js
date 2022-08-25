@@ -31,11 +31,12 @@ import {CustomSelectRouter} from "./customselector"
 export function CustomRouter() {
   return useRoutes([
     {
-      path: '/learn',
-      element: <DashboardLayout />,
+      path: '/',
+      element: <LogoOnlyLayout />,
       children: [
-        { path: ':id', element: <CustomSelectRouter tryvestorPage={<Learn />} /> },
-      ]
+        { path: '/', element: <Landing /> },
+        { path: '*', element: <CustomSelectRouter /> },
+      ],
     },
     {
       path: '/dashboard',
@@ -46,13 +47,15 @@ export function CustomRouter() {
         { path: 'tasks', element: <CustomSelectRouter tryvestorPage={<Tasks />} /> },
         { path: 'community', element: <CustomSelectRouter businessPage={<BusinessCommunity />} tryvestorPage={<Community />} /> },
         { path: 'announcements', element: <CustomSelectRouter businessPage={<BusinessAnnouncements />} tryvestorPage={<Announcements />} /> },
+        { path: '*', element: <CustomSelectRouter /> },
       ],
     },
     {
       path: '/companies',
       element: <DashboardLayout />,
       children: [
-        { path: ':id', element: <CustomSelectRouter businessPage={<Company />} tryvestorPage={<Company />} /> },
+        { path: ':id', element: <CustomSelectRouter businessPage={<Company />} tryvestorPage={<Company />} unauthPage={<Company />} /> },
+        { path: '*', element: <CustomSelectRouter /> },
       ]
     },
     {
@@ -60,28 +63,38 @@ export function CustomRouter() {
       element: <EmptyPage />,
       children: [
         { path: ':embedURL', element: <CustomSelectRouter businessPage={<AirtableEmbedPage />} tryvestorPage={<AirtableEmbedPage />} /> },
+        { path: '*', element: <CustomSelectRouter /> },
       ]
     },
     {
       path: '/business',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <CustomSelectRouter businessPage={<Overview />} /> }
+        { path: 'app', element: <CustomSelectRouter businessPage={<Overview />} /> },
+        { path: '*', element: <CustomSelectRouter /> },
       ],
     },
     {
-      path: '/',
+      path: '/tryvestor',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/overview" /> },
-        { path: 'login', element: <CustomSelectRouter businessPage={<BusinessLogin />} tryvestorPage={<Login />} /> },
-        { path: 'register', element: <CustomSelectRouter businessPage={<TryvestorRegister />} tryvestorPage={<TryvestorRegister />} /> },
-        { path: 'landing', element: <CustomSelectRouter businessPage={<Landing />} tryvestorPage={<Landing />} /> },
-        { path: '404', element: <CustomSelectRouter businessPage={<NotFound />} tryvestorPage={<NotFound />} /> },
-        { path: '*', element: <CustomSelectRouter businessPage={<Navigate to="/404" />} tryvestorPage={<Navigate to="/404" />} /> },
+        // { path: '/', element: <CustomSelectRouter businessPage={<Navigate to="/businessoverview" />} tryvestorPage={<Navigate to="/tryvestoroverview" />} /> },
+        { path: 'login', element: <CustomSelectRouter businessPage={<Navigate to="/dashboard/overview" replace/>} tryvestorPage={<Navigate to="/dashboard/overview" replace />} unauthPage={<Login />}/> },
+        { path: 'register', element: <CustomSelectRouter businessPage={<Navigate to="/dashboard/overview" replace/>} tryvestorPage={<Navigate to="/dashboard/overview" replace/> } unauthPage={<TryvestorRegister />} /> },
+        { path: '*', element: <CustomSelectRouter /> },
       ],
     },
-    { path: '*', element: <CustomSelectRouter businessPage={<Navigate to="/404" replace />} tryvestorPage={<Navigate to="/404" replace />} /> },
+    {
+      path: '/business',
+      element: <LogoOnlyLayout />,
+      children: [
+        // { path: '/', element: <CustomSelectRouter businessPage={<Navigate to="/businessoverview" />} tryvestorPage={<Navigate to="/tryvestoroverview" />} /> },
+        { path: 'login', element: <CustomSelectRouter businessPage={<Navigate to="/dashboard/overview" replace/>} tryvestorPage={<Navigate to="/dashboard/overview" replace />} unauthPage={<BusinessLogin />}/> },
+        // { path: 'register', element: <CustomSelectRouter businessPage={<Navigate to="/dashboard/overview" replace/>} tryvestorPage={<Navigate to="/dashboard/overview" replace />} unauthPage={<BusinessRegister />}/> },
+        { path: '*', element: <CustomSelectRouter /> },
+      ],
+    },
+    { path: '*', element: <CustomSelectRouter /> },
   ]);
 }
 
