@@ -6,6 +6,7 @@ from flask_restx import Api, Resource
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
+from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
 # Universal Data Model Imports
 from dataModels.businesses.Campaign import Campaign
@@ -139,6 +140,12 @@ class AllBusinesses(Resource):
         # Return grouped Stuff
         return businessesByCategory
 
+    @staticmethod
+    def getBusinessesByMerchantName(merchantName):
+        merchantName = str(merchantName)
+        toReturn = db.collection("businesses").where(u'merchantNames', u'array_contains', merchantName).get()
+        return toReturn
+
 
 @busApi.route("/<string:businessID>")
 class SpecificBusiness(Resource):
@@ -177,12 +184,13 @@ class SpecificBusinessCampaigns(Resource):
 
     @staticmethod
     def returnAllCampaignsForSpecificBusiness(businessID):
-        campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by('startDate',
-                                                                                                      direction=firestore.Query.DESCENDING).get()
+        campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by(
+            'startDate', direction=firestore.Query.DESCENDING).get()
         toReturn = []
         for campaign in campaigns:
             toReturn.append(Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict())
         return toReturn
+
 
 @busApi.route("/<string:businessID>/businessItems")
 class SpecificBusinessItems(Resource):
@@ -337,6 +345,7 @@ class SpecificTryvestorLoyalties(Resource):
         loyaltyDoc.set(cleanedLoyalty.writeToFirebaseFormat())
         return cleanedLoyalty.writeToDict()
 
+
 @tryApi.route("/<string:tryvestorID>/userItems")
 class SpecificTryvestorItems(Resource):
     def get(self, tryvestorID):
@@ -360,6 +369,15 @@ class SpecificTryvestorItems(Resource):
         cleanedUserItem = UserItem.createFromDict(userItemData, userItemDoc.id)
         userItemDoc.set(cleanedUserItem.writeToFirebaseFormat())
         return cleanedUserItem.writeToDict()
+
+    @staticmethod
+    def updateUserItemCursor(tryvestorID, userItemID, newCursor):
+        userItemDoc = db.collection("tryvestors").document(str(tryvestorID)).collection("userItems").document(
+            str(userItemID))
+        userItemDoc.update({
+            "cursor": str(newCursor)
+        })
+
 
 @tryApi.route("/byUsername")
 class UserIDByUsername(Resource):
@@ -416,8 +434,8 @@ from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUse
 import json
 from flask import jsonify
 from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', "62ef0e6f20b6d70013c6dd0a")
@@ -494,7 +512,8 @@ class PlaidCreateLinkToken(Resource):
         except plaid.ApiException as e:
             return json.loads(e.body)
 
-@api.route('/plaid/exchangePublicToken') # Formerly Named "/set_access_token"
+
+@api.route('/plaid/exchangePublicToken')  # Formerly Named "/set_access_token"
 class PlaidExchangePublicToken(Resource):
     def post(self):
         requestData = request.json
@@ -510,30 +529,162 @@ class PlaidExchangePublicToken(Resource):
             #     transfer_id = authorize_and_create_transfer(access_token)
             exchangeAsDict = exchange_response.to_dict()
             exchangeAsDict['isOk'] = True
+
+            addedTransactions, modifiedTransactions, removedTransactions, cursor = \
+                PlaidUpdateTransactions.flushTransactions(accessToken=exchangeAsDict['access_token']).values()
+
             itemDataToAdd = {
                 "UID": requestData["UID"],
                 "plaidAccessToken": exchangeAsDict["access_token"],
                 "plaidItemID": exchangeAsDict["item_id"],
-                "plaidRequestID": exchangeAsDict["request_id"]
+                "plaidRequestID": exchangeAsDict["request_id"],
+                "cursor": cursor
             }
 
-            toReturn = {}
-            print(userType)
-            print(TRYVESTOR)
-            print(userType == TRYVESTOR)
+            addedItem = {}
+
             if userType == TRYVESTOR:
-                toReturn = SpecificTryvestorItems.addNewUserItem(userItemData=itemDataToAdd)
+                addedItem = SpecificTryvestorItems.addNewUserItem(userItemData=itemDataToAdd)
+                addedUserItemObj = UserItem.readFromDict(sourceDict=addedItem, userItemID=addedItem["userItemID"])
+
+                # Parse the transaction for business information
+
+                PlaidUpdateTransactions.addTransactionsToUser(
+                    tryvestorID=requestData["UID"],
+                    userItemID=addedUserItemObj.userItemID,
+                    transactions=addedTransactions
+                )
+
             elif userType == BUSINESS:
-                toReturn = SpecificBusinessItems.addNewBusinessItem(businessItemData=itemDataToAdd)
-            print(toReturn)
+                addedItem = SpecificBusinessItems.addNewBusinessItem(businessItemData=itemDataToAdd)
+                # addedBusinessItemObj = BusinessItem.readFromDict(sourceDict=addedItem, businessItemID=addedItem[
+                # "businessItemID"])
 
             # Setting status isOk to true
-            toReturn["isOk"] = True
-            return toReturn
+            addedItem["isOk"] = True
+            print(addedItem)
+            return addedItem
 
         except plaid.ApiException as e:
             return json.loads(e.body)
 
 
+@api.route('/plaid/updateAllTransactions')
+class PlaidUpdateTransactions(Resource):
+    @staticmethod
+    def flushTransactions(accessToken):
+        # Provide a cursor from your database if you've previously
+        # received one for the Item. Leave null if this is your
+        # first sync call for this Item. The first request will
+        # return a cursor.
+        cursor = ""
+
+        # New transaction updates since "cursor"
+        added = []
+        modified = []
+        removed = []  # Removed transaction ids
+        has_more = True
+
+        # Iterate through each page of new transaction updates for item
+        while has_more:
+            transactionsRequest = TransactionsSyncRequest(
+                access_token=accessToken,
+                cursor=cursor,
+            )
+            response = client.transactions_sync(transactionsRequest)
+
+            # Add this page of results
+            added.extend(response['added'])
+            modified.extend(response['modified'])
+            removed.extend(response['removed'])
+
+            has_more = response['has_more']
+
+            # Update cursor to the next cursor
+            cursor = response['next_cursor']
+        toReturn = {
+            "addedTransactions": added,
+            "modifiedTransactions": modified,
+            "removedTransactions": removed,
+            "cursor": cursor
+        }
+        print(added)
+        print(modified)
+        print(removed)
+        return toReturn
+
+    @staticmethod
+    def addTransactionsToUser(tryvestorID, userItemID, transactions):
+        for userTransaction in transactions:
+            # Parsing the transaction for important data and creating transaction object
+            userTransactionDoc = db.collection('tryvestors').document(tryvestorID).collection(
+                "userTransactions").document()
+
+
+            print(userTransaction["merchantName"])
+            # TODO Remove the lines below this where the merchant name is filled in if none
+            if userTransaction["merchantName"] is None:
+                merchantNameOptions = ["nasoyaki", "nas", "kingscrowd", "king", "pikestic", "pike",
+                                       "treeofstories", "tree"]
+                userTransaction["merchantName"] = choice(merchantNameOptions)
+            print(userTransaction["merchantName"])
+
+            allBusMatchingMerchantName = AllBusinesses.getBusinessesByMerchantName(userTransaction["merchant_name"])
+
+            if allBusMatchingMerchantName:
+                return "No Matching Business"
+            # else
+            businessMatchedByMerchant = Business.readFromFirebaseFormat(
+                sourceDict=allBusMatchingMerchantName[0].to_dict(),
+                businessID=allBusMatchingMerchantName[0].id)
+            allCampaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(
+                businessMatchedByMerchant.businessID)
+            businessCampaign = Campaign.readFromDict(sourceDict=allCampaignsForBusiness[0],
+                                                     campaignID=allCampaignsForBusiness[0]["campaignID"])
+
+            # Just extracting "amount" field up here
+            transactionAmount = userTransaction["amount"]
+            # Fields to make the user transaction object work
+            businessID = businessMatchedByMerchant.businessID
+            businessCampaignID = businessCampaign
+            # Amount spent / valuation for campaign * total shares in company
+            numFractionalShares = (float(transactionAmount) / businessCampaign.valuationForCampaign) * \
+                                  businessMatchedByMerchant.totalShares
+            creationDate = datetime.now(timezone.utc).isoformat()
+            plaidTransactionID = userTransaction["transaction_id"]
+            plaidAccountID = userTransaction["account_id"]
+            plaidTransactionIsPending = userTransaction["pending"]
+            plaidTransactionAmount = userTransaction["amount"]
+            plaidTransactionDatetime = userTransaction["datetime"]
+            plaidTransactionRawObject = userTransaction
+
+            userTransactionObj = UserTransaction(
+                userTransactionID=userTransactionDoc.id,
+                userItemID=userItemID,
+                businessID=businessID,
+                businessCampaignID=businessCampaignID,
+                numFractionalShares=numFractionalShares,
+                creationDate=creationDate,
+                plaidTransactionID=plaidTransactionID,
+                plaidAccountID=plaidAccountID,
+                plaidTransactionIsPending=plaidTransactionIsPending,
+                plaidTransactionAmount=plaidTransactionAmount,
+                plaidTransactionDatetime=plaidTransactionDatetime,
+                plaidTransactionRawObject=plaidTransactionRawObject
+            )
+            userTransactionObjDict = userTransactionObj.writeToDict()
+            userTransactionDoc.set(userTransactionObjDict)
+            return userTransactionObjDict
+
+
 if __name__ == "__main__":
+    # ## WHY IS THIS A FCUKING TUPLE FCK PYTHON
+    # businessTest = db.collection("businesses").document("05AFSVZFZUmKqTkTUCRZ").get()
+    # businessDict = businessTest.to_dict()
+    # print(businessDict["merchantNames"])
+    # print(type(businessDict["merchantNames"]))
+    # businessObj = Business.readFromFirebaseFormat(sourceDict=businessDict, businessID=businessTest.id)
+    # print('back outside')
+    # print(businessObj.merchantNames)
+    # print(type(businessObj.merchantNames))
     app.run(port=5000)

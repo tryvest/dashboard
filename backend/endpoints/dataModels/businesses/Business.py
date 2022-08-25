@@ -2,10 +2,11 @@ from datetime import datetime, timezone
 
 
 class Business:
-    def __init__(self, businessID, name, tagline, description, logo, totalShares, valuation, categoryID,
+    def __init__(self, businessID, name, merchantNames, tagline, description, logo, totalShares, valuation, categoryID,
                  websiteLink, creationDate, EIN, EINPhotoSubmissionLink, EINVerificationStatus):
         self.businessID = businessID
         self.name = name
+        self.merchantNames = *merchantNames,
         self.tagline = tagline
         self.description = description
         self.logo = logo
@@ -17,12 +18,14 @@ class Business:
         self.EINPhotoSubmissionLink = EINPhotoSubmissionLink
         self.EINVerificationStatus = EINVerificationStatus
         self.creationDate = creationDate
+        print(type(self.merchantNames))
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, businessID):
         return Business(
             businessID=businessID,
             name=str(sourceDict["name"]),
+            merchantNames=(sourceDict['merchantNames']),
             tagline=str(sourceDict["tagline"]),
             description=str(sourceDict["description"]),
             logo=str(sourceDict["logo"]),
@@ -39,6 +42,7 @@ class Business:
     def writeToFirebaseFormat(self):
         return {
             "name": self.name,
+            "merchantNames": self.merchantNames,
             "tagline": self.tagline,
             "description": self.description,
             "logo": self.logo,

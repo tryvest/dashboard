@@ -41,7 +41,6 @@ class UserItem:
     @staticmethod
     def createFromDict(sourceDict, loyaltyID):
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
-        sourceDict['cursor'] = None
         sourceDict['isActive'] = True
         return UserItem.readFromDict(sourceDict, loyaltyID)
 

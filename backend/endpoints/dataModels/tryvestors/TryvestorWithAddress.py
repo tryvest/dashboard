@@ -3,7 +3,7 @@ from datetime import datetime, timezone, date, time
 
 class Tryvestor:
     def __init__(self, tryvestorID, firstName, lastName, username, DOB, address, creationDate, SSNPrefix, SSNSuffix,
-                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultUserInstitutionID):
+                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultUserItemID):
         self.tryvestorID = tryvestorID
         self.firstName = firstName
         self.lastName = lastName
@@ -16,7 +16,7 @@ class Tryvestor:
         self.SSNVerificationStatus = SSNVerificationStatus
         self.IDVerificationStatus = IDVerificationStatus
         self.IDLink = IDLink
-        self.defaultUserInstitutionID = defaultUserInstitutionID
+        self.defaultUserItemID = defaultUserItemID
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, tryvestorID):
@@ -34,7 +34,7 @@ class Tryvestor:
             SSNVerificationStatus=int(sourceDict["SSNVerificationStatus"]),
             IDVerificationStatus=int(sourceDict["IDVerificationStatus"]),
             IDLink=str(sourceDict["IDLink"]),
-            defaultUserInstitutionID=str(sourceDict["defaultUserInstitutionID"])
+            defaultUserItemID=str(sourceDict["defaultUserItemID"])
         )
 
     def writeToFirebaseFormat(self):
@@ -52,7 +52,7 @@ class Tryvestor:
             'SSNVerificationStatus': self.SSNVerificationStatus,
             'IDVerificationStatus': self.IDVerificationStatus,
             'IDLink': self.IDLink,
-            'defaultUserInstitutionID': self.defaultUserInstitutionID
+            'defaultUserItemID': self.defaultUserItemID
         }
 
     @staticmethod
@@ -71,7 +71,7 @@ class Tryvestor:
         sourceDict['SSNVerificationStatus'] = 0
         sourceDict['IDVerificationStatus'] = 0
         sourceDict['IDLink'] = None
-        sourceDict['defaultUserInstitutionID'] = None
+        sourceDict['defaultUserItemID'] = None
         return Tryvestor.readFromDict(sourceDict, tryvestorID)
 
     def writeToDict(self):
