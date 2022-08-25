@@ -2,7 +2,7 @@
 import {StylesProvider} from '@mui/styles'
 import {useEffect} from "react";
 import {useSelector} from "react-redux";
-import {BusinessRouter, GenericRouter, TryvestorRouter} from './routes';
+import {CustomRouter} from './routes/routes';
 // theme
 import ThemeProvider from './theme';
 import './styles.css'
@@ -18,21 +18,21 @@ import {BUSINESS, TRYVESTOR} from "./UserTypes";
 // export const isBusiness = true
 // export const business = {businessID: "FB0mjHuGIWOsS3fJ4Idk"}
 
-const selectRouter = (userType) => {
-    switch (userType) {
-        case TRYVESTOR:
-            return <TryvestorRouter/>
-        case BUSINESS:
-            return <BusinessRouter/>
-        default:
-            return <GenericRouter/>
-    }
-}
+// const selectRouter = (userType) => {
+//     switch (userType) {
+//         case TRYVESTOR:
+//             return <TryvestorRouter/>
+//         case BUSINESS:
+//             return <BusinessRouter/>
+//         default:
+//             return <GenericRouter/>
+//     }
+// }
 
-function RouterChoice() {
-    const userType = useSelector(state => state.auth?.userType)
-    return selectRouter(userType)
-}
+// function RouterChoice() {
+//     const userType = useSelector(state => state.auth?.userType)
+//     return selectRouter(userType)
+// }
 
 export default function App() {
     return (
@@ -40,7 +40,7 @@ export default function App() {
             <ThemeProvider>
               <ScrollToTop />
                 <BaseOptionChartStyle />
-                <RouterChoice />
+                <CustomRouter />
             </ThemeProvider>
         </StylesProvider>
     );
