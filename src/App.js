@@ -44,24 +44,24 @@ export default function App() {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (userAuth) => {
-      if (userAuth) {
-
-        apiTryvestors.getSingle(userAuth.uid).then((user) => {
-          const payload = {
-            userType: TRYVESTOR,
-            uid: userAuth.uid,
-            data: user
-          };
-          dispatch(login(payload));
-        });
-        // user is logged in, send the user's details to redux, store the current user in the state
-      } else {
-        dispatch(logout());
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   onAuthStateChanged(auth, (userAuth) => {
+  //     if (userAuth) {
+  //
+  //       apiTryvestors.getSingle(userAuth.uid).then((user) => {
+  //         const payload = {
+  //           userType: TRYVESTOR,
+  //           uid: userAuth.uid,
+  //           data: user
+  //         };
+  //         dispatch(login(payload));
+  //       });
+  //       // user is logged in, send the user's details to redux, store the current user in the state
+  //     } else {
+  //       dispatch(logout());
+  //     }
+  //   });
+  // }, []);
 
     return (
         <StylesProvider injectFirst>

@@ -47,7 +47,7 @@ export default function DashboardNavbar({ onOpenSidebar }) {
 
   const navigate = useNavigate()
   const userType = useSelector((state) => state.user?.userType)
-  const businessID = useSelector((state) => state.user?.userType)
+  const businessID = "" // useSelector((state) => state.user?.userType)
   const [businessInfo, setBusinessInfo] = useState()
 
   useEffect(() => {
