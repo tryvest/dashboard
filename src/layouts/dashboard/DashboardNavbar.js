@@ -8,8 +8,7 @@ import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import Iconify from '../../components/Iconify';
 //
-import Searchbar from './Searchbar';import AccountPopover from './AccountPopover';
-import LanguagePopover from './LanguagePopover';
+import AccountPopover from './AccountPopover';
 import NotificationsPopover from './NotificationsPopover';
 import {DRAWER_WIDTH} from "./DashboardSidebar";
 import {apiBusinesses} from "../../utils/api/api-businesses";

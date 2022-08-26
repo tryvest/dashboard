@@ -7,8 +7,7 @@ import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormContr
 import { LoadingButton } from '@mui/lab';
 // component
 import {signInWithEmailAndPassword} from "firebase/auth";
-import { useDispatch, useSelector } from 'react-redux';
-import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
+import { useDispatch } from 'react-redux';
 import Iconify from '../../../components/Iconify';
 import {api} from "../../../utils/api/api";
 import {TRYVESTOR} from "../../../UserTypes";
