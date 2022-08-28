@@ -48,5 +48,6 @@ class BusinessItem:
     def writeToDict(self):
         toReturn = self.writeToFirebaseFormat()
         toReturn["creationDate"] = self.creationDate.isoformat()
+        print(toReturn["creationDate"])
         toReturn["businessItemID"] = self.businessItemID
         return toReturn

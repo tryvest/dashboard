@@ -6,7 +6,8 @@ class Business:
                  websiteLink, creationDate, EIN, EINPhotoSubmissionLink, EINVerificationStatus):
         self.businessID = businessID
         self.name = name
-        self.merchantNames = *merchantNames,
+        self.merchantNames = []
+        self.merchantNames = merchantNames
         self.tagline = tagline
         self.description = description
         self.logo = logo
@@ -18,7 +19,6 @@ class Business:
         self.EINPhotoSubmissionLink = EINPhotoSubmissionLink
         self.EINVerificationStatus = EINVerificationStatus
         self.creationDate = creationDate
-        print(type(self.merchantNames))
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, businessID):
@@ -42,7 +42,7 @@ class Business:
     def writeToFirebaseFormat(self):
         return {
             "name": self.name,
-            "merchantNames": self.merchantNames,
+            "merchantNames": list(self.merchantNames),
             "tagline": self.tagline,
             "description": self.description,
             "logo": self.logo,

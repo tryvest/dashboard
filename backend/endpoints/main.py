@@ -214,7 +214,9 @@ class SpecificBusinessItems(Resource):
         # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
         cleanedBusinessItem = BusinessItem.createFromDict(businessItemData, businessItemDoc.id)
         businessItemDoc.set(cleanedBusinessItem.writeToFirebaseFormat())
-        return cleanedBusinessItem.writeToDict()
+        cleanedBusinessItemReturnDict = cleanedBusinessItem.writeToDict()
+        print(cleanedBusinessItemReturnDict)
+        return cleanedBusinessItemReturnDict
 
 
 @tryApi.route("")
@@ -533,6 +535,10 @@ class PlaidExchangePublicToken(Resource):
             addedTransactions, modifiedTransactions, removedTransactions, cursor = \
                 PlaidUpdateTransactions.flushTransactions(accessToken=exchangeAsDict['access_token']).values()
 
+            print("INSIDE THE POST REQUEST AFTER FLUSH TRANSACTIONS")
+            print(addedTransactions[0])
+            print(addedTransactions[1])
+
             itemDataToAdd = {
                 "UID": requestData["UID"],
                 "plaidAccessToken": exchangeAsDict["access_token"],
@@ -541,9 +547,12 @@ class PlaidExchangePublicToken(Resource):
                 "cursor": cursor
             }
 
+
             addedItem = {}
 
             if userType == TRYVESTOR:
+                print("got into the usertype == TRYVESTOR portion")
+                # Calls write to dict on the UserItem obj before returning it to addedItem, so readFromDict is necessary
                 addedItem = SpecificTryvestorItems.addNewUserItem(userItemData=itemDataToAdd)
                 addedUserItemObj = UserItem.readFromDict(sourceDict=addedItem, userItemID=addedItem["userItemID"])
 
@@ -563,10 +572,12 @@ class PlaidExchangePublicToken(Resource):
             # Setting status isOk to true
             addedItem["isOk"] = True
             print(addedItem)
+            print("got all the way until returning the added item")
             return addedItem
 
         except plaid.ApiException as e:
             return json.loads(e.body)
+
 
 
 @api.route('/plaid/updateAllTransactions')
@@ -608,7 +619,9 @@ class PlaidUpdateTransactions(Resource):
             "removedTransactions": removed,
             "cursor": cursor
         }
-        print(added)
+        print(len(added))
+        print(added[0])
+        print(added[1])
         print(modified)
         print(removed)
         return toReturn
@@ -621,17 +634,17 @@ class PlaidUpdateTransactions(Resource):
                 "userTransactions").document()
 
 
-            print(userTransaction["merchantName"])
+            print(userTransaction["merchant_name"])
             # TODO Remove the lines below this where the merchant name is filled in if none
-            if userTransaction["merchantName"] is None:
-                merchantNameOptions = ["nasoyaki", "nas", "kingscrowd", "king", "pikestic", "pike",
-                                       "treeofstories", "tree"]
-                userTransaction["merchantName"] = choice(merchantNameOptions)
-            print(userTransaction["merchantName"])
+            # if userTransaction["merchant_name"] is None:
+            merchantNameOptions = ["nasoyaki", "nas", "kingscrowd", "king", "pikestic", "pike",
+                                   "treeofstories", "tree", ]
+            userTransaction["merchant_name"] = choice(merchantNameOptions)
+            print(userTransaction["merchant_name"])
 
             allBusMatchingMerchantName = AllBusinesses.getBusinessesByMerchantName(userTransaction["merchant_name"])
 
-            if allBusMatchingMerchantName:
+            if len(allBusMatchingMerchantName) == 0:
                 return "No Matching Business"
             # else
             businessMatchedByMerchant = Business.readFromFirebaseFormat(
@@ -646,13 +659,14 @@ class PlaidUpdateTransactions(Resource):
             transactionAmount = userTransaction["amount"]
             # Fields to make the user transaction object work
             businessID = businessMatchedByMerchant.businessID
-            businessCampaignID = businessCampaign
+            businessCampaignID = businessCampaign.campaignID
             # Amount spent / valuation for campaign * total shares in company
             numFractionalShares = (float(transactionAmount) / businessCampaign.valuationForCampaign) * \
                                   businessMatchedByMerchant.totalShares
-            creationDate = datetime.now(timezone.utc).isoformat()
+            creationDate = datetime.now(timezone.utc)
             plaidTransactionID = userTransaction["transaction_id"]
             plaidAccountID = userTransaction["account_id"]
+            plaidTransactionMerchantName = userTransaction["merchant_name"]
             plaidTransactionIsPending = userTransaction["pending"]
             plaidTransactionAmount = userTransaction["amount"]
             plaidTransactionDatetime = userTransaction["datetime"]
@@ -667,6 +681,7 @@ class PlaidUpdateTransactions(Resource):
                 creationDate=creationDate,
                 plaidTransactionID=plaidTransactionID,
                 plaidAccountID=plaidAccountID,
+                plaidTransactionMerchantName=plaidTransactionMerchantName,
                 plaidTransactionIsPending=plaidTransactionIsPending,
                 plaidTransactionAmount=plaidTransactionAmount,
                 plaidTransactionDatetime=plaidTransactionDatetime,

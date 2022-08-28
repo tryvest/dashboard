@@ -69,11 +69,14 @@ export default function Community() {
     return (
         <Page title="Communication">
             <div style={{width: "100%", height: "100%", padding: "20px"}}>
+                {/*
                 {serverInfo && <WidgetBot
                     style={{width: "100%", height: "75vh"}}
                     server={serverInfo.serverID}
                     channel={serverInfo.channelID}
                 />}
+                */}
+                WidgetBot has been commented out in ./src/pages/Community.js file - Temp placeholder
             </div>
         </Page>
     );
