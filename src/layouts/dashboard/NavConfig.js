@@ -28,6 +28,11 @@ const navConfig = {
         path: '/dashboard/announcements',
         icon: getIcon('fluent:megaphone-loud-24-filled'),
       },
+      {
+        title: 'discover',
+        path: '/dashboard/discover',
+        icon: getIcon('fluent:person-24-filled'),
+      },
 
 
     ],
