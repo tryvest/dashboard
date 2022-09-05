@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 class UserTransaction:
     def __init__(self, userTransactionID, userItemID, businessID, businessCampaignID, numFractionalShares, creationDate,
                  plaidTransactionID, plaidAccountID, plaidTransactionMerchantName, plaidTransactionIsPending, plaidTransactionAmount,
-                 plaidTransactionDatetime, plaidTransactionRawObject):
+                 plaidTransactionDatetime): #, plaidTransactionRawObject):
         # Personal Information
         self.userTransactionID = userTransactionID
         self.userItemID = userItemID
@@ -21,25 +21,25 @@ class UserTransaction:
         self.plaidTransactionAmount = plaidTransactionAmount
         self.plaidTransactionDatetime = plaidTransactionDatetime
 
-        # Raw Plaid Transaction Object (just in case)
-        self.plaidTransactionRawObject = plaidTransactionRawObject
+        # Raw Plaid Transaction Object (just in case) -- REMOVED B/C FIREBASE CAN'T STORE DIRECTLY
+        # self.plaidTransactionRawObject = plaidTransactionRawObject
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, userTransactionID):
         return UserTransaction(
             userTransactionID=str(userTransactionID),
-            userItemID=str(sourceDict("userItemID")),
-            businessID=str(sourceDict("businessID")),
-            businessCampaignID=int(sourceDict("businessCampaignID")),
-            numFractionalShares=float(sourceDict("numFractionalShares")),
-            plaidTransactionID=str(sourceDict("plaidTransactionID")),
-            plaidAccountID=str(sourceDict("plaidAccountID")),
-            plaidTransactionMerchantName=str(sourceDict("plaidTransactionMerchantName")),
-            plaidTransactionIsPending=int(sourceDict("plaidTransactionIsPending")),
-            plaidTransactionAmount=float(sourceDict("plaidTransactionAmount")),
-            plaidTransactionDatetime=sourceDict("plaidTransactionDatetime"),
-            creationDate=sourceDict("creationDate"),
-            plaidTransactionRawObject=sourceDict("plaidTransactionRawObject")
+            userItemID=str(sourceDict["userItemID"]),
+            businessID=str(sourceDict["businessID"]),
+            businessCampaignID=str(sourceDict["businessCampaignID"]),
+            numFractionalShares=float(sourceDict["numFractionalShares"]),
+            plaidTransactionID=str(sourceDict["plaidTransactionID"]),
+            plaidAccountID=str(sourceDict["plaidAccountID"]),
+            plaidTransactionMerchantName=str(sourceDict["plaidTransactionMerchantName"]),
+            plaidTransactionIsPending=bool(sourceDict["plaidTransactionIsPending"]),
+            plaidTransactionAmount=float(sourceDict["plaidTransactionAmount"]),
+            plaidTransactionDatetime=sourceDict["plaidTransactionDatetime"],
+            creationDate=sourceDict["creationDate"],
+            # plaidTransactionRawObject=sourceDict["plaidTransactionRawObject"]
         )
 
     def writeToFirebaseFormat(self):
@@ -55,7 +55,7 @@ class UserTransaction:
             "plaidTransactionAmount": self.plaidTransactionAmount,
             "plaidTransactionDatetime": self.plaidTransactionDatetime,
             "creationDate": self.creationDate,
-            "plaidTransactionRawObject": self.plaidTransactionRawObject
+            # "plaidTransactionRawObject": self.plaidTransactionRawObject
         }
 
     @staticmethod
