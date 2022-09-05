@@ -10,7 +10,7 @@ import Login from '../pages/Login';
 import BusinessLogin from '../pages/business/BusinessLogin';
 import NotFound from '../pages/Page404';
 import TryvestorRegister from '../pages/TryvestorRegister';
-import Discover from '../pages/Discover';
+import Discover from '../pages/discover/Discover';
 import DashboardApp from '../pages/DashboardApp';
 import { Founders, Landing } from '../pages/general/Landing';
 import Company from '../pages/Company'
@@ -43,6 +43,7 @@ export function CustomRouter() {
       element: <DashboardLayout />,
       children: [
         { path: 'overview', element: <CustomSelectRouter businessPage={<BusinessOverview />} tryvestorPage={<Overview />} /> },
+        { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} /> },
         { path: 'home', element: <CustomSelectRouter businessPage={<BusinessHomePage />} /> },
         { path: 'tasks', element: <CustomSelectRouter tryvestorPage={<Tasks />} /> },
         { path: 'community', element: <CustomSelectRouter businessPage={<BusinessCommunity />} tryvestorPage={<Community />} /> },
