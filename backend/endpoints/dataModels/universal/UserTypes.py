@@ -1,0 +1,2 @@
+TRYVESTOR = "tryvestor"
+BUSINESS = "business"

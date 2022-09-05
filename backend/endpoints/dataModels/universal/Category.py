@@ -1,6 +1,5 @@
 from datetime import datetime, timezone, time
 
-
 class Category:
     def __init__(self, categoryID, categoryName, creationDate):
         self.categoryID = categoryID
@@ -9,6 +8,7 @@ class Category:
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, categoryID):
+        print("got here")
         return Category(
             categoryID=str(categoryID),
             categoryName=str(sourceDict["categoryName"]),
