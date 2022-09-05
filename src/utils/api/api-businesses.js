@@ -22,6 +22,20 @@ const apiBusinesses = new ApiCore({
     single
 });
 
+apiBusinesses.getCategoryName = () => {
+    return axios
+        .get(`${BASE_URL}/categories`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.getCompanyInfoByCat = () => {
+    return axios
+        .get(`${BASE_URL}/businesses?sortBy=category`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
 apiBusinesses.postTermDocument = (model) => {
     return axios
         .post(`${BASE_URL}/businesses/termDocuments`, model)
