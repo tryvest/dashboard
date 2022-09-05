@@ -19,7 +19,6 @@ import {
 // components
 import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
-import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
 // import MuiMarkdown from "mui-markdown";
 import ReactMarkdown from "react-markdown";
