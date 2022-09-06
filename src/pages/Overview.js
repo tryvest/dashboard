@@ -3,17 +3,11 @@ import React, {useState} from "react";
 // @mui
 import {useTheme} from '@mui/material/styles';
 import {
-    Grid,
-    Container,
     Typography,
-    Backdrop,
-    Button,
-    CircularProgress,
     Card,
     Stack,
-    CardHeader,
-    CardContent, Box, Chip,
-    SvgIcon, IconButton, Slider,
+    CardContent,
+    Slider,
 } from '@mui/material';
 // components
 import {useDispatch, useSelector} from "react-redux";
