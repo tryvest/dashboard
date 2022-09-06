@@ -8,12 +8,9 @@ import { HelmetProvider } from 'react-helmet-async';
 import { Provider, useSelector } from 'react-redux';
 import { createFirestoreInstance } from 'redux-firestore';
 import { ReactReduxFirebaseProvider, getFirebase, isLoaded } from 'react-redux-firebase';
-import {composeWithDevTools} from "redux-devtools-extension";
-import { configureStore } from '@reduxjs/toolkit';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
-import rootReducer from './store/reducers/rootReducer'
 import firebase from './firebase';
 import { store } from "./store.ts";
 // ----------------------------------------------------------------------
