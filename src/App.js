@@ -3,7 +3,6 @@ import {StylesProvider} from '@mui/styles'
 import { useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
 import {onAuthStateChanged} from "firebase/auth";
-import {BusinessRouter, GenericRouter, TryvestorRouter} from './routes';
 // theme
 import ThemeProvider from './theme';
 import './styles.css'
@@ -16,6 +15,7 @@ import { login, logout, selectUser } from './features/userSlice';
 import {apiTryvestors} from "./utils/api/api-tryvestors";
 import {auth} from "./firebase";
 import {CustomRouter} from "./routes/routes";
+import {store} from "./store.ts";
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +26,6 @@ export default function App() {
   useEffect(() => {
     onAuthStateChanged(auth, (userAuth) => {
       if (userAuth) {
-
         apiTryvestors.getSingle(userAuth.uid).then((user) => {
           const payload = {
             userType: TRYVESTOR,

@@ -49,7 +49,6 @@ export default function AccountPopover() {
     signOut.then(() => {
       navigate('/')
     });
-
   }
 
   const user = useSelector((state) => state.user?.user)

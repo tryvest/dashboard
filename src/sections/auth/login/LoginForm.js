@@ -16,7 +16,12 @@ import {
 import { LoadingButton } from '@mui/lab';
 // component
 import {signInWithEmailAndPassword} from "firebase/auth";
+<<<<<<< HEAD
 import { useDispatch } from 'react-redux';
+=======
+import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
+>>>>>>> 35099a4c99c204a51d402c08d0b12fb3070d6dca
 import Iconify from '../../../components/Iconify';
 import {api} from "../../../utils/api/api";
 import {TRYVESTOR} from "../../../UserTypes";
