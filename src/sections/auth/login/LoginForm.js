@@ -3,7 +3,16 @@ import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useFormik, Form, FormikProvider } from 'formik';
 // material
-import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
+import {
+  Link,
+  Stack,
+  Checkbox,
+  TextField,
+  IconButton,
+  InputAdornment,
+  FormControlLabel,
+  Typography, Collapse, Alert
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
 import {signInWithEmailAndPassword} from "firebase/auth";
@@ -24,6 +33,7 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [openUserNotExist, setOpenUserNotExist] = useState(false);
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
@@ -69,7 +79,15 @@ export default function LoginForm() {
               .catch(handleError);
         })
         .catch((err) => {
-          console.log('error logging in: ', err);
+          switch(err.code) {
+            case 'auth/user-not-found':
+              console.log('user not found bish');
+              setOpenUserNotExist(true)
+              formik.resetForm();
+              break;
+            default:
+              console.log('error logging in: ', err);
+          }
         });
   }
   return (
@@ -117,6 +135,11 @@ export default function LoginForm() {
           </Link>
         </Stack>
 
+        <Collapse in={openUserNotExist} sx={{pb: 3}}>
+          <Alert severity="error" variant='filled'>
+            User does not exist!
+          </Alert>
+        </Collapse>
         <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
           Login
         </LoadingButton>
