@@ -8,20 +8,20 @@ import {
   Stack,
   TextField,
   IconButton,
-  InputAdornment,
-  Typography,
-  Autocomplete, Chip
+  InputAdornment, Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 import {createUserWithEmailAndPassword} from "firebase/auth";
 import {useDispatch, useSelector} from "react-redux";
-import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
+import { DayPicker } from "react-day-picker";
+import { format } from 'date-fns';
 import { login } from '../../../features/userSlice';
 import Iconify from '../../../components/Iconify';
 import {apiTryvestors} from "../../../utils/api/api-tryvestors";
 import { auth } from '../../../firebase'
 import {TRYVESTOR} from "../../../UserTypes";
+import 'react-day-picker/dist/style.css';
 // ----------------------------------------------------------------------
 
 
@@ -32,13 +32,18 @@ const RegisterForm = () => {
   const navigate = useNavigate();
 
   const [topics, setTopics] = useState([])
+  const [selected, setSelected] = useState(new Date())
 
-  const possibleTopics = [
-    "Apparel and Cosmetics", "Consumer Electronics", "Content, Food and Beverage",
-    "Gaming", "Home and Personal", "Job and Career Services", "Social",
-    "Transportation Services", "Travel", "Leisure and Tourism",
-    "Virtual and Augmented Reality", "Education", "FinTech", "Health", "Pets and Animals"
-  ]
+  const css = `
+  .my-selected:not([disabled]) { 
+    font-weight: bold; 
+    border: 2px solid currentColor;
+  }
+  .my-selected:hover:not([disabled]) { 
+    border-color: #61D3A2;
+    color: #61D3A2;
+  }
+`;
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -65,17 +70,26 @@ const RegisterForm = () => {
     },
   });
 
+  let footer = <p>Please pick a day.</p>;
+
+
+  if (selected) {
+    footer = <p>You picked {format(selected, 'PP')}.</p>;
+  }
+
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
 
   const signUp = (creds) => {
     createUserWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async (res) => {
+
+          console.log(selected)
           const userData = {
             UID: res.user.uid,
             firstName: creds.firstName,
             lastName: creds.lastName,
             username: creds.email,
-            DOB: "", // Add dob field
+            DOB: format(selected, 'PP'), // Add dob field
           };
 
           await apiTryvestors.post(userData);
@@ -142,34 +156,22 @@ const RegisterForm = () => {
             error={Boolean(touched.password && errors.password)}
             helperText={touched.password && errors.password}
           />
-
-          <Typography variant='h5'>
-            Which topics interest you?
+          <Typography variant="h6">
+            Date of Birth
           </Typography>
-
-              <Autocomplete
-                  multiple
-                  value={topics}
-                  onChange={(event, newValue) => {
-                    setTopics([
-                      ...newValue,
-                    ]);
-                  }}
-                  options={possibleTopics}
-                  renderTags={(tagValue, getTagProps) =>
-                      tagValue.map((option, index) => (
-                          <Chip
-                              key={index}
-                              label={option.toString()}
-                              {...getTagProps(index)}
-                          />
-                      ))
-                  }
-                  style={{ width: 500 }}
-                  renderInput={(params) => (
-                      <TextField {...params} placeholder="Favorites" />
-                  )}
-              />
+          <style>{css}</style>
+          <DayPicker
+              mode="single"
+              captionLayout="dropdown"
+              fromYear={1970}
+              toYear={2025}
+              selected={selected}
+              onSelect={setSelected}
+              modifiersClassNames={{
+                selected: 'my-selected',
+              }}
+              footer={footer}
+          />
 
 
           <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting} >
