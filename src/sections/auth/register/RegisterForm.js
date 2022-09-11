@@ -74,7 +74,7 @@ const RegisterForm = () => {
 
 
   if (selected) {
-    footer = <p>You picked {format(selected, 'PP')}.</p>;
+    footer = <p>You picked {format(selected, 'yyyy-MM-dd')}.</p>;
   }
 
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
@@ -83,13 +83,13 @@ const RegisterForm = () => {
     createUserWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async (res) => {
 
-          console.log(format(selected, 'yyyy-mm-dd'))
+
           const userData = {
             UID: res.user.uid,
             firstName: creds.firstName,
             lastName: creds.lastName,
             username: creds.email,
-            DOB: format(selected, 'yyyy-mm-dd'), // Add dob field
+            DOB: format(selected, 'yyyy-MM-dd'), // Add dob field
           };
 
           await apiTryvestors.post(userData);
