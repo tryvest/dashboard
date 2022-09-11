@@ -83,13 +83,13 @@ const RegisterForm = () => {
     createUserWithEmailAndPassword(auth, creds.email, creds.password)
         .then(async (res) => {
 
-          console.log(selected)
+          console.log(format(selected, 'yyyy-mm-dd'))
           const userData = {
             UID: res.user.uid,
             firstName: creds.firstName,
             lastName: creds.lastName,
             username: creds.email,
-            DOB: format(selected, 'PP'), // Add dob field
+            DOB: format(selected, 'yyyy-mm-dd'), // Add dob field
           };
 
           await apiTryvestors.post(userData);
