@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import Button from '../Button'
 import ArrowRight from '../../images/DiscoverTileArrow.png'
-import { CompanyTileBox, CompanyName, ButtonBox, SloganText, OneLinerText, CompanyLogo, QuickInfo, ButtonGroup, Stockback, SizedBox } from './styles'
+import { CompanyName, ButtonBox, SloganText, OneLinerText, CompanyLogo, QuickInfo, ButtonGroup, Stockback } from './styles'
 
 const CompanyDiscoverTile = (props) => {
     const {logo, name, slogan, oneLiner, stock} = props

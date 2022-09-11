@@ -35,8 +35,8 @@ function BusinessOverview(props) {
 
     const [pendingOrCompleted, setPendingOrCompleted] = useState("pending")
     const [businessInfo, setBusinessInfo] = useState()
-    const user = useSelector((state) => state.auth?.user)
-    const userType = useSelector((state) => state.auth?.userType)
+    const user = useSelector((state) => state.user?.user)
+    const userType = useSelector((state) => state.user?.userType)
     /*
         {tryvestors: [
             {

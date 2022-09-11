@@ -1,46 +1,31 @@
-import {faker} from '@faker-js/faker';
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 
 // @mui
 import {useTheme} from '@mui/material/styles';
 import {
-    Grid,
-    Container,
     Typography,
-    Backdrop,
-    Button,
-    CircularProgress,
     Card,
     Stack,
-    CardHeader,
-    CardContent, Box, Chip,
-    SvgIcon, IconButton, Slider,
+    CardContent,
+    Slider,
 } from '@mui/material';
 // components
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
-import ReactPlayer from "react-player";
-// import MuiMarkdown from "mui-markdown";
-import ReactMarkdown from "react-markdown";
 import {bindActionCreators} from "redux";
 import {fShortenNumber, fCurrency} from '../utils/formatNumber'
 import Page from '../components/Page';
 
-import COMPANIES from '../_mock/companies';
 import {businessActionCreators} from '../store'
 
-// sections
-import TASKS from '../_mock/tasks';
-import UserDashboardInfo from "../sections/@dashboard/user/UserDashboardInfo";
-import {apiTryvestors} from "../utils/api/api-tryvestors";
-import {apiBusinesses} from "../utils/api/api-businesses";
 
 // ----------------------------------------------------------------------
 
 export default function Overview() {
+    console.log('Inside Overview')
     const theme = useTheme();
-    const user = useSelector((state) => state.auth?.user)
-    const business = useSelector ((state) => state.business)
+    const user = useSelector((state) => state.user?.user)
+    const business = {} // useSelector ((state) => state.business)
     const [businessObj, setBusinessObj] = useState(null)
     const navigate = useNavigate()
     const dispatchBus = useDispatch();
@@ -65,15 +50,15 @@ export default function Overview() {
 
     }, [user]) */
 
-    useEffect(() => {
-        if(business && user) {
-            user.businessesRespondedTo.forEach((bus) => {
-                if(bus.businessID === business.businessID){
-                    setBusinessObj(bus)
-                }
-            })
-        }
-    }, [user, business])
+    // useEffect(() => {
+    //     if(business && user) {
+    //         user.businessesRespondedTo?.forEach((bus) => {
+    //             if(bus.businessID === business.businessID){
+    //                 setBusinessObj(bus)
+    //             }
+    //         })
+    //     }
+    // }, [user, business])
 
     const calcTotalPossibleSharesAsPercent = () => {
         let totalPossible = 0
@@ -102,7 +87,11 @@ export default function Overview() {
 
     return (
         <Page title="Company Overview">
-            {
+            <Typography variant="h4" gutterBottom >
+                Dashboard
+            </Typography>
+
+            {/*
                 (businessObj) ? (
                     <Grid container spacing={1} style={{margin: "5px"}}>
                         <Grid item xs={12} sm={12} md={9}>
@@ -141,19 +130,6 @@ export default function Overview() {
                                                 Key Points
                                             </Typography>
                                             <div>
-                                                {/*
-                                                <ul style={{marginLeft: "15px"}}>
-                                                    {businessObj.description.split(".").map((sentence) => {
-                                                        const trimmedSent = sentence.trim()
-                                                        if(trimmedSent.length > 0){
-                                                            return <li>
-                                                                {trimmedSent}
-                                                            </li>
-                                                        }
-                                                        return <div/>
-                                                    })}
-                                                </ul>
-                                                */}
                                                 <ReactMarkdown>{businessObj.description}</ReactMarkdown>
                                             </div>
                                         </Stack>
@@ -270,7 +246,7 @@ export default function Overview() {
                         </Grid>
                     </div>
                 )
-            }
+            */}
         </Page>
     );
 }

@@ -8,8 +8,7 @@ import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import Iconify from '../../components/Iconify';
 //
-import Searchbar from './Searchbar';import AccountPopover from './AccountPopover';
-import LanguagePopover from './LanguagePopover';
+import AccountPopover from './AccountPopover';
 import NotificationsPopover from './NotificationsPopover';
 import {DRAWER_WIDTH} from "./DashboardSidebar";
 import {apiBusinesses} from "../../utils/api/api-businesses";
@@ -46,8 +45,8 @@ DashboardNavbar.propTypes = {
 export default function DashboardNavbar({ onOpenSidebar }) {
 
   const navigate = useNavigate()
-  const userType = useSelector((state) => state.auth?.userType)
-  const businessID = useSelector((state) => state.auth?.userType)
+  const userType = useSelector((state) => state.user?.userType)
+  const businessID = "" // useSelector((state) => state.user?.userType)
   const [businessInfo, setBusinessInfo] = useState()
 
   useEffect(() => {
