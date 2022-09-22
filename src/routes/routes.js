@@ -25,6 +25,7 @@ import BusinessCommunity from "../pages/business/BusinessCommunity";
 import BusinessAnnouncements from "../pages/business/BusinessAnnouncements";
 import Learn from "../pages/Learn";
 import {CustomSelectRouter} from "./customselector"
+import PlaidButton from "../utils/plaid/plaid-button";
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +35,8 @@ export function CustomRouter() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Landing /> },
+        // { path: '/', element: <Landing /> },
+        { path: '/', element: <PlaidButton /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },
