@@ -2,19 +2,22 @@ import React, { useContext } from 'react'
 import { ThemeContext } from 'styled-components'
 import {
     Card,
-    CardContent
+    CardContent,
+    Button,
+    Stack,
 } from '@mui/material';
-import Button from '../Button'
+import {useNavigate} from "react-router-dom";
 import ArrowRight from '../../images/DiscoverTileArrow.png'
 import { CompanyTileBox, CompanyName, ButtonBox, SloganText, OneLinerText, CompanyLogo, QuickInfo, ButtonGroup, Stockback, SizedBox } from './styles'
 
 const CompanyDiscoverTile = (props) => {
-    const {logo, name, slogan, oneLiner, stock} = props
+    const navigate = useNavigate()
+    const {logo, name, slogan, oneLiner, stock, businessId} = props
     const theme = useContext(ThemeContext)
     return (
-        <Card style={{ alignItems: 'center', justifyContent: 'center', height: '145px', marginBottom: '15px' }}>
+        <Card style={{ alignItems: 'center', justifyContent: 'center', height: '145px', marginBottom: '15px', marginTop: '20px' }} onClick={() => {navigate(`/businesses/${businessId}`)}}>
             <CardContent>
-                <ButtonBox>
+                <Stack direction="row">
                     <CompanyLogo>
                         <img src={logo} alt="Company Logo"/>
                     </CompanyLogo>
@@ -29,13 +32,13 @@ const CompanyDiscoverTile = (props) => {
                     <OneLinerText>
                         {oneLiner}
                     </OneLinerText>
-                    <ButtonGroup>
-                        <Stockback>
-                            <Button width="150px" height="30px" bgColor="#042534" radius="8px" text="2.5% back in stock" fontSize="14px"/>
-                            <img src={ArrowRight} alt="Arrow Right"/>
-                        </Stockback>
-                    </ButtonGroup>
-                </ButtonBox>
+                            <Button style={{ width: "150px", height: "30px", backgroundColor: "#042534", fontSize: "14px", color: "#fff" }}>
+                                2.5% back in stock
+                            </Button>
+                            <div style={{ marginLeft: "5px" }}>
+                                <img src={ArrowRight} alt="Arrow Right"/>
+                            </div>
+                </Stack>
             </CardContent>
         </Card>
     )
