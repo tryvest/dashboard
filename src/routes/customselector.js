@@ -27,5 +27,5 @@ export const CustomSelectRouter = (props) => {
         return unauthPage
     }
     console.log("unauth page is null")
-    return <Landing />
+    return <Navigate to="/" replace/>
 }
