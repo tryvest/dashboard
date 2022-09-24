@@ -6,6 +6,7 @@ import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@
 // components
 import {useDispatch, useSelector} from "react-redux";
 import { signOut } from "firebase/auth";
+import {auth} from "../../firebase"
 import MenuPopover from '../../components/MenuPopover';
 // mocks_
 import account from '../../_mock/account';
@@ -46,8 +47,9 @@ export default function AccountPopover() {
   const handleLogout = () => {
     setOpen(null);
     dispatch(logout());
-    signOut.then(() => {
-      navigate('/')
+    signOut(auth).then(() => {
+      console.log("hello")
+      navigate('/', {replace: true})
     });
   }
 

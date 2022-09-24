@@ -10,9 +10,7 @@ import {
     Slider,
 } from '@mui/material';
 // components
-import {useDispatch, useSelector} from "react-redux";
-import {useNavigate} from "react-router-dom";
-import {bindActionCreators} from "redux";
+import {selectUser} from "../features/userSlice"
 import {fShortenNumber, fCurrency} from '../utils/formatNumber'
 import Page from '../components/Page';
 
@@ -21,15 +19,11 @@ import {businessActionCreators} from '../store'
 
 // ----------------------------------------------------------------------
 
-export default function Overview() {
-    console.log('Inside Overview')
-    const theme = useTheme();
-    const user = useSelector((state) => state.user?.user)
-    const business = {} // useSelector ((state) => state.business)
+export default function TryvestorOverview() {
+    console.log('Inside TryvestorOverview')
+    const theme = useTheme()
+    const user = selectUser()
     const [businessObj, setBusinessObj] = useState(null)
-    const navigate = useNavigate()
-    const dispatchBus = useDispatch();
-    const { switchBusiness } = bindActionCreators(businessActionCreators, dispatchBus);
 
     const iff = (condition, then, otherwise) => {
         if (condition) {
@@ -37,28 +31,6 @@ export default function Overview() {
         }
         return otherwise
     };
-/*
-    useEffect(() => {
-
-        if () {
-
-                if(data.businessesRespondedTo.length > 0){
-                    switchBusiness(data.businessesRespondedTo[0].businessID)
-                }
-
-        }
-
-    }, [user]) */
-
-    // useEffect(() => {
-    //     if(business && user) {
-    //         user.businessesRespondedTo?.forEach((bus) => {
-    //             if(bus.businessID === business.businessID){
-    //                 setBusinessObj(bus)
-    //             }
-    //         })
-    //     }
-    // }, [user, business])
 
     const calcTotalPossibleSharesAsPercent = () => {
         let totalPossible = 0
@@ -70,23 +42,8 @@ export default function Overview() {
         return (totalPossible / businessObj.totalShares)
     }
 
-    /*
-    const subtextStyle = {
-        fontFamily: 'Avenir Next',
-        fontStyle: "normal",
-        fontWeight: "700",
-        fontSize: "50px",
-        lineHeight: "68px",
-        letterSpacing: "0.3px"
-    }
-    */
-
-    const navTaskPage = () => {
-        navigate('/dashboard/tasks')
-    }
-
     return (
-        <Page title="Company Overview">
+        <Page title="Company TryvestorOverview">
             <Typography variant="h4" gutterBottom >
                 Dashboard
             </Typography>
