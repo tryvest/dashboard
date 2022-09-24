@@ -35,8 +35,8 @@ export function CustomRouter() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        // { path: '/', element: <Landing /> },
-        { path: '/', element: <PlaidButton /> },
+        { path: '/', element: <Landing /> },
+        // { path: '/', element: <PlaidButton /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },

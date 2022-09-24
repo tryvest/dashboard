@@ -89,7 +89,7 @@ class Institutions(Resource):
         # Getting information from plaid in the first place
         request = InstitutionsGetByIdRequest(
             institution_id=plaidInstitutionID,
-            country_codes=['US']
+            country_codes=list(map(lambda x: CountryCode(x), ["US"]))
         )
         plaidApiResponse = client.institutions_get_by_id(request)
 

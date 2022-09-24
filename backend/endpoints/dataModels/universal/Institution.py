@@ -20,7 +20,7 @@ class Institution:
             institutionID=str(institutionID),
             plaidCountryCodes=sourceDict["plaidCountryCodes"],
             plaidInstitutionName=str(sourceDict["plaidInstitutionName"]),
-            plaidRequestID=float(sourceDict["plaidRequestID"]),
+            plaidRequestID=str(sourceDict["plaidRequestID"]),
             institutionImageURL=str(sourceDict["institutionImageURL"]),
             creationDate=sourceDict["creationDate"],
         )
