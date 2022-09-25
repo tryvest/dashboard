@@ -1,8 +1,11 @@
 from datetime import datetime, timezone
 
+DEFAULT_ITEM_IMAGE_URL = "" # TODO HERE
+
 
 class UserItem:
-    def __init__(self, userItemID, plaidAccessToken, plaidItemID, plaidRequestID, plaidInstitutionID, cursor, userAccounts, creationDate, itemIsActive):
+    def __init__(self, userItemID, plaidAccessToken, plaidItemID, plaidRequestID, plaidInstitutionID, cursor,
+                 userAccounts, creationDate, itemIsActive):
         self.userItemID = userItemID
         self.plaidAccessToken = plaidAccessToken
         self.plaidItemID = plaidItemID
@@ -32,7 +35,7 @@ class UserItem:
             cursor=str(sourceDict["cursor"]),
             creationDate=sourceDict['creationDate'],
             itemIsActive=sourceDict['itemIsActive'],
-            userAccounts=sourceDict['userAccounts']
+            userAccounts=sourceDict['userAccounts'],
         )
 
     def writeToFirebaseFormat(self):
@@ -51,7 +54,7 @@ class UserItem:
             "creationDate": self.creationDate,
             "itemIsActive": self.itemIsActive,
             "plaidInstitutionID": self.plaidInstitutionID,
-            "userAccounts": newAccountArr
+            "userAccounts": newAccountArr,
         }
 
     @staticmethod
@@ -100,8 +103,10 @@ class UserItem:
 
         return toReturn
 
+
 class UserAccount:
-    def __init__(self, plaidAccountID, plaidAccountName, plaidAccountOfficialName, plaidAccountMask, plaidAccountSubtype, plaidAccountType, accountIsActive, creationDate):
+    def __init__(self, plaidAccountID, plaidAccountName, plaidAccountOfficialName, plaidAccountMask,
+                 plaidAccountSubtype, plaidAccountType, accountIsActive, creationDate):
         self.plaidAccountID = plaidAccountID
         self.plaidAccountName = plaidAccountName
         self.plaidAccountOfficialName = plaidAccountOfficialName

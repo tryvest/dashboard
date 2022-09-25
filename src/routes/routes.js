@@ -25,6 +25,7 @@ import BusinessCommunity from "../pages/business/BusinessCommunity";
 import BusinessAnnouncements from "../pages/business/BusinessAnnouncements";
 import Learn from "../pages/Learn";
 import {CustomSelectRouter} from "./customselector"
+import PlaidButton from "../utils/plaid/plaid-button";
 
 // ----------------------------------------------------------------------
 export function CustomRouter() {
@@ -34,6 +35,7 @@ export function CustomRouter() {
       element: <LogoOnlyLayout />,
       children: [
         { path: '/', element: <CustomSelectRouter unauthPage={<Landing/>} businessPage={<Navigate to={"/dashboard/overview"}/>} tryvestorPage={<Navigate to={"/dashboard/overview"}/>}/>},
+        // { path: '/', element: <PlaidButton /> },
         { path: '*', element: <CustomSelectRouter /> },
         { path: '404', element: <NotFound/> },
       ],
@@ -71,7 +73,7 @@ export function CustomRouter() {
       path: '/business',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <CustomSelectRouter businessPage={<TryvestorOverview />} /> },
+        { path: 'app', element: <CustomSelectRouter businessPage={<BusinessOverview />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },

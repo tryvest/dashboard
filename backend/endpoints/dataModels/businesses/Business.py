@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 
 class Business:
-    def __init__(self, businessID, name, merchantNames, tagline, description, logo, totalShares, valuation, categoryID,
+    def __init__(self, businessID, name, merchantNames, tagline, description, additionalInformation, logo, totalShares, valuation, amountRaised, tryvestorRequirements, currentInvestors, categoryID,
                  websiteLink, creationDate, EIN, EINPhotoSubmissionLink, EINVerificationStatus):
         self.businessID = businessID
         self.name = name
@@ -10,6 +10,10 @@ class Business:
         self.merchantNames = merchantNames
         self.tagline = tagline
         self.description = description
+        self.additionalInformation = additionalInformation
+        self.amountRaised = amountRaised
+        self.tryvestorRequirements = tryvestorRequirements
+        self.currentInvestors = currentInvestors
         self.logo = logo
         self.totalShares = totalShares
         self.valuation = valuation
@@ -28,9 +32,13 @@ class Business:
             merchantNames=(sourceDict['merchantNames']),
             tagline=str(sourceDict["tagline"]),
             description=str(sourceDict["description"]),
+            additionalInformation=str(sourceDict["additionalInformation"]),
             logo=str(sourceDict["logo"]),
             totalShares=int(sourceDict["totalShares"]),
             valuation=int(sourceDict["valuation"]),
+            amountRaised=int(sourceDict["amountRaised"]),
+            tryvestorRequirements=str(sourceDict["tryvestorRequirements"]),
+            currentInvestors=sourceDict["currentInvestors"],
             categoryID=str(sourceDict["categoryID"]),
             websiteLink=str(sourceDict["websiteLink"]),
             EIN=str(sourceDict["EIN"]),
@@ -45,9 +53,13 @@ class Business:
             "merchantNames": list(self.merchantNames),
             "tagline": self.tagline,
             "description": self.description,
+            "additionalInformation": self.additionalInformation,
             "logo": self.logo,
             "totalShares": self.totalShares,
             "valuation": self.valuation,
+            "amountRaised": self.amountRaised,
+            "tryvestorRequirements": self.tryvestorRequirements,
+            "currentInvestors": self.currentInvestors,
             "categoryID": self.categoryID,
             "websiteLink": self.websiteLink,
             "EIN": self.EIN,
