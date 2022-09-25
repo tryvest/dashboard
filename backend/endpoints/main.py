@@ -299,6 +299,28 @@ class SpecificTryvestor(Resource):
             return "Error"
         tryvestorDict = tryvestorDoc.to_dict()
 
+        # Additional Data for Tryvestor Dash
+        '''
+        tryvestorObj = {
+            ...currentData,
+            companies:[scrollable box if too much, no limit, ordered by amount of money stock back]
+            summaryData: {
+                totalMoney: num,
+            }
+            recentTransactions:[limit to ~5 transactions]
+                - Each transaction should have: 
+                logo link from institution, 
+                logo link from company, 
+                date of transaction, 
+                amount in transaction, 
+                % stockback, 
+                amount of money invested in company
+            }
+        Total amount of money in stock back (simply take %
+        Companies the tryvestor is in:
+         - Company ID, Current campaign stockback %, Amount stockback from that specific company
+        '''
+
         # Converting / filtering the base demographic data of tryvestor
         tryvestor = Tryvestor.readFromFirebaseFormat(sourceDict=tryvestorDict, tryvestorID=tryvestorID).writeToDict()
         return tryvestor
@@ -705,6 +727,8 @@ class PlaidUpdateTransactions(Resource):
                 businessID=allBusMatchingMerchantName[0].id)
             allCampaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(
                 businessMatchedByMerchant.businessID)
+            if len(allCampaignsForBusiness) == 0:
+                continue
             businessCampaign = Campaign.readFromDict(sourceDict=allCampaignsForBusiness[0],
                                                      campaignID=allCampaignsForBusiness[0]["campaignID"])
 
@@ -713,6 +737,7 @@ class PlaidUpdateTransactions(Resource):
             # Fields to make the user transaction object work
             businessID = businessMatchedByMerchant.businessID
             businessCampaignID = businessCampaign.campaignID
+            percentStockback = businessCampaign.stockBackPercent
             # Amount spent / valuation for campaign * total shares in company
             numFractionalShares = (float(transactionAmount) / businessCampaign.valuationForCampaign) * \
                                   businessMatchedByMerchant.totalShares
