@@ -13,10 +13,10 @@ import TryvestorRegister from '../pages/TryvestorRegister';
 import Discover from '../pages/discover/Discover';
 import DashboardApp from '../pages/DashboardApp';
 import { Founders, Landing } from '../pages/general/Landing';
-import Company from '../pages/Company'
-import AirtableEmbedPage from "../sections/@dashboard/companies/AirtableEmbedPage";
+import Business from '../pages/Business'
 import Tasks from "../pages/Tasks";
 import TryvestorOverview from "../pages/TryvestorOverview";
+import CompanySpecific from "../pages/CompanySpecific";
 import Announcements from "../pages/Announcements";
 import Community from "../pages/Community"
 import BusinessHomePage from "../pages/business/BusinessHomePage";
@@ -35,6 +35,7 @@ export function CustomRouter() {
       element: <LogoOnlyLayout />,
       children: [
         { path: '/', element: <CustomSelectRouter unauthPage={<Landing/>} businessPage={<Navigate to={"/dashboard/overview"}/>} tryvestorPage={<Navigate to={"/dashboard/overview"}/>}/>},
+        { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} />,},
         { path: 'plaid', element: <PlaidButton /> },
         { path: '*', element: <CustomSelectRouter /> },
         { path: '404', element: <NotFound/> },
@@ -54,18 +55,10 @@ export function CustomRouter() {
       ],
     },
     {
-      path: '/companies',
+      path: '/businesses',
       element: <DashboardLayout />,
       children: [
-        { path: ':id', element: <CustomSelectRouter businessPage={<Company />} tryvestorPage={<Company />} unauthPage={<Company />} /> },
-        { path: '*', element: <CustomSelectRouter /> },
-      ]
-    },
-    {
-      path: '/termDocuments',
-      element: <EmptyPage />,
-      children: [
-        { path: ':embedURL', element: <CustomSelectRouter businessPage={<AirtableEmbedPage />} tryvestorPage={<AirtableEmbedPage />} /> },
+        { path: ':id', element: <CustomSelectRouter businessPage={<CompanySpecific />} tryvestorPage={<CompanySpecific />} unauthPage={<CompanySpecific />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ]
     },
@@ -100,7 +93,6 @@ export function CustomRouter() {
     { path: '*', element: <CustomSelectRouter /> },
   ]);
 }
-
 
 
 

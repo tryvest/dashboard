@@ -221,7 +221,7 @@ export default function TryvestorOverview() {
             </Card>
           </Grid>
           <Grid item xs={12} sm={12} md={12}>
-            <Card style={{ borderRadius: '0px', padding: "5px", alignItems: "center", display: "flex"}}>
+            <Card style={{ borderRadius: '0px', padding: "15px", alignItems: "center", display: "flex"}}>
               <Stack direction={"column"}>
                 <Stack direction={"row"} style={{alignItems: "center", display: "flex"}}>
                   <Typography margin={'5px 0px 5px 10px'} fontSize={18} fontWeight={'bold'}>
@@ -241,7 +241,7 @@ export default function TryvestorOverview() {
                 >
                   {Object.entries(tryvestor?.data?.businessesInvestedIn).map(([key, value]) => {
                     return (
-                        <ImageListItem>
+                        <ImageListItem onClick={() => {navigate(`/businesses/${key}`, {replace: true})}}>
                           <img alt={'business'} src={value.businessLogo} style={{ borderRadius: '10px' }} />
                         </ImageListItem>
                     );
@@ -269,7 +269,7 @@ const CompanyRow = (props) => {
   return (
     <Card
       style={{ borderRadius: 0, padding: '5px 10px 5px', cursor: 'pointer' }}
-      onClick={() => navigate(`/companies/${businessID}`, { replace: true })}
+      onClick={() => {navigate(`/businesses/${businessID}`, { replace: true })}}
     >
       <Stack alignItems={'center'} direction={'row'}>
         <Stack alignItems={'center'} direction={'row'} spacing={1}>
