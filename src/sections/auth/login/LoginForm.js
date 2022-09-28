@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
-import {signInWithEmailAndPassword} from "firebase/auth";
+import {signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence} from "firebase/auth";
 import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
 import Iconify from '../../../components/Iconify';
@@ -29,8 +29,6 @@ import { auth } from '../../../firebase'
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
-  const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -49,7 +47,7 @@ export default function LoginForm() {
     },
     validationSchema: LoginSchema,
     onSubmit: ({email, password}) => {
-      signIn({email, password});
+      signIn({email, password, remember: values.remember});
     },
   });
 
@@ -59,37 +57,41 @@ export default function LoginForm() {
     setShowPassword((show) => !show);
   };
 
-  const signIn = (creds) => {
-    signInWithEmailAndPassword(auth, creds.email, creds.password)
-        .then(async (data) => {
-          api.getUserType(data.user.uid)
-              .then(userType => {
-                if (userType !== TRYVESTOR) {
-                  navigate('/business/login');
-                }
-                apiTryvestors.getSingle(data.user.uid).then((user) => {
-                  const payload = {
-                    userType: TRYVESTOR,
-                    uid: data.user.uid,
-                    data: user
-                  };
-                  dispatch(login(payload));
-                  navigate('/dashboard/overview');
-                });
-              })
-              .catch(handleError);
-        })
-        .catch((err) => {
-          switch(err.code) {
-            case 'auth/user-not-found':
-              console.log('user not found bish');
-              setOpenUserNotExist(true)
-              formik.resetForm();
-              break;
-            default:
-              console.log('error logging in: ', err);
-          }
-        });
+  const signIn = async (creds) => {
+    const persistenceType = creds.remember ? browserLocalPersistence : browserSessionPersistence
+    setPersistence(auth, persistenceType).then(
+        await signInWithEmailAndPassword(auth, creds.email, creds.password)
+            .then(async (data) => {
+              api.getUserType(data.user.uid)
+                  .then(userType => {
+                    if (userType !== TRYVESTOR) {
+                      navigate('/business/login');
+                    }
+                    apiTryvestors.getSingle(data.user.uid).then((user) => {
+                      user = new Map(Object.entries(user));
+                      const payload = {
+                        userType: TRYVESTOR,
+                        uid: data.user.uid,
+                        data: user
+                      };
+                      (login(payload));
+                      navigate('/dashboard/overview');
+                    });
+                  })
+                  .catch(handleError);
+            })
+            .catch((err) => {
+              switch (err.code) {
+                case 'auth/user-not-found':
+                  console.log('user not found bish');
+                  setOpenUserNotExist(true)
+                  formik.resetForm();
+                  break;
+                default:
+                  console.log('error logging in: ', err);
+              }
+            })
+    )
   }
   return (
     <FormikProvider value={formik}>

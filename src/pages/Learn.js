@@ -76,7 +76,7 @@ export default function Learn() {
   }
 
   return (
-      <Page title="Company Overview">
+      <Page title="Company TryvestorOverview">
         {
           (businessObj) ? (
               <Grid container spacing={1} style={{margin: "5px"}}>

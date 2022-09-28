@@ -46,14 +46,6 @@ export default function DashboardNavbar({ onOpenSidebar }) {
 
   const navigate = useNavigate()
   const userType = useSelector((state) => state.user?.userType)
-  const businessID = "" // useSelector((state) => state.user?.userType)
-  const [businessInfo, setBusinessInfo] = useState()
-
-  useEffect(() => {
-    apiBusinesses.getSingle(businessID).then((data) => {
-      setBusinessInfo(data)
-    })
-  }, [businessID])
 
   const iff = (condition, then, otherwise) => {
     if(condition){
@@ -72,16 +64,18 @@ export default function DashboardNavbar({ onOpenSidebar }) {
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
-          {/*
-          <Button onClick={() => {navigate('/landing')}} variant='outlined'>
-            For Business
-          </Button>
-          <LanguagePopover />
-          */}
           <NotificationsPopover />
           <div style={{height: "100%", padding: "5px", paddingLeft: '15px', borderLeft: "0.05em solid #DFE0EB"}}>
-            {
-              iff(userType === "business",
+            <AccountPopover/>
+          </div>
+        </Stack>
+      </ToolbarStyle>
+    </RootStyle>
+  );
+}
+
+/*
+iff(userType === "business",
                   (
                       businessInfo ? (
                           <Typography style={{color: "black"}}>
@@ -95,10 +89,4 @@ export default function DashboardNavbar({ onOpenSidebar }) {
                   ),
                   (<AccountPopover/>)
               )
-            }
-          </div>
-        </Stack>
-      </ToolbarStyle>
-    </RootStyle>
-  );
-}
+ */

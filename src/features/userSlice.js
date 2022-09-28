@@ -1,6 +1,7 @@
 // features/userSlice.js
 
 import { createSlice } from '@reduxjs/toolkit';
+import {TRYVESTOR} from "../UserTypes";
 
 export const userSlice = createSlice({
     name: 'user',
@@ -9,7 +10,11 @@ export const userSlice = createSlice({
     },
     reducers: {
         login: (state, action) => {
-            state.user = action.payload;
+            state.user = {
+                userType: action.payload.userType,
+                uid: action.payload.uid,
+                data: action.payload.data
+            }
         },
         logout: (state) => {
             state.user = null;
@@ -20,6 +25,7 @@ export const userSlice = createSlice({
 export const { login, logout } = userSlice.actions;
 
 // selectors
-export const selectUser = (state) => state.user.user;
+export const selectUser = (state) => state?.user?.user;
+export const selectUserType = (state) => state?.user?.user?.userType;
 
 export default userSlice.reducer;

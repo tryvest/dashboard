@@ -77,15 +77,6 @@ export default function TryvestorRegister() {
           )}
         </HeaderStyle>
 
-        {mdUp && (
-          <SectionStyle>
-            <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Gain a stake in exciting companies by being an early user of their product.
-            </Typography>
-            <img alt="register" src="/static/illustrations/illustration_register.png" />
-          </SectionStyle>
-        )}
-
         <Container>
           <ContentStyle>
             <Typography variant="h4" gutterBottom>
@@ -98,7 +89,7 @@ export default function TryvestorRegister() {
             <RegisterForm />
 
             <Typography variant="body2" align="center" sx={{ color: 'text.secondary', mt: 3 }}>
-              By registering, I agree to Minimal&nbsp;
+              By registering, I agree to Tryvest&nbsp;
               <Link underline="always" color="text.primary" href="#">
                 Terms of Service
               </Link>

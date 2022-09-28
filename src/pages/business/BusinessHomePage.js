@@ -85,7 +85,7 @@ function BusinessHomePage(props) {
     const editTextVariant = 'outlined';
 
     return (
-        <Page title="Company Overview">
+        <Page title="Company TryvestorOverview">
             {
                 (businessObj) ? (
                 <div>

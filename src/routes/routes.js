@@ -16,7 +16,7 @@ import { Founders, Landing } from '../pages/general/Landing';
 import Company from '../pages/Company'
 import AirtableEmbedPage from "../sections/@dashboard/companies/AirtableEmbedPage";
 import Tasks from "../pages/Tasks";
-import Overview from "../pages/Overview";
+import TryvestorOverview from "../pages/TryvestorOverview";
 import Announcements from "../pages/Announcements";
 import Community from "../pages/Community"
 import BusinessHomePage from "../pages/business/BusinessHomePage";
@@ -25,24 +25,26 @@ import BusinessCommunity from "../pages/business/BusinessCommunity";
 import BusinessAnnouncements from "../pages/business/BusinessAnnouncements";
 import Learn from "../pages/Learn";
 import {CustomSelectRouter} from "./customselector"
+import PlaidButton from "../utils/plaid/plaid-button";
 
 // ----------------------------------------------------------------------
-
 export function CustomRouter() {
   return useRoutes([
     {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Landing /> },
+        { path: '/', element: <CustomSelectRouter unauthPage={<Landing/>} businessPage={<Navigate to={"/dashboard/overview"}/>} tryvestorPage={<Navigate to={"/dashboard/overview"}/>}/>},
+        { path: 'plaid', element: <PlaidButton /> },
         { path: '*', element: <CustomSelectRouter /> },
+        { path: '404', element: <NotFound/> },
       ],
     },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { path: 'overview', element: <CustomSelectRouter businessPage={<BusinessOverview />} tryvestorPage={<Overview />} /> },
+        { path: 'overview', element: <CustomSelectRouter businessPage={<BusinessOverview />} tryvestorPage={<TryvestorOverview />} /> },
         { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} /> },
         { path: 'home', element: <CustomSelectRouter businessPage={<BusinessHomePage />} /> },
         { path: 'tasks', element: <CustomSelectRouter tryvestorPage={<Tasks />} /> },
@@ -71,7 +73,7 @@ export function CustomRouter() {
       path: '/business',
       element: <DashboardLayout />,
       children: [
-        { path: 'app', element: <CustomSelectRouter businessPage={<Overview />} /> },
+        { path: 'app', element: <CustomSelectRouter businessPage={<BusinessOverview />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },
