@@ -11,8 +11,8 @@ const Link = () => {
 
   // const currentUserUID = useSelector(state => state.user?.uid)
   // const currentUserType = useSelector(state => state.user?.userType)
-  const currentUserUID = "0cx8CV21EwfuyX8vRYvobkyIMWo2"
-  const currentUserType = TRYVESTOR
+  const currentUserUID = useSelector(state => state?.user?.user?.uid)
+  const currentUserType = useSelector(state => state?.user?.user?.userType)
 
   const generateToken = async () => {
     api.createPlaidLinkToken().then((data) => {
@@ -25,7 +25,7 @@ const Link = () => {
     generateToken()
   }, [])
 
-  return linkToken ? (
+  return linkToken && currentUserUID && currentUserType ? (
     <LinkHelper currentUserUID={currentUserUID} currentUserType={currentUserType} linkToken={linkToken} />
   ) : (
     <CircularProgress/>
@@ -76,7 +76,6 @@ const LinkHelper = (props) => {
 
   if (window.location.href.includes('?oauth_state_id=')) {
     // TODO: figure out how to delete this ts-ignore
-    // @ts-ignore
     config.receivedRedirectUri = window.location.href;
     isOauth = true;
   }
@@ -144,7 +143,6 @@ const Link = (props) => {
 
     if (window.location.href.includes("?oauth_state_id=")) {
         // TODO: figure out how to delete this ts-ignore
-        // @ts-ignore
         config.receivedRedirectUri = window.location.href;
         isOauth = true;
     }

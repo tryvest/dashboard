@@ -35,7 +35,7 @@ export function CustomRouter() {
       element: <LogoOnlyLayout />,
       children: [
         { path: '/', element: <CustomSelectRouter unauthPage={<Landing/>} businessPage={<Navigate to={"/dashboard/overview"}/>} tryvestorPage={<Navigate to={"/dashboard/overview"}/>}/>},
-        // { path: '/', element: <PlaidButton /> },
+        { path: 'plaid', element: <PlaidButton /> },
         { path: '*', element: <CustomSelectRouter /> },
         { path: '404', element: <NotFound/> },
       ],

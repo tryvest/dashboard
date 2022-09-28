@@ -14,7 +14,7 @@ import {
 
 import { LoadingButton } from '@mui/lab';
 
-import {createUserWithEmailAndPassword} from "firebase/auth";
+import {browserLocalPersistence, createUserWithEmailAndPassword, setPersistence} from "firebase/auth";
 import {useDispatch, useSelector} from "react-redux";
 import { DayPicker } from "react-day-picker";
 // import { format } from 'date-fns';
@@ -71,8 +71,7 @@ const RegisterForm = () => {
     onSubmit: ({email, password, firstName, lastName}) => {
 
       signUp({email, password, firstName, lastName, topics});
-
-      navigate('/dashboard/app', { replace: true });
+      navigate('/dashboard/overview', { replace: true });
     },
   });
 
@@ -85,28 +84,29 @@ const RegisterForm = () => {
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
 
   const signUp = (creds) => {
-    createUserWithEmailAndPassword(auth, creds.email, creds.password)
-        .then(async (res) => {
-          const userData = {
-            UID: res.user.uid,
-            firstName: creds.firstName,
-            lastName: creds.lastName,
-            username: creds.email,
-            DOB: dayjs().format('YYYY-MM-DD'), // Add dob field
-          };
+    setPersistence(auth, browserLocalPersistence).then(() => {
+      createUserWithEmailAndPassword(auth, creds.email, creds.password)
+          .then(async (res) => {
+            const userData = {
+              UID: res.user.uid,
+              firstName: creds.firstName,
+              lastName: creds.lastName,
+              username: creds.email,
+              DOB: dayjs().format('YYYY-MM-DD'), // Add dob field
+            };
 
-          await apiTryvestors.post(userData);
-
-          const payload = {
-            userType: TRYVESTOR,
-            uid: res.user.uid,
-            data: userData,
-          }
-          dispatch(login(payload));
-        })
-        .catch((err) => {
-          console.log('error signing up: ', err);
-        });
+            await apiTryvestors.post(userData);
+            const payload = {
+              userType: TRYVESTOR,
+              uid: res.user.uid,
+              data: userData,
+            }
+            dispatch(login(payload));
+          })
+          .catch((err) => {
+            console.log('error signing up: ', err);
+          });
+    })
   }
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

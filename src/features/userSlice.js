@@ -13,7 +13,7 @@ export const userSlice = createSlice({
             state.user = {
                 userType: action.payload.userType,
                 uid: action.payload.uid,
-                data: action.payload.user
+                data: action.payload.data
             }
         },
         logout: (state) => {

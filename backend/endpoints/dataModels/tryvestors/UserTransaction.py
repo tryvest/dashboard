@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
 
-
 class UserTransaction:
     def __init__(self, userTransactionID, userItemID, businessID, businessCampaignID, numFractionalShares, creationDate,
-                 plaidTransactionID, plaidAccountID, plaidTransactionMerchantName, plaidTransactionIsPending, plaidTransactionAmount,
-                 plaidTransactionDatetime, percentStockback): #, plaidTransactionRawObject):
+                 plaidTransactionID, plaidAccountID, plaidTransactionMerchantName, plaidTransactionIsPending,
+                 plaidTransactionAmount,
+                 plaidTransactionDatetime, percentStockback):  # , plaidTransactionRawObject):
         # Personal Information
         self.userTransactionID = userTransactionID
         self.userItemID = userItemID
@@ -64,7 +64,9 @@ class UserTransaction:
     @staticmethod
     def readFromDict(sourceDict, userTransactionID):
         sourceDict['creationDate'] = datetime.fromisoformat(sourceDict['creationDate'])
-        sourceDict['plaidTransactionDatetime'] = None if sourceDict['plaidTransactionDatetime'] is None else datetime.fromisoformat(sourceDict['plaidTransactionDatetime'])
+        sourceDict['plaidTransactionDatetime'] = None if sourceDict[
+                                                             'plaidTransactionDatetime'] is None else datetime.fromisoformat(
+            sourceDict['plaidTransactionDatetime'])
         return UserTransaction.readFromFirebaseFormat(sourceDict, userTransactionID)
 
     @staticmethod
@@ -75,6 +77,7 @@ class UserTransaction:
     def writeToDict(self):
         toReturn = self.writeToFirebaseFormat()
         toReturn["creationDate"] = self.creationDate.isoformat()
-        toReturn["plaidTransactionDatetime"] = None if self.plaidTransactionDatetime is None else self.plaidTransactionDatetime.isoformat()
+        toReturn[
+            "plaidTransactionDatetime"] = None if self.plaidTransactionDatetime is None else self.plaidTransactionDatetime.isoformat()
         toReturn["userTransactionID"] = self.userTransactionID
         return toReturn

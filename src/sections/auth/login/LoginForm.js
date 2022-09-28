@@ -68,6 +68,7 @@ export default function LoginForm() {
                       navigate('/business/login');
                     }
                     apiTryvestors.getSingle(data.user.uid).then((user) => {
+                      user = new Map(Object.entries(user));
                       const payload = {
                         userType: TRYVESTOR,
                         uid: data.user.uid,
