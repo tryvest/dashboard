@@ -13,20 +13,32 @@ const CategoryDiscoverTile = (props) => {
     const { categoryName, matchingCompanies } = props
     const theme = useContext(ThemeContext)
     return (
-        <Card style={{ alignItems: 'center', justifyContent: 'center', height: '200px', marginBottom: '15px' }}>
-            <CardContent>
-                <CompanyName>
-                    {categoryName}
-                </CompanyName>
-                {
-                    matchingCompanies?.map((data) => {
-                       return (
-                        <CompanyDiscoverTile name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
-                       ) 
-                    })
-                }
-            </CardContent>
-        </Card>
+        <CardContent>
+            <CompanyName>
+                {`${categoryName.substring(0, 1).toUpperCase()}${categoryName.substring(1)}: `}
+            </CompanyName>
+            {
+                matchingCompanies?.map((data) => {
+                    return (
+                        <CompanyDiscoverTile businessId={data.businessID} name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
+                    )
+                })
+            }
+        </CardContent>
+        // <Card variant="outlined" style={{ alignItems: 'center', justifyContent: 'center', height: '220px', marginBottom: '15px' }}>
+        //     <CardContent>
+        //         <CompanyName>
+        //             {categoryName.substring(0, 1).toUpperCase() + categoryName.substring(1)}
+        //         </CompanyName>
+        //         {
+        //             matchingCompanies?.map((data) => {
+        //                return (
+        //                 <CompanyDiscoverTile name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
+        //                ) 
+        //             })
+        //         }
+        //     </CardContent>
+        // </Card>
     )
 }
 

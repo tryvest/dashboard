@@ -50,7 +50,7 @@ export default function Discover() {
 
   const businessDataMapping = (data) => {
     return (
-      <CompanyDiscoverTile name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
+      <CompanyDiscoverTile businessId={data.businessID} name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
     )
   }
 

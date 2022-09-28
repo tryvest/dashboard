@@ -42,6 +42,8 @@ export const ButtonGroup = styled.div`
 export const Stockback = styled.div`
   margin-left: 75px;
   margin-top: 30px;
+  display: flex;
+  flex-direction: row;
 `
 
 export const SizedBox = styled.div`
