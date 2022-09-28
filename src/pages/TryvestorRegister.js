@@ -6,7 +6,7 @@ import { Card, Link, Container, Typography } from '@mui/material';
 import useResponsive from '../hooks/useResponsive';
 // components
 import Page from '../components/Page';
-import Logo from '../components/Logo';
+import {LightLogo} from '../components/Logo';
 // sections
 import { RegisterForm } from '../sections/auth/register';
 
@@ -66,7 +66,7 @@ export default function TryvestorRegister() {
     <Page title="Register">
       <RootStyle>
         <HeaderStyle>
-          <Logo />
+          <LightLogo />
           {smUp && (
             <Typography variant="body2" sx={{ mt: { md: -2 } }}>
               Already have an account? {''}

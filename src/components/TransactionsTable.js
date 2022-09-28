@@ -211,7 +211,7 @@ export default function EnhancedTable(props) {
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2, pb: 2}}>
         <EnhancedTableToolbar numSelected={selected.length} />
-        {transactions.size > 0 ? (
+        {transactions.length > 0 ? (
           <div>
             <TableContainer>
               <Table sx={{ minWidth: 600 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>

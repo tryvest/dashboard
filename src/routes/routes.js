@@ -14,10 +14,8 @@ import Discover from '../pages/discover/Discover';
 import DashboardApp from '../pages/DashboardApp';
 import { Founders, Landing } from '../pages/general/Landing';
 import Business from '../pages/Business'
-import AirtableEmbedPage from "../sections/@dashboard/companies/AirtableEmbedPage";
 import Tasks from "../pages/Tasks";
 import TryvestorOverview from "../pages/TryvestorOverview";
-import Overview from "../pages/Overview";
 import CompanySpecific from "../pages/CompanySpecific";
 import Announcements from "../pages/Announcements";
 import Community from "../pages/Community"
@@ -38,7 +36,6 @@ export function CustomRouter() {
       children: [
         { path: '/', element: <CustomSelectRouter unauthPage={<Landing/>} businessPage={<Navigate to={"/dashboard/overview"}/>} tryvestorPage={<Navigate to={"/dashboard/overview"}/>}/>},
         { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} />,},
-        { path: 'overview', element: <CustomSelectRouter businessPage={<Overview />} tryvestorPage={<Overview />} unauthPage={<Overview />} /> },
         { path: 'plaid', element: <PlaidButton /> },
         { path: '*', element: <CustomSelectRouter /> },
         { path: '404', element: <NotFound/> },
@@ -62,14 +59,6 @@ export function CustomRouter() {
       element: <DashboardLayout />,
       children: [
         { path: ':id', element: <CustomSelectRouter businessPage={<CompanySpecific />} tryvestorPage={<CompanySpecific />} unauthPage={<CompanySpecific />} /> },
-        { path: '*', element: <CustomSelectRouter /> },
-      ]
-    },
-    {
-      path: '/termDocuments',
-      element: <EmptyPage />,
-      children: [
-        { path: ':embedURL', element: <CustomSelectRouter businessPage={<AirtableEmbedPage />} tryvestorPage={<AirtableEmbedPage />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ]
     },

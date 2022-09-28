@@ -22,7 +22,7 @@ import ReactReduxContext, { connect, useSelector, useStore } from 'react-redux';
 import { useParams } from "react-router-dom";
 import { fShortenNumber, fCurrency } from '../utils/formatNumber'
 import Page from '../components/Page';
-import TryvestLogo from '../images/Tryvest_logo.jpg';
+import {DarkLogo} from '../components/Logo';
 import Divider from '../images/divider.png'
 import { apiBusinesses } from '../utils/api/api-businesses';
 
@@ -64,9 +64,9 @@ const CompanySpecificPage = () => {
                         <a>Amount Raised: ${businessInfo.amountRaised}</a>
                         <a>Additional Info: {businessInfo.additionalInformation}</a>
                         <a>Stockback Percent: {businessCampaignInfo.stockBackPercent}%</a> */}
-                        <Grid container direction="row">
-                            <div style={{ height: 60, width: 150, marginRight: "20px" }}>
-                                <img src={TryvestLogo} alt="Tryvest Logo" />
+                        <Grid container direction="row" style={{alignItems: "center", display: "flex"}}>
+                            <div style={{ height: 60, width: 100, marginRight: "20px" }}>
+                                <DarkLogo/>
                             </div>
                             <div style={{ height: 60, marginRight: "20px" }}>
                                 <img src={Divider} alt="Divider" />

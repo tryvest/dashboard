@@ -13,7 +13,7 @@ import {useSelector, useDispatch} from "react-redux";
 // hooks
 import useResponsive from '../../hooks/useResponsive';
 // components
-import Logo from '../../components/Logo';
+import {LightLogo} from '../../components/Logo';
 import NavSection from '../../components/NavSection';
 //
 import navConfig from './NavConfig';
@@ -67,7 +67,7 @@ export default function DashboardSidebar({ userType, isOpenSidebar, onCloseSideb
       }}
     >
       <div style={{height: 'auto', display: 'inline-flex', justifyContent: "center", margin: "15px"}}>
-          <Logo sx={{zIndex: 10}} />
+          <LightLogo sx={{zIndex: 10}} />
       </div>
 
       {

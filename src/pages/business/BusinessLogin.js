@@ -6,7 +6,7 @@ import { Card, Link, Container, Typography } from '@mui/material';
 import useResponsive from '../../hooks/useResponsive';
 // components
 import Page from '../../components/Page';
-import Logo from '../../components/Logo';
+import {LightLogo} from '../../components/Logo';
 // sections
 import { BusinessLoginForm } from '../../sections/auth/login';
 import AuthSocial from '../../sections/auth/AuthSocial';
@@ -70,7 +70,7 @@ export default function Login() {
           <HeaderStyle>
             {
               // (visualViewport.width < 600 || visualViewport.width > 900) &&
-              <Logo />
+              <LightLogo />
             }
 
             {smUp && (
