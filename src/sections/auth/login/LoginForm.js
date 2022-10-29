@@ -46,8 +46,8 @@ export default function LoginForm() {
       remember: true,
     },
     validationSchema: LoginSchema,
-    onSubmit: ({email, password}) => {
-      signIn({email, password, remember: values.remember});
+    onSubmit: ({email, password, remember}) => {
+      signIn({email, password, remember});
     },
   });
 

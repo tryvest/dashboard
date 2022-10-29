@@ -29,5 +29,11 @@ apiTryvestors.getByUsername = (username) => {
         .catch(handleError);
 }
 
+apiTryvestors.patchSingleUser = (uid, model) => {
+    return axios
+        .patch(`${BASE_URL}/${url}/${uid}`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
 
 export {apiTryvestors};
