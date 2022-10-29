@@ -26,6 +26,7 @@ import BusinessAnnouncements from "../pages/business/BusinessAnnouncements";
 import Learn from "../pages/Learn";
 import {CustomSelectRouter} from "./customselector"
 import PlaidButton from "../utils/plaid/plaid-button";
+import TryvestorAdditionalInfo from "../pages/TryvestorAdditionalInfo";
 
 // ----------------------------------------------------------------------
 export function CustomRouter() {
@@ -51,6 +52,7 @@ export function CustomRouter() {
         { path: 'tasks', element: <CustomSelectRouter tryvestorPage={<Tasks />} /> },
         { path: 'community', element: <CustomSelectRouter businessPage={<BusinessCommunity />} tryvestorPage={<Community />} /> },
         { path: 'announcements', element: <CustomSelectRouter businessPage={<BusinessAnnouncements />} tryvestorPage={<Announcements />} /> },
+        { path: 'setup-credentials', element: <CustomSelectRouter tryvestorPage={<TryvestorAdditionalInfo />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },

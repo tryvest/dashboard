@@ -65,7 +65,7 @@ export default function TryvestorOverview() {
 
     console.log(tryvestor)
     // If street address is null, start there (take user there)
-    if (tryvestor.data.address.streetAddress === 'None') {
+    if (tryvestor.data.address.streetAddress.toLowerCase() === 'none') {
       setYnsProgress(25);
       setYnsText('Set up some extra credentials');
       setYnsLink('/dashboard/setup-credentials');

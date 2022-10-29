@@ -12,8 +12,11 @@ export default function Discover() {
 
   const [allBusinessesByCategory, setAllBusinessesByCategory] = useState()
   const [allCategories, setAllCategories] = useState()
+
   useEffect(() => {
-    apiBusinesses.getCompanyInfoByCat().then(companyByCatData => setAllBusinessesByCategory(companyByCatData))
+    apiBusinesses.getCompanyInfoByCat().then((companyByCatData) => {
+      setAllBusinessesByCategory(companyByCatData)
+    })
   }, [])
 
   useEffect(() => {

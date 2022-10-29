@@ -8,7 +8,7 @@ defaultLoyaltiesBusinessesByCategory = {
 }
 
 
-class Loyalty:
+class Loyalty():
     def __init__(self, loyaltyID, businessID, campaignID, categoryID, creationDate, unlockDate, endDate):
         self.loyaltyID = loyaltyID
         self.businessID = businessID
