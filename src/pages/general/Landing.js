@@ -97,9 +97,11 @@ export function Landing() {
             <a href={`${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
               Tryvestor Login
             </a>
-            <a href={`${BUSINESS}/login`} data-ix="show-modal" className="button-2 w-button">
+{/*
+<a href={`${BUSINESS}/login`} data-ix="show-modal" className="button-2 w-button">
               Business Login
             </a>
+            */}
           </nav>
           <div className="w-nav-overlay" data-wf-ignore="" id="w-nav-overlay-0" />
         </div>
