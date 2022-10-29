@@ -34,13 +34,13 @@ const MainStyle = styled('div')(({ theme }) => ({
 
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
-  const userType = useSelector((state) => state.auth?.userType)
+  const userType = useSelector((state) => state.user?.userType)
 
   const { host } = window.location
 
   return (
     <RootStyle>
-      <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
+      <DashboardNavbar onOpenSidebar={() => setOpen(true)} onCloseSidebar={() => setOpen(false)} />
       <DashboardSidebar userType={userType} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
       <MainStyle>
         <Outlet />

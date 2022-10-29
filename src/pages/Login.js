@@ -6,7 +6,7 @@ import { Card, Link, Container, Typography } from '@mui/material';
 import useResponsive from '../hooks/useResponsive';
 // components
 import Page from '../components/Page';
-import Logo from '../components/Logo';
+import {DarkLogo} from '../components/Logo';
 // sections
 import { LoginForm } from '../sections/auth/login';
 import AuthSocial from '../sections/auth/AuthSocial';
@@ -69,27 +69,18 @@ export default function Login() {
         <HeaderStyle>
             {
                 // (visualViewport.width < 600 || visualViewport.width > 900) &&
-                <Logo />
+                <DarkLogo />
             }
 
           {smUp && (
             <Typography variant="body2" sx={{ mt: { md: -2 } }}>
               Don’t have an account? {''}
-              <Link variant="subtitle2" component={RouterLink} to="/register">
+              <Link variant="subtitle2" component={RouterLink} to="/tryvestor/register">
                 Get started
               </Link>
             </Typography>
           )}
         </HeaderStyle>
-
-        {mdUp && (
-          <SectionStyle>
-            <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Hi, Welcome Back
-            </Typography>
-            <img src="/static/illustrations/illustration_login.png" alt="login" />
-          </SectionStyle>
-        )}
 
         <Container maxWidth="sm">
           <ContentStyle>
@@ -98,8 +89,6 @@ export default function Login() {
             </Typography>
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
-
-            <AuthSocial />
 
             <LoginForm />
 

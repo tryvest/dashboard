@@ -1,16 +1,13 @@
 import { toast } from "react-toastify";
 
 const authReducer = (state = {}, action) => {
-  console.log("state is")
-  console.log(action.type)
   switch (action.type) {
     case "SIGN_IN_USER":
-      console.log("hello im loggin in")
       toast("Welcome back..");
       return {...state, user: action.user, userType: action.userType};
     case "SIGN_IN_BUSINESS":
       toast("Welcome back..");
-      return {...state, business: action.payload};
+      return {...state, business: action.payload, userType: action.userType};
     case "SIGN_IN_ERR":
       toast.error("Sign in error...");
       return state;

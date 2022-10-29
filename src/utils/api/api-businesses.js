@@ -22,6 +22,34 @@ const apiBusinesses = new ApiCore({
     single
 });
 
+apiBusinesses.getCompanyInfoByID = (businessID) => {
+    return axios
+        .get(`${BASE_URL}/businesses/${businessID}`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.getMostRecentCampaignInfo = (businessID) => {
+    return axios
+        .get(`${BASE_URL}/businesses/${businessID}/campaigns?limit=1`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.getCategoryName = () => {
+    return axios
+        .get(`${BASE_URL}/categories`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.getCompanyInfoByCat = () => {
+    return axios
+        .get(`${BASE_URL}/businesses?sortBy=category`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
 apiBusinesses.postTermDocument = (model) => {
     return axios
         .post(`${BASE_URL}/businesses/termDocuments`, model)

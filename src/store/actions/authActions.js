@@ -9,8 +9,9 @@ import { BUSINESS, TRYVESTOR } from '../../UserTypes';
 
 const auth = getAuth();
 
-export const tryvestorSignIn = (creds, navigate) => {
-  return (dispatch, getState, { getFirebase }) => {
+export const tryvestorSignIn = (dispatch, creds, navigate) => {
+
+  return () => {
     console.log('in: tryvestorSignIn');
     signInWithEmailAndPassword(auth, creds.email, creds.password)
       .then(async (data) => {
@@ -20,9 +21,15 @@ export const tryvestorSignIn = (creds, navigate) => {
                 navigate('/business/login');
               }
               apiTryvestors.getSingle(data.user.uid).then((user) => {
-                const payload = { ...user };
+                const payload = {
+                  userType: TRYVESTOR,
+                  uid: data.user.uid,
+                  data: user
+                };
                 navigate('/dashboard/overview', { replace: false });
-                dispatch({ type: 'SIGN_IN_USER', user: payload, userType});
+                // dispatch(signIn(payload));
+
+                // dispatch({ type: 'SIGN_IN_USER', user: payload, userType});
               });
             })
             .catch(handleError);

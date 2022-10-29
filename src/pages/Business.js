@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles'
 import ReactPlayer from 'react-player'
-import Carousel from 'better-react-carousel'
 // components
 import { fCurrency, fShortenNumber } from '../utils/formatNumber';
 import Page from '../components/Page';
@@ -113,29 +112,6 @@ export default function Business() {
                     >
                       {business.description}
                     </Typography>
-                    <div style={{maxHeight: '500px', maxWidth: '800px', margin: '10px'}}>
-                      {business.media.length ?
-                      (<Carousel loop showDots scrollSnap dotColorActive={theme.palette.primary.main}>
-                        {business.media.map((imgLink) => {
-                          if (imgLink.includes('jpg') || imgLink.includes('png')) {
-                            return (
-                                <Carousel.Item>
-                                  <img src={imgLink} alt="imageyay"/>
-                                </Carousel.Item>)
-                          }
-
-                          if (imgLink.includes('mp4')) {
-                            return (
-                                <Carousel.Item>
-                                  <ReactPlayer controls url={imgLink} width={"100%"}/>
-                                </Carousel.Item>)
-                          }
-                          return <div/>
-                        })}
-                      </Carousel>) :
-                      (<div/>)
-                      }
-                    </div>
                   </CardContent>
                 )
               </Card>
@@ -162,7 +138,7 @@ export default function Business() {
                 {/*
                   <CardHeader title={"All Tasks"}/>
                 */}
-                <CardContent sx={{
+                  <CardContent sx={{
                   height: '100%',
                   justifyContent: 'space-around',
                   pt: '18px'

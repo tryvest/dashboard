@@ -19,7 +19,6 @@ import {
 // components
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate, useParams} from "react-router-dom";
-import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
 // import MuiMarkdown from "mui-markdown";
 import ReactMarkdown from "react-markdown";
@@ -77,7 +76,7 @@ export default function Learn() {
   }
 
   return (
-      <Page title="Company Overview">
+      <Page title="Company TryvestorOverview">
         {
           (businessObj) ? (
               <Grid container spacing={1} style={{margin: "5px"}}>
@@ -111,29 +110,6 @@ export default function Learn() {
                               )
                             })}
                           </Stack>
-                        </div>
-                        <div style={{marginInline: "-18px", marginTop: "-5px"}}>
-                          {businessObj.media.length ?
-                              (<Carousel loop scrollSnap>
-                                {businessObj.media.map((imgLink) => {
-                                  if (imgLink.includes('jpg') || imgLink.includes('png')) {
-                                    return (
-                                        <Carousel.Item>
-                                          <img src={imgLink} alt="imageyay"/>
-                                        </Carousel.Item>)
-                                  }
-
-                                  if (imgLink.includes('mp4')) {
-                                    return (
-                                        <Carousel.Item>
-                                          <ReactPlayer controls url={imgLink}
-                                                       width={"100%"}/>
-                                        </Carousel.Item>)
-                                  }
-                                  return <div/>
-                                })}
-                              </Carousel>) : (<div/>)
-                          }
                         </div>
                         <Stack style={{marginTop: "10px"}}>
                           <Typography fontWeight={"800"} fontSize={"25px"}>

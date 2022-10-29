@@ -5,11 +5,12 @@ import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@mui/material';
 // components
 import {useDispatch, useSelector} from "react-redux";
-import {bindActionCreators} from "redux";
+import { signOut } from "firebase/auth";
+import {auth} from "../../firebase"
 import MenuPopover from '../../components/MenuPopover';
 // mocks_
 import account from '../../_mock/account';
-import {authActionCreators} from "../../store";
+import { logout } from "../../features/userSlice";
 
 // ----------------------------------------------------------------------
 
@@ -24,26 +25,16 @@ const MENU_OPTIONS = [
     icon: 'eva:person-fill',
     linkTo: 'profile',
   },
-/*  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-    linkTo: '#',
-  }, */
 ];
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
   const anchorRef = useRef(null);
-
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(null);
 
-  const state = useSelector((state) => state.user);
   const navigate = useNavigate()
-
-  const dispatch = useDispatch();
-
-  const { logOut } = bindActionCreators(authActionCreators, dispatch);
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -55,12 +46,14 @@ export default function AccountPopover() {
 
   const handleLogout = () => {
     setOpen(null);
-    logOut();
-    console.log(state);
-
+    dispatch(logout());
+    signOut(auth).then(() => {
+      console.log("hello")
+      navigate('/', {replace: true})
+    });
   }
 
-  const user = useSelector((state) => state.auth?.user)
+  const user = useSelector((state) => state.user?.user)
 
   return (
     <>

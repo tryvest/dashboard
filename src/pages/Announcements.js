@@ -81,7 +81,7 @@ const ANNOUNCEMENTS = [
 
 ]
 const Announcements = () => {
-  const user = useSelector((state) => state.auth?.user)
+  const user = useSelector((state) => state.user?.user)
   const theme = useTheme();
 
 

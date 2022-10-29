@@ -7,7 +7,7 @@ import {apiBusinesses} from "../../../utils/api/api-businesses";
 
 
 function BusinessTask({singleTermDoc}) {
-    const user = useSelector((state) => state.auth?.user)
+    const user = useSelector((state) => state.user?.user)
     const uid = user?.uid
 
     const navigate = useNavigate()

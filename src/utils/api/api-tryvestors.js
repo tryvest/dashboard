@@ -24,10 +24,16 @@ const apiTryvestors = new ApiCore({
 
 apiTryvestors.getByUsername = (username) => {
     return axios
-        .get(`${BASE_URL}/tryvestors/byUsername?username=${username}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+        .get(`${BASE_URL}/${url}/byUsername?username=${username}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
         .then(handleResponse)
         .catch(handleError);
 }
 
+apiTryvestors.patchSingleUser = (uid, model) => {
+    return axios
+        .patch(`${BASE_URL}/${url}/${uid}`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
 
 export {apiTryvestors};

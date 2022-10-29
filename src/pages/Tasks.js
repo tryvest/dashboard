@@ -17,7 +17,7 @@ import UserDashboardInfo from "../sections/@dashboard/user/UserDashboardInfo";
 export default function Tasks() {
     const [openFilter, setOpenFilter] = useState(false);
     const business = useSelector((state) => state?.business)
-    const user = useSelector((state) => state.auth?.user)
+    const user = useSelector((state) => state.user?.user)
     const [userInfo, setUserInfo] = useState()
     const [businessInfo, setBusinessInfo] = useState()
 

@@ -12,7 +12,6 @@ import {
     Box,
     TextField
 } from "@mui/material";
-import Carousel from "better-react-carousel";
 import ReactPlayer from "react-player";
 import {useTheme} from "@mui/material/styles";
 import {useNavigate} from "react-router-dom";
@@ -30,8 +29,8 @@ function BusinessHomePage(props) {
     const [businessObj, setBusinessObj] = useState(null)
     const navigate = useNavigate()
     const [editMode, setEditMode] = useState(false)
-    const user = useSelector((state) => state.auth?.user)
-    const userType = useSelector((state) => state.auth?.userType)
+    const user = useSelector((state) => state.user?.user)
+    const userType = useSelector((state) => state.user?.userType)
 
     // Editable Fields
     const [wasChanged, setWasChanged] = useState(false)
@@ -86,7 +85,7 @@ function BusinessHomePage(props) {
     const editTextVariant = 'outlined';
 
     return (
-        <Page title="Company Overview">
+        <Page title="Company TryvestorOverview">
             {
                 (businessObj) ? (
                 <div>
@@ -169,29 +168,6 @@ function BusinessHomePage(props) {
                                                     )
                                                 })}
                                             </Stack>
-                                        </div>
-                                        <div style={{marginInline: "-18px", marginTop: "-5px"}}>
-                                            {businessObj.media.length ?
-                                                (<Carousel loop scrollSnap>
-                                                    {businessObj.media.map((imgLink) => {
-                                                        if (imgLink.includes('jpg') || imgLink.includes('png')) {
-                                                            return (
-                                                                <Carousel.Item>
-                                                                    <img src={imgLink} alt="imageyay"/>
-                                                                </Carousel.Item>)
-                                                        }
-
-                                                        if (imgLink.includes('mp4')) {
-                                                            return (
-                                                                <Carousel.Item>
-                                                                    <ReactPlayer controls url={imgLink}
-                                                                                 width={"100%"}/>
-                                                                </Carousel.Item>)
-                                                        }
-                                                        return <div/>
-                                                    })}
-                                                </Carousel>) : (<div/>)
-                                            }
                                         </div>
                                         <Stack style={{marginTop: "10px"}}>
                                             <Typography fontWeight={"800"} fontSize={"25px"}>

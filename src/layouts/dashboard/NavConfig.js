@@ -14,22 +14,15 @@ const navConfig = {
         icon: getIcon('ic:round-dashboard'),
       },
       {
-        title: 'tasks',
-        path: '/dashboard/tasks',
+        title: 'discover',
+        path: '/dashboard/discover',
         icon: getIcon('fluent:tasks-app-28-filled'),
       },
       {
-        title: 'community',
-        path: '/dashboard/community',
+        title: 'portfolio',
+        path: '/dashboard/portfolio',
         icon: getIcon('jam:messages-f'),
       },
-      {
-        title: 'announcements',
-        path: '/dashboard/announcements',
-        icon: getIcon('fluent:megaphone-loud-24-filled'),
-      },
-
-
     ],
     businessSide: [
       {

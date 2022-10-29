@@ -9,7 +9,6 @@ export const switchBusiness = newBusinessID => {
         }
         catch{
             dispatch({ type: "SWITCH_BUSINESS_ERR" });
-
         }
     }
 };

@@ -1,12 +1,34 @@
-from datetime import datetime, date, timezone
+from datetime import datetime, timezone, time
+from dateutil.relativedelta import relativedelta
+
 from flask import Flask, request
-from flask_restx import Api, Resource, fields
+from flask_restx import Api, Resource
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
+from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
+from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
-# from dateutils import datetime as dtime
-# from dateutils import date as dt
+# Universal Data Model Imports
+from dataModels.businesses.Campaign import Campaign
+from dataModels.universal.Category import Category
+from dataModels.universal.GenericUser import GenericUser
+from dataModels.universal.Institution import Institution
+
+# Tryvestor Data Model Imports
+from dataModels.tryvestors.Loyalty import Loyalty, defaultLoyaltiesBusinessesByCategory
+from dataModels.tryvestors.UserItem import UserItem, UserAccount
+from dataModels.tryvestors.UserTransaction import UserTransaction
+from dataModels.tryvestors.TryvestorWithAddress import Tryvestor, TryvestorAddress, encryptSSN
+
+# Business Data Model Imports
+from dataModels.businesses.Business import Business, encryptEIN
+from dataModels.businesses.BusinessItem import BusinessItem
+
+# User Types IMport
+from dataModels.universal.UserTypes import TRYVESTOR, BUSINESS
+
+from random import randint, choice
 
 cred = credentials.Certificate("valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json")
 firebase_admin.initialize_app(cred)
@@ -23,347 +45,6 @@ busApi = api.namespace("businesses", description="For business side requests")
 tryApi = api.namespace("tryvestors", description="For tryvestor side requests")
 datetime.fromisoformat("2022-07-06T10:36:43.916642-08:00").astimezone(timezone.utc)
 
-# print(db.collection('tryvestors').document('0cx8CV21EwfuyX8vRYvobkyIMWo2').update({
-#     'dateOfBirth': datetime.now(timezone.utc)
-# }))
-
-class GenericUser:
-    def __init__(self, userType, userID):
-        self.userType = userType
-        self.userID = userID
-
-    @staticmethod
-    def readFromFirebaseFormat(sourceDict, userID):
-        return GenericUser(
-            userType=sourceDict["userType"],
-            userID=userID,
-        )
-
-    def writeToFirebaseFormat(self):
-        return {
-            'userType': self.userType,
-        }
-
-    def writeToDict(self):
-        toReturn = self.writeToFirebaseFormat()
-        toReturn['userID'] = self.userID
-        return toReturn
-
-
-class Business:
-    def __init__(self, businessID, name, description, topics, valuation, totalShares, media, logo, tagline, investors,
-                 targetMarket, funding, channelID, serverID, creationDate, tryvestors):
-        self.tagline = tagline
-        self.logo = logo
-        self.media = media
-        self.totalShares = totalShares
-        self.valuation = valuation
-        self.topics = topics
-        self.description = description
-        self.name = name
-        self.businessID = businessID
-        self.investors = investors
-        self.targetMarket = targetMarket
-        self.funding = funding
-        self.channelID = channelID
-        self.serverID = serverID
-        self.creationDate = creationDate
-        self.tryvestors = tryvestors
-
-    @staticmethod
-    def readFromFirebaseFormat(sourceDict, businessID):
-        return Business(
-            tagline=str(sourceDict["tagline"]),
-            logo=str(sourceDict["logo"]),
-            media=sourceDict["media"],
-            totalShares=float(sourceDict["totalShares"]),
-            valuation=float(sourceDict["valuation"]),
-            topics=sourceDict["topics"],
-            description=str(sourceDict["description"]),
-            name=str(sourceDict["name"]),
-            investors=sourceDict["investors"],
-            targetMarket=sourceDict["targetMarket"],
-            businessID=str(businessID),
-            funding=int(sourceDict["funding"]),
-            channelID=str(sourceDict["channelID"]),
-            serverID=str(sourceDict["serverID"]),
-            creationDate=sourceDict["creationDate"],
-            tryvestors=sourceDict["tryvestors"]
-        )
-
-    def writeToFirebaseFormat(self):
-        return {
-            "name": self.name,
-            "description": self.description,
-            "topics": self.topics,
-            "valuation": self.valuation,
-            "totalShares": self.totalShares,
-            "media": self.media,
-            "logo": self.logo,
-            "tagline": self.tagline,
-            "investors": self.investors,
-            "targetMarket": self.targetMarket,
-            "funding": self.funding,
-            "channelID": self.channelID,
-            "serverID": self.serverID,
-            'creationDate': self.creationDate,
-            'tryvestors': self.tryvestors
-        }
-
-    @staticmethod
-    def readFromDict(sourceDict, businessID):
-        sourceDict['creationDate'] = datetime.fromisoformat(sourceDict["creationDate"])
-        return Business.readFromFirebaseFormat(sourceDict, businessID)
-
-    @staticmethod
-    def createFromDict(sourceDict, businessID):
-        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
-        return Business.readFromDict(sourceDict, businessID)
-
-    def writeToDict(self):
-        toReturn = self.writeToFirebaseFormat()
-        toReturn["creationDate"] = self.creationDate.isoformat()
-        toReturn["businessID"] = self.businessID
-        return toReturn
-
-
-class TermDocument:
-    def __init__(self, termDocumentID, formLink, description, resultsLink, businessID, numSharesAward, title,
-                 creationDate):
-        self.termDocumentID = termDocumentID
-        self.formLink = formLink
-        self.description = description
-        self.resultsLink = resultsLink
-        self.businessID = businessID
-        self.numSharesAward = numSharesAward
-        self.title = title
-        self.creationDate = creationDate
-
-    @staticmethod
-    def readFromFirebaseFormat(sourceDict, termDocumentID):
-        return TermDocument(
-            formLink=str(sourceDict["formLink"]),
-            description=str(sourceDict["description"]),
-            resultsLink=str(sourceDict["resultsLink"]),
-            businessID=str(sourceDict["businessID"]),
-            numSharesAward=float(sourceDict["numSharesAward"]),
-            termDocumentID=str(termDocumentID),
-            title=str(sourceDict["title"]),
-            creationDate=sourceDict['creationDate']
-        )
-
-    def writeToFirebaseFormat(self):
-        return {
-            "businessID": self.businessID,
-            "description": self.description,
-            "numSharesAward": float(self.numSharesAward),
-            "formLink": self.formLink,
-            "resultsLink": self.resultsLink,
-            "title": self.title,
-            "creationDate": self.creationDate
-        }
-
-    @staticmethod
-    def readFromDict(sourceDict, termDocumentID):
-        sourceDict["creationDate"] = datetime.fromisoformat(sourceDict["creationDate"])
-        Business.readFromFirebaseFormat(sourceDict, termDocumentID)
-
-    @staticmethod
-    def createFromDict(sourceDict, termDocumentID):
-        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
-        return Business.readFromDict(sourceDict, termDocumentID)
-
-    def writeToDict(self):
-        toReturn = self.writeToFirebaseFormat()
-        toReturn["creationDate"] = self.creationDate.isoformat()
-        toReturn["termDocumentID"] = self.termDocumentID
-        return toReturn
-
-
-class TermResponse:
-    def __init__(self, tryvestorID, verificationStatus, termResponseID, creationDate):
-        self.tryvestorID = tryvestorID
-        self.verificationStatus = verificationStatus
-        self.termResponseID = termResponseID
-        self.creationDate = creationDate
-
-    @staticmethod
-    def readFromFirebaseFormat(sourceDict, termResponseID):
-        return TermResponse(
-            termResponseID=str(termResponseID),
-            tryvestorID=str(sourceDict["tryvestorID"]),
-            verificationStatus=int(sourceDict["verificationStatus"]),
-            creationDate=sourceDict["creationDate"]
-        )
-
-    def writeToFirebaseFormat(self):
-        return {
-            "tryvestorID": self.tryvestorID,
-            "verificationStatus": self.verificationStatus,
-            "creationDate": self.creationDate
-        }
-
-    @staticmethod
-    def readFromDict(sourceDict, termResponseID):
-        sourceDict['creationDate'] = datetime.fromisoformat(sourceDict["creationDate"])
-        return TermResponse.readFromFirebaseFormat(sourceDict, termResponseID)
-
-    @staticmethod
-    def createFromDict(sourceDict, termResponseID):
-        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
-        return TermResponse.readFromDict(sourceDict, termResponseID)
-
-    def writeToDict(self):
-        toReturn = self.writeToFirebaseFormat()
-        toReturn["creationDate"] = self.creationDate.isoformat()
-        toReturn["termResponseID"] = self.termResponseID
-        return toReturn
-
-class Announcement:
-    def __init__(self, announcementID, businessID, category, title, body, viewStatus, creationDate, lastEditDate):
-        self.announcementID = announcementID
-        self.businessID = businessID
-        self.category = category
-        self.title = title
-        self.body = body
-        self.viewStatus = viewStatus
-        self.creationDate = creationDate
-        self.lastEditDate = lastEditDate
-
-    @staticmethod
-    def readFromFirebaseFormat(sourceDict, announcementID):
-        return Announcement(
-            announcementID=str(announcementID),
-            businessID=str(sourceDict["businessID"]),
-            category=str(sourceDict["category"]),
-            title=str(sourceDict["title"]),
-            body=str(sourceDict["body"]),
-            viewStatus=bool(sourceDict["viewStatus"]),
-            creationDate=sourceDict["creationDate"],
-            lastEditDate=sourceDict["lastEditDate"]
-        )
-
-    def writeToFirebaseFormat(self):
-        return {
-            "category": self.category,
-            "title": self.title,
-            "body": self.body,
-            "viewStatus": self.viewStatus,
-            "creationDate": self.creationDate,
-            "lastEditDate": self.lastEditDate
-        }
-
-    @staticmethod
-    def readFromDict(sourceDict, announcementID):
-        sourceDict['creationDate'] = datetime.fromisoformat(sourceDict["creationDate"])
-        sourceDict['lastEditDate'] = datetime.fromisoformat(sourceDict["lastEditDate"])
-        return Announcement.readFromFirebaseFormat(sourceDict, announcementID)
-
-    @staticmethod
-    def createFromDict(sourceDict, announcementID):
-        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
-        sourceDict['lastEditDate'] = datetime.now(timezone.utc).isoformat()
-        return Announcement.readFromDict(sourceDict, announcementID)
-
-    def writeToDict(self):
-        toReturn = self.writeToFirebaseFormat()
-        toReturn["creationDate"] = self.creationDate.isoformat()
-        toReturn["lastEditDate"] = self.lastEditDate.isoformat()
-        toReturn["announcementID"] = self.announcementID
-        toReturn["businessID"] = self.businessID
-        return toReturn
-
-    def updateFromDict(self, announcementUpdateData):
-        self.category = str(announcementUpdateData["category"])
-        self.title = str(announcementUpdateData["title"])
-        self.body = str(announcementUpdateData["body"])
-        self.viewStatus = bool(announcementUpdateData["viewStatus"])
-        self.lastEditDate = datetime.now(timezone.utc)
-
-
-class TryvestorAddress:
-    def __init__(self, streetAddress, unitNum, city, state, postalCode, country):
-        self.streetAddress = streetAddress
-        self.unitNum = unitNum
-        self.city = city
-        self.state = state
-        self.postalCode = postalCode
-        self.country = country
-
-    @staticmethod
-    def fromDict(sourceDict):
-        return TryvestorAddress(
-            streetAddress=str(sourceDict["streetAddress"]),
-            unitNum=str(sourceDict["unitNum"]),
-            city=str(sourceDict["city"]),
-            state=str(sourceDict["state"]),
-            postalCode=str(sourceDict["postalCode"]),
-            country=str(sourceDict["country"])
-        )
-
-    def toDict(self):
-        return {
-            'streetAddress': self.streetAddress,
-            'unitNum': self.unitNum,
-            'city': self.city,
-            'state': self.state,
-            'postalCode': self.postalCode,
-            'country': self.country
-        }
-
-
-class Tryvestor:
-    def __init__(self, tryvestorID, firstName, lastName, username, age, profilePicture, address,
-                 creationDate):
-        self.tryvestorID = tryvestorID
-        self.firstName = firstName
-        self.lastName = lastName
-        self.username = username
-        self.age = age
-        self.profilePicture = profilePicture
-        self.address = TryvestorAddress.fromDict(address)
-        self.creationDate = creationDate
-
-    @staticmethod
-    def readFromFirebaseFormat(sourceDict, tryvestorID):
-        return Tryvestor(
-            tryvestorID=str(tryvestorID),
-            firstName=str(sourceDict["firstName"]),
-            lastName=str(sourceDict["lastName"]),
-            username=str(sourceDict["username"]),
-            age=int(sourceDict["age"]),
-            profilePicture=str(sourceDict["profilePicture"]),
-            address=sourceDict['address'],
-            creationDate=sourceDict['creationDate']
-        )
-
-    def writeToFirebaseFormat(self):
-        return {
-            "firstName": self.firstName,
-            "lastName": self.lastName,
-            "username": self.username,
-            "age": self.age,
-            'profilePicture': self.profilePicture,
-            'address': self.address.toDict(),
-            'creationDate': self.creationDate
-        }
-
-    @staticmethod
-    def readFromDict(sourceDict, tryvestorID):
-        sourceDict['creationDate'] = datetime.fromisoformat(sourceDict['creationDate'])
-        return Tryvestor.readFromFirebaseFormat(sourceDict, tryvestorID)
-
-    @staticmethod
-    def createFromDict(sourceDict, tryvestorID):
-        sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
-        return Tryvestor.readFromDict(sourceDict, tryvestorID)
-
-    def writeToDict(self):
-        toReturn = self.writeToFirebaseFormat()
-        toReturn["creationDate"] = self.creationDate.isoformat()
-        toReturn["tryvestorID"] = self.tryvestorID
-        return toReturn
-
 
 @api.route("/userType")
 class UserType(Resource):
@@ -378,15 +59,64 @@ class UserType(Resource):
         return toReturn.userType
 
 
+# Categories
+@api.route("/categories")
+class Categories(Resource):
+    def get(self):
+        allCategories = Categories.getAllCategoriesHelper()
+        return allCategories
+
+    def post(self):
+        categoryData = request.json
+        categoryDoc = db.collection("categories").document()
+        categoryData["categoryName"] = categoryData["categoryName"].lower()
+        cleanedCategory = Category.createFromDict(categoryData, categoryDoc.id).writeToFirebaseFormat()
+        categoryDoc.set(cleanedCategory)
+
+    @staticmethod
+    def getAllCategoriesHelper():
+        categories = db.collection('categories').get()
+        toReturn = []
+        for category in categories:
+            cleanedCategory = Category.readFromFirebaseFormat(category.to_dict(), category.id).writeToDict()
+            toReturn.append(cleanedCategory)
+        return toReturn
+
+
+@api.route("/institution")
+class Institutions(Resource):
+    @staticmethod
+    def addNewInstitutionToFirestore(plaidInstitutionID, institutionDocRef):
+        # Getting information from plaid in the first place
+        request = InstitutionsGetByIdRequest(
+            institution_id=plaidInstitutionID,
+            country_codes=list(map(lambda x: CountryCode(x), ["US"]))
+        )
+        plaidApiResponse = client.institutions_get_by_id(request)
+
+        # Converting data from plaid into more standard terms
+        source = {
+            "plaidCountryCodes": [str(x) for x in plaidApiResponse["institution"]["country_codes"]],
+            "plaidInstitutionName": plaidApiResponse["institution"]["name"],
+            "plaidRequestID": plaidApiResponse["request_id"],
+        }
+
+        # New institution creation
+        insObjNew = Institution.createFromDict(sourceDict=source, institutionID=plaidInstitutionID)
+        institutionDocRef.set(insObjNew.writeToFirebaseFormat())
+
+
 @busApi.route("")  # http://127.0.0.1:5000/api/businesses
 class AllBusinesses(Resource):
     def get(self):
-        businesses = db.collection("businesses").stream()
-        result = []
-        for business in businesses:
-            singleBusDict = Business.readFromFirebaseFormat(business.to_dict(), business.id).writeToDict()
-            result.append(singleBusDict)
-        return result
+        sortBy = request.args.get("sortBy")
+        allBusinesses = AllBusinesses.getAllBusinessesHelper()
+
+        if sortBy == "category":
+            return AllBusinesses.organizeBusinessesByCategoryHelper(allBusinesses)
+
+        # default return all
+        return allBusinesses
 
     def post(self):
         businessData = request.json
@@ -399,146 +129,161 @@ class AllBusinesses(Resource):
                                                               userID=userDoc.id).writeToFirebaseFormat()
         userDoc.set(userFirebaseInfo)
 
+        # Encrypt EIN
+        businessData["EIN"] = encryptEIN(businessData["EIN"])
+
         busDoc = db.collection("businesses").document(userDoc.id)
         toAdd = Business.createFromDict(sourceDict=businessData, businessID=busDoc.id).writeToFirebaseFormat()
         busDoc.set(toAdd)
         return busDoc.id
 
-    def put(self):
-        businessUpdateData = request.json
-        businessID = businessUpdateData.pop('businessID')
-        busDoc = db.collection('businesses').document(businessID)
-        print(businessUpdateData)
-        busDoc.update(businessUpdateData)
+    @staticmethod
+    def getAllBusinessesHelper():
+        businesses = db.collection("businesses").stream()
+        toReturn = []
+        for business in businesses:
+            singleBusDict = Business.readFromFirebaseFormat(business.to_dict(), business.id).writeToDict()
+            toReturn.append(singleBusDict)
+        return toReturn
+
+    @staticmethod
+    def organizeBusinessesByCategoryHelper(allBusinesses):
+        # Initializing return object
+        businessesByCategory = {}
+
+        # Populating return object with arrays for each cateogry that exists
+        categories = db.collection('categories').get()
+        for category in categories:
+            cleanedCategory = Category.readFromFirebaseFormat(category.to_dict(), category.id)
+            businessesByCategory[cleanedCategory.categoryID] = []
+
+        # Reading through all businesses and organizing them by categoryID
+        for business in allBusinesses:
+            businessAsObj = Business.readFromDict(business, business["businessID"])
+            businessesByCategory[businessAsObj.categoryID].append(businessAsObj.writeToDict())
+
+        # Return grouped Stuff
+        return businessesByCategory
+
+    @staticmethod
+    def getBusinessesByMerchantName(merchantName):
+        merchantName = str(merchantName)
+        toReturn = db.collection("businesses").where(u'merchantNames', u'array_contains', merchantName).get()
+        return toReturn
 
 
 @busApi.route("/<string:businessID>")
 class SpecificBusiness(Resource):
     def get(self, businessID):
+        # Reading Business data from Firebase
         business = db.collection("businesses").document(businessID).get()
         if not business.exists:
             return "Error"
         businessDict = business.to_dict()
+
+        # Filtering the business demographics data
         businessObj = Business.readFromFirebaseFormat(businessDict, businessID)
         businessDict = businessObj.writeToDict()
-        termDocsRef = db.collection("termDocuments").where("businessID", "==", businessID)
-        termDocsSnapshot = termDocsRef.stream()
-        termDocs = []
-        termDocIDs = []
-        termDocIDToObj = {}
-        tryvestorsDict = {}
-        for tryvestor in businessObj.tryvestors:
-            tryvestorsDict[tryvestor] = {
-                "completedTasks": [],
-                "pendingTasks": [],
-                "rejectedTasks": []
-            }
-        for doc in termDocsSnapshot:
-            verifiedTermDocumentObj = TermDocument.readFromFirebaseFormat(doc.to_dict(), doc.id)
-            verifiedTermDocument = verifiedTermDocumentObj.writeToDict()
-            termDocIDToObj[verifiedTermDocumentObj.termDocumentID] = verifiedTermDocumentObj.writeToDict()
-            termDocIDs.append(verifiedTermDocumentObj.termDocumentID)
-            termDocsResponsesSnapshot = db.collection("termDocuments").document(doc.id).collection("responses").stream()
-            responsesArr = []
-            for response in termDocsResponsesSnapshot:
-                verifiedTermDocumentResponse = TermResponse.readFromFirebaseFormat(response.to_dict(), response.id)
-                verifiedTermDocumentResponseDict = verifiedTermDocumentResponse.writeToDict()
-                responsesArr.append(verifiedTermDocumentResponseDict)
-                if verifiedTermDocumentResponse.tryvestorID not in tryvestorsDict:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID] = {}
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"] = []
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"] = []
-                if verifiedTermDocumentResponse.verificationStatus == 1:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["completedTasks"].append(
-                        verifiedTermDocumentObj.termDocumentID)
-                if verifiedTermDocumentResponse.verificationStatus == -1:
-                    tryvestorsDict[verifiedTermDocumentResponse.tryvestorID]["rejectedTasks"].append(
-                        verifiedTermDocumentObj.termDocumentID)
-            verifiedTermDocument["responses"] = responsesArr
-            termDocs.append(verifiedTermDocument)
 
-        returnTryvestors = []
-        allTryvestors = businessObj.tryvestors
-        numTotalTryvestors = len(allTryvestors)
-        numPendingTryvestors = 0
-        totalNumSharesAwarded = 0
+        tryvestorsWithTransactions, numShares = SpecificBusiness.getAllTryvestorsAndEquity(businessID)
+        numEquityInDollars = numShares / businessObj.totalShares * businessObj.valuation
 
-        for key in allTryvestors:
-            tempCompletedTasks = tryvestorsDict[key]['completedTasks']
-            tempRejectedTasks = tryvestorsDict[key]['rejectedTasks']
-            returnCompletedTasks = []
-            returnRejectedTasks = []
-            returnPendingTasks = []
-            tempNumSharesAwardCounter = 0
-            for termDocID in termDocIDs:
-                if termDocID in tempCompletedTasks:
-                    returnCompletedTasks.append(termDocIDToObj[termDocID])
-                elif termDocID in tempRejectedTasks:
-                    returnRejectedTasks.append(termDocIDToObj[termDocID])
-                else:
-                    returnPendingTasks.append(termDocIDToObj[termDocID])
-                tempNumSharesAwardCounter += termDocIDToObj[termDocID]["numSharesAward"]
-            tryvestorObjDictRaw = db.collection('tryvestors').document(key).get()
-            tryvestorObjDictVerified = Tryvestor.readFromFirebaseFormat(tryvestorObjDictRaw.to_dict(),
-                                                                        tryvestorObjDictRaw.id)
-            tempTryvestorObj = {
-                "tryvestorObj": tryvestorObjDictVerified.writeToDict(),
-                "completedTasks": returnCompletedTasks,
-                "pendingTasks": returnPendingTasks,
-                "rejectedTasks": returnRejectedTasks,
-                "verificationStatus": 0 if (len(returnPendingTasks) > 0 or len(returnRejectedTasks) > 0) else 1,
-            }
-            if tempTryvestorObj["verificationStatus"] == 1:
-                totalNumSharesAwarded += tempNumSharesAwardCounter
-            else:
-                numPendingTryvestors += 1
-            returnTryvestors.append(tempTryvestorObj)
-
-        tryvestorSummaryInfo = {
-            "numTotalTryvestors": numTotalTryvestors,
-            "numPendingTryvestors": numPendingTryvestors,
-            "numSharesIssued": totalNumSharesAwarded,
+        # Adding some summarizing data for the business object
+        summaryData = {
+            "numTryvestors": len(tryvestorsWithTransactions),
+            "amountEquityAwardedInDollars": numEquityInDollars,
+            "amountEquityAwardedInShares": numShares,
         }
-        businessDict["termDocuments"] = termDocs
-        businessDict["tryvestors"] = returnTryvestors
-        businessDict["tryvestorSummaryInfo"] = tryvestorSummaryInfo
-        print(businessDict)
+        businessDict["summaryData"] = summaryData
+        businessDict["tryvestorsWithTransactions"] = tryvestorsWithTransactions
+
         return businessDict
 
-@busApi.route('/announcements')
-class AllAnnouncements(Resource):
-    def get(self):
-        announcements = db.collection("announcements").stream()
-        toReturn = []
-        for announcement in announcements:
-            announcementID = announcement.id
-            announcementDict = announcement.to_dict()
-            singleAnnouncementJson = Announcement.readFromFirebaseFormat(sourceDict=announcementDict, announcementID=announcementID)
-            toReturn.append(singleAnnouncementJson)
+    def patch(self, businessID):
+        businessUpdateData = request.json
+        busDoc = db.collection('businesses').document(businessID)
+        print(businessUpdateData)
+        busDoc.update(businessUpdateData)
+
+    @staticmethod
+    def getAllTryvestorsAndEquity(businessID):
+        allTransactionsForBusiness = db.collection_group("userTransactions").where("businessID", "==",
+                                                                                   businessID).stream()
+
+        tryvestorsAndTheirTransactions = {}
+        totalNumberOfSharesAwarded = 0
+
+        for trans in allTransactionsForBusiness:
+            transObj = UserTransaction.readFromFirebaseFormat(sourceDict=trans.to_dict(), userTransactionID=trans.id)
+            tempTryvestorID = trans.reference.parent.parent.get().id
+            if tryvestorsAndTheirTransactions.get(tempTryvestorID) is None:
+                tryvestorsAndTheirTransactions[tempTryvestorID] = []
+            tryvestorsAndTheirTransactions[tempTryvestorID].append(transObj.writeToDict())
+            totalNumberOfSharesAwarded += transObj.numFractionalShares
+
+        return tryvestorsAndTheirTransactions, totalNumberOfSharesAwarded
+
+
+@busApi.route("/<string:businessID>/campaigns")
+class SpecificBusinessCampaigns(Resource):
+    def get(self, businessID):
+        limit = request.args.get("limit")
+        if limit is not None:
+            limit = int(limit)
+        print("limit printed here: ", str(limit))
+
+        if limit is not None and limit <= 0:
+            return "Limit number is bad, please send >= 1, or don't include if you want all to be returned"
+
+        toReturn = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(businessID, limit=limit)
         return toReturn
 
-    def post(self):
-        print("got into here")
-        announcementData = request.json
-        businessID = request.json["businessID"]
-        announcementDoc = db.collection("businesses").document(businessID).collection("announcements").document()
-        verifiedAnnouncementJson = Announcement.createFromDict(sourceDict=announcementData, announcementID=announcementDoc.id).writeToFirebaseFormat()
-        announcementDoc.set(verifiedAnnouncementJson)
-        return announcementDoc.id
+    def post(self, businessID):
+        campaignData = request.json
+        campaignDoc = db.collection("businesses").document(businessID).collection("campaigns").document()
+        cleanedCampaign = Campaign.createFromDict(campaignData, campaignDoc.id).writeToFirebaseFormat()
+        campaignDoc.set(cleanedCampaign)
+        return campaignDoc.id
 
-@busApi.route('/announcements/<string:announcementID>')
-class SpecificAnnouncement(Resource):
-    def put(self, announcementID):
-        try:
-            announcementUpdateData = request.json
-            announcementDoc = db.collection('announcements').document(announcementID)
-            announcementDocSnapDict = announcementDoc.get().to_dict()
-            verifiedAnnouncement = Announcement.readFromDict(sourceDict=announcementDocSnapDict, announcementID=announcementID)
-            verifiedAnnouncement.updateFromDict(announcementUpdateData)
-            announcementDoc.update(verifiedAnnouncement)
-            return "Successfully made changes."
-        except:
-            return "There was an error in updating!"
+    @staticmethod
+    def returnAllCampaignsForSpecificBusiness(businessID, limit=None):
+        if limit is not None and limit >= 0:
+            campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by(
+                'startDate', direction=firestore.Query.DESCENDING).limit(limit).stream()
+        else:
+            campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by(
+                'startDate', direction=firestore.Query.DESCENDING).stream()
+
+        toReturn = []
+        for campaign in campaigns:
+            toReturn.append(Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict())
+        return toReturn
+
+
+@busApi.route("/<string:businessID>/businessItems")
+class SpecificBusinessItems(Resource):
+    def get(self, businessID):
+        print(businessID)
+        businessItems = db.collection("tryvestors").document(businessID).collection("businessItems").order_by(
+            'creationDate', direction=firestore.Query.DESCENDING).get()
+        toReturn = []
+        for businessItem in businessItems:
+            toReturn.append(UserItem.readFromFirebaseFormat(businessItem.to_dict(), businessItem.id).writeToDict())
+        return toReturn
+
+    @staticmethod
+    def addNewBusinessItem(businessItemData):
+        # UID extraction
+        businessID = businessItemData.pop("UID")
+
+        # Initializing firestore doc
+        businessItemDoc = db.collection("businesses").document(businessID).collection("businessItems").document()
+
+        # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
+        cleanedBusinessItem = BusinessItem.createFromDict(businessItemData, businessItemDoc.id)
+        businessItemDoc.set(cleanedBusinessItem.writeToFirebaseFormat())
+        cleanedBusinessItemReturnDict = cleanedBusinessItem.writeToDict()
+        return cleanedBusinessItemReturnDict
 
 
 @tryApi.route("")
@@ -554,199 +299,330 @@ class AllTryvestors(Resource):
         return result
 
     def post(self):
+        # Initializing data for tryvestor post request
         tryvestorData = request.json
 
+        # Making the generic user object and setting in firebase
         genericUserDictForTryvestor = {
             'userType': 'tryvestor'
         }
-        userDoc = db.collection("users").document(tryvestorData["tryvestorID"])
+        userDoc = db.collection("users").document(tryvestorData["UID"])
         userFirebaseInfo = GenericUser.readFromFirebaseFormat(sourceDict=genericUserDictForTryvestor,
                                                               userID=userDoc.id).writeToFirebaseFormat()
         userDoc.set(userFirebaseInfo)
 
-        tryDoc = db.collection("tryvestors").document(tryvestorData["tryvestorID"])
-        toAdd = Tryvestor.createFromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id).writeToFirebaseFormat()
-        tryDoc.set(toAdd)
-        return tryDoc.id
+        # Making the tryvestor document using the provided Tryvestor UID and setting the doc with the data
+        tryDoc = db.collection("tryvestors").document(tryvestorData["UID"])
+        cleanedTryvestor = Tryvestor.createFromDict(sourceDict=tryvestorData, tryvestorID=tryDoc.id)
+        tryDoc.set(cleanedTryvestor.writeToFirebaseFormat())
 
-    def put(self):
-        tryvestorUpdateData = request.json
-        tryvestorID = tryvestorUpdateData.pop('tryvestorID')
-        busDoc = db.collection('tryvestors').document(tryvestorID)
-        print(tryvestorUpdateData)
-        busDoc.update(tryvestorUpdateData)
+        # Setting the default loyalties for all categories and initializing array of history of loyalties
+        selectedLoyaltiesByCategory = AllTryvestors.addingLoyaltiesByCategoryToTryvestor(tryDoc=tryDoc)
+
+        tryvestorToReturn = cleanedTryvestor.writeToDict()
+        tryvestorToReturn["selectedLoyaltiesByCategory"] = selectedLoyaltiesByCategory
+        return tryvestorToReturn
+
+    @staticmethod
+    def addingLoyaltiesByCategoryToTryvestor(tryDoc):
+        categories = Categories.getAllCategoriesHelper()
+        selectedLoyaltiesByCategory = {}
+        for category in categories:
+            categoryID = category["categoryID"]
+
+            # Getting all businesses organized by category
+            allBusinesses = AllBusinesses.getAllBusinessesHelper()
+            allBusinessesByCategory = AllBusinesses.organizeBusinessesByCategoryHelper(allBusinesses)
+
+            # Finding the business ID, if we have one set then good, otherwise choose a random business:
+            if defaultLoyaltiesBusinessesByCategory.get(categoryID) is not None:
+                businessID = defaultLoyaltiesBusinessesByCategory[categoryID]
+            else:
+                businessID = choice(allBusinessesByCategory[categoryID])
+
+            # Finding the most recent campaign for a business
+            campaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(businessID, limit=1)
+            campaignID = campaignsForBusiness[0]["campaignID"]
+
+            # Making it so user can immediately change loyalty (since these are defaults), and adding a loyalty per category
+            sourceDict = {
+                "businessID": businessID,
+                "categoryID": categoryID,
+                "campaignID": campaignID,
+                "unlockDate": datetime.now(timezone.utc).isoformat(),
+                "endDate": None
+            }
+            loyaltyDoc = tryDoc.collection("loyalties").document()
+            newLoyalty = Loyalty.createFromDict(sourceDict, loyaltyDoc.id)
+            selectedLoyaltiesByCategory[categoryID] = [newLoyalty.writeToDict()]
+            loyaltyDoc.set(newLoyalty.writeToFirebaseFormat())
+            return selectedLoyaltiesByCategory
 
 
 @tryApi.route("/<string:tryvestorID>")
 class SpecificTryvestor(Resource):
     def get(self, tryvestorID):
-        tryvestorDoc = db.collection("tryvestors").document(tryvestorID).get()
+        # Getting data from firebase
+        tryvestorDocRef = db.collection("tryvestors").document(tryvestorID)
+        tryvestorDoc = tryvestorDocRef.get()
         if not tryvestorDoc.exists:
             return "Error"
         tryvestorDict = tryvestorDoc.to_dict()
+
+        # Converting / filtering the base demographic data of tryvestor
         tryvestor = Tryvestor.readFromFirebaseFormat(sourceDict=tryvestorDict, tryvestorID=tryvestorID).writeToDict()
-        allTermResponses = db.collection_group("responses").where("tryvestorID", "==", tryvestorID).stream()
-        businessesRespondedToArr = []
-        """
-        Get all responses
-        For each response:
-            store the verification status
-            then go up a level and store: numSharesAward, businessID, refToTermDoc
-            then go to the business with given businessID and return business as dict
-            then go to termDoc and return term doc as dict
-        """
-        for termResponseSnapshot in allTermResponses:
-            toAdd = {}
 
-            # Term response both as a term response object and a dictionary
-            termResponse = TermResponse.readFromFirebaseFormat(sourceDict=termResponseSnapshot.to_dict(),
-                                                               termResponseID=termResponseSnapshot.id)
-            termResponseDict = termResponse.writeToDict()
+        # Additional Data for Tryvestor Dash BELOW
 
-            # Term document both as a term document object and a dictionary
-            termResponseRef = termResponseSnapshot.reference
-            termDocumentSnapshot = termResponseRef.parent.parent.get()
-            termDocument = TermDocument.readFromFirebaseFormat(sourceDict=termDocumentSnapshot.to_dict(),
-                                                 termDocumentID=termDocumentSnapshot.id)
-            termDocumentDict = termDocument.writeToDict()
+        # Starting with getting companies into desired format
+        allTryvestorTransactions = tryvestorDocRef.collection("userTransactions").order_by('creationDate', direction=firestore.Query.DESCENDING).get()
+        businessesTryvestorIsIn = {}
+        totalAmountStockback = 0 # Only piece of summary data for now
+        for tryvestorTransaciton in allTryvestorTransactions:
+            # First, find amount of money spent for that transaction, then add transaction to business and then add
+            # to total, also find most recent
+            userTransactionObj = UserTransaction.readFromFirebaseFormat(
+                sourceDict=tryvestorTransaciton.to_dict(), userTransactionID=tryvestorTransaciton.id)
 
-            # Business both as a business object and a dictionary
-            businessSnapshot = db.collection("businesses").document(termDocument.businessID).get()
-            business = Business.readFromFirebaseFormat(sourceDict=businessSnapshot.to_dict(), businessID=businessSnapshot.id)
-            businessDict = business.writeToDict()
-
-            # Make the response into a termDocument with nested response
-            termDocumentDict["termResponse"] = termResponseDict
-
-            # Get the business index if it exists
-            indexOfBusiness = -1
-            for numIndex, alreadyAddedBus in enumerate(businessesRespondedToArr):
-                if business.businessID == alreadyAddedBus["businessID"]:
-                    indexOfBusiness = numIndex
-                    break
-
-            statusOfTasks = termResponse.verificationStatus
-
-            # Add and/or append termDocuments based on if the business already exists + update summary information
-            if indexOfBusiness == -1:
-                businessDict["termDocuments"] = [termDocumentDict]
-                numSharesAwarded = termDocument.numSharesAward if termResponse.verificationStatus == 1 else 0
-                numSharesPending = termDocument.numSharesAward if termResponse.verificationStatus == 0 else 0
-                numSharesRejected = termDocument.numSharesAward if termResponse.verificationStatus == -1 else 0
-                businessDict["interactionSummaryInfo"] = {
-                    "numSharesAwarded": numSharesAwarded,
-                    "numSharesPending": numSharesPending,
-                    "numSharesRejected": numSharesRejected,
-                    "valuePerShare": (float(business.valuation) / float(business.totalShares)),
-                    "percentBusinessOwned": float(numSharesAwarded) / float(business.totalShares),
-                    "businessName": business.name,
-                    "businessLogoLink": business.logo,
-                    "statusOfTasks": statusOfTasks
+            # Initializing business first time a transaction is seen within this loop from this particular business
+            if businessesTryvestorIsIn.get(userTransactionObj.businessID) is None:
+                mostRecentCampaign = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(
+                    businessID=userTransactionObj.businessID, limit=1)[0]
+                recentCampaignObj = Campaign.readFromDict(sourceDict=mostRecentCampaign,
+                                                          campaignID=mostRecentCampaign["campaignID"])
+                businessDocRef = db.collection("businesses").document(userTransactionObj.businessID)
+                businessObj = Business.readFromFirebaseFormat(sourceDict=businessDocRef.get().to_dict(), businessID=businessDocRef.id)
+                businessesTryvestorIsIn[userTransactionObj.businessID] = {
+                    "currentPercentStockback": recentCampaignObj.stockBackPercent,
+                    "amountSpent": 0,
+                    "businessLogo": businessObj.logo
                 }
-                businessesRespondedToArr.append(businessDict)
-                indexOfBusiness = len(businessesRespondedToArr) - 1
-                print("Business Added Index" + str(indexOfBusiness))
-                print("Business Added Verification Status" + str(statusOfTasks))
-            else:
-                # Add the term document to the businesses responded to array
-                businessesRespondedToArr[indexOfBusiness]["termDocuments"].append(termDocumentDict)
+            # Thing to do for company per transaction
+            businessesTryvestorIsIn[userTransactionObj.businessID]["amountSpent"] += \
+                userTransactionObj.plaidTransactionAmount * userTransactionObj.percentStockback
+            totalAmountStockback += userTransactionObj.plaidTransactionAmount * userTransactionObj.percentStockback
 
-                # Update the interactionSummaryInfo field of this particular business using newly added term document
-                numSharesAwarded = termDocument.numSharesAward if termResponse.verificationStatus == 1 else 0
-                numSharesPending = termDocument.numSharesAward if termResponse.verificationStatus == 0 else 0
-                numSharesRejected = termDocument.numSharesAward if termResponse.verificationStatus == -1 else 0
-                tempBusInteractionInfo = businessesRespondedToArr[indexOfBusiness]["interactionSummaryInfo"]
-                print("Business Edited Index" + str(indexOfBusiness))
-                print("Business Edited Verification Status Before" + str(statusOfTasks))
-                busInteractionInfo = {
-                    "numSharesAwarded": int(tempBusInteractionInfo["numSharesAwarded"]) + numSharesAwarded,
-                    "numSharesPending": int(tempBusInteractionInfo["numSharesPending"]) + numSharesPending,
-                    "numSharesRejected": int(tempBusInteractionInfo["numSharesRejected"]) + numSharesRejected,
-                    "valuePerShare": (float(business.valuation) / float(business.totalShares)),
-                    "percentBusinessOwned": float(int(tempBusInteractionInfo["numSharesAwarded"]) + numSharesAwarded)
-                                            / float(business.totalShares),
-                    "businessName": business.name,
-                    "businessLogoLink": business.logo,
-                    "statusOfTasks": 0 if statusOfTasks == 0 else tempBusInteractionInfo["statusOfTasks"]
-                }
-                print("Business Edited Verification Status After" + str(busInteractionInfo["statusOfTasks"]))
-                businessesRespondedToArr[indexOfBusiness]["interactionSummaryInfo"] = busInteractionInfo
-        tryvestor["businessesRespondedTo"] = businessesRespondedToArr
+        # Loop through the 10 transactions and add necessary data
+        recentTryvestorTransactionsFormatted = []
+        for i in range(min(10, len(allTryvestorTransactions))):
+            formattedRecentTransaction = SpecificTryvestorTransactions.convertToTransactionTableFormat(
+                tryvestorTransaction=allTryvestorTransactions[i], tryvestorUID=tryvestorID)
+            recentTryvestorTransactionsFormatted.append(formattedRecentTransaction)
+
+        # Summary Data Compilation
+        tryvestorSummaryData = {
+            "totalAmountStockback": totalAmountStockback
+        }
+
+        # Adding all desired data into tryvestor object
+        tryvestor["summaryData"] = tryvestorSummaryData
+        tryvestor["recentTransactions"] = recentTryvestorTransactionsFormatted
+        tryvestor["businessesInvestedIn"] = businessesTryvestorIsIn
+        '''
+        tryvestorObj = {
+            ...currentData,
+            summaryData: {
+                totalStockback: Total amount of money in stock back (simply take % and amount from each transaction and add it up)
+,
+            }
+            recentTransactions:[limit to ~10 transactions]
+                - Each transaction should have: 
+                logo link from institution, 
+                logo link from business, 
+                date of transaction, 
+                amount in transaction, 
+                % stockback, 
+                amount of money invested in business
+            }
+        Companies the tryvestor is in:
+         - Company ID, Current campaign stockback %, Amount stockback from that specific company
+        '''
+
         return tryvestor
 
-        '''
-            # Crucial Information
-            numSharesAwarded = (termDocument.numSharesAward if termResponse.verificationStatus == 1 else 0)
-            percentBusinessOwned = float(numSharesAwarded) / float(business.totalShares) * 100
-            valueSharesAwarded = percentBusinessOwned / 100 * business.valuation
-            businessName = business.name
-            businessLogoLink = business.logo
-            print("gothere")
-            # Summary info that they will most likely use
-            summaryInfo = {
-                "numSharesAwarded": numSharesAwarded,
-                "valueShares": valueSharesAwarded,
-                "percentBusinessOwned": percentBusinessOwned,
-                "businessName": businessName,
-                "businessLogoLink": businessLogoLink,
-                "verificationStatus": termResponse.verificationStatus
-            }
-            toAdd["summaryInfo"] = summaryInfo
-'''
+    def patch(self, tryvestorID):
+        tryvestorUpdateData = request.json
+        # If updating address, making sure it's formatted properly
+        if tryvestorUpdateData.get("address") is not None:
+            tryvestorUpdateData["address"] = TryvestorAddress.fromDict(tryvestorUpdateData["address"]).toDict()
+
+        # If updating SSN, encrypting it using the encryptSSN function
+        if tryvestorUpdateData.get("SSN") is not None:
+            prefix, suffix = encryptSSN(tryvestorUpdateData["SSN"])
+            tryvestorUpdateData["SSNPrefix"] = prefix
+            tryvestorUpdateData["SSNSuffix"] = suffix
+
+        tryDoc = db.collection('tryvestors').document(tryvestorID)
+        tryDoc.update(tryvestorUpdateData)
 
 
-@busApi.route("/termDocuments/verifyResponse")
-class VerifyResponse(Resource):
-    def put(self):
-        responseUpdateData = request.json
-        responseDocArray = db.collection("termDocuments").document(responseUpdateData["termDocID"]).collection(
-            "responses").where("tryvestorID", "==", responseUpdateData["tryvestorID"]).stream()
-        responseDoc = list(responseDocArray)[0].reference
-        responseDoc.update({"verificationStatus": responseUpdateData["newStatus"]})
-
-    def get(self):
-        termDocID = request.args.get("termDocID")
-        tryvestorID = request.args.get("tryvestorID")
-        print(termDocID)
+@tryApi.route("/<string:tryvestorID>/loyalties")
+class SpecificTryvestorLoyalties(Resource):
+    def get(self, tryvestorID):
         print(tryvestorID)
-        responseDocArray = db.collection("termDocuments").document(termDocID).collection(
-            "responses").where("tryvestorID", "==", tryvestorID).stream()
+        loyalties = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('creationDate',
+                                                                                                       direction=firestore.Query.DESCENDING).get()
         toReturn = []
-        for response in responseDocArray:
-            cleanedResponse = TermResponse.readFromFirebaseFormat(response.to_dict(), response.id).writeToDict()
-            toReturn.append(cleanedResponse)
+        for loyalty in loyalties:
+            toReturn.append(Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id).writeToDict())
         return toReturn
 
+    def post(self, tryvestorID):
+        # Initializing data dict and making firestore doc
+        loyaltyData = request.json
+        loyaltyDoc = db.collection("tryvestors").document(tryvestorID).collection("loyalties").document()
 
-@busApi.route("/termDocuments/responses")
-class TermDocumentUsers(Resource):
-    def post(self):
-        termDocUpdateData = request.json
-        username = termDocUpdateData["username"]
-        userDocSnapshot = db.collection("tryvestors").where("username", "==", username).stream()
-        termDocResponses = db.collection("termDocuments").document(termDocUpdateData["termDocID"]).collection(
-            "responses")
-        userDocID = list(userDocSnapshot)[0].id
-        newResponse = TermResponse.createFromDict({
-            "tryvestorID": userDocID,
-            "verificationStatus": 0,
-        }, "FillerID").writeToFirebaseFormat()
-        dateCreated, response = termDocResponses.add(newResponse)
-        return response.id
+        # Setting unlock and end dates appropriately
+        defaultTimeBeforeUnlock = relativedelta(months=3)
+        loyaltyData['unlockDate'] = datetime.combine(datetime.now(timezone.utc).date() + defaultTimeBeforeUnlock,
+                                                     time(), tzinfo=timezone.utc).isoformat()
+        loyaltyData['endDate'] = None
 
-    @api.doc(params={"termDocID": {"description": "firestore document id of term doc", "type": "String"}})
-    def get(self):
-        termDocID = request.args.get("termDocID")
-        termDocResponses = db.collection("termDocuments").document(termDocID).collection("responses").stream()
-        returnableResponses = []
-        for response in termDocResponses:
-            cleanedResponse = TermResponse.readFromFirebaseFormat(response.to_dict(), response.id).writeToDict()
-            returnableResponses.append(cleanedResponse)
-        return returnableResponses
+        # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
+        cleanedLoyalty = Loyalty.createFromDict(loyaltyData, loyaltyDoc.id)
+        loyaltyDoc.set(cleanedLoyalty.writeToFirebaseFormat())
+        return cleanedLoyalty.writeToDict()
+
+
+@tryApi.route("/<string:tryvestorID>/userItems")
+class SpecificTryvestorItems(Resource):
+    def get(self, tryvestorID):
+        print(tryvestorID)
+        userItems = db.collection("tryvestors").document(tryvestorID).collection("userItems").order_by(
+            'creationDate', direction=firestore.Query.DESCENDING).get()
+        toReturn = []
+        for userItem in userItems:
+            toReturn.append(UserItem.readFromFirebaseFormat(userItem.to_dict(), userItem.id).writeToDict())
+        return toReturn
+
+    @staticmethod
+    def addNewUserItem(userItemData):
+        # UID extraction
+        tryvestorID = userItemData.pop("UID")
+
+        # Initializing firestore doc
+        userItemDoc = db.collection("tryvestors").document(tryvestorID).collection("userItems").document()
+
+        # Adding accounts into the user data
+        plaidAccessToken = userItemData["plaidAccessToken"]
+        allAccounts, plaidInstitutionID = SpecificTryvestorItems.getAccountsForItemAsArray(plaidAccessToken)
+        userItemData["userAccounts"] = allAccounts
+        userItemData["plaidInstitutionID"] = plaidInstitutionID
+
+        # Checking if the user item has an instution ID
+        insDocRef = db.collection("institutions").document(plaidInstitutionID)
+        insDocSnap = insDocRef.get()
+        if not insDocSnap.exists:
+            Institutions.addNewInstitutionToFirestore(plaidInstitutionID=plaidInstitutionID,
+                                                      institutionDocRef=insDocRef)
+
+        # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
+        cleanedUserItem = UserItem.createFromDict(userItemData, userItemDoc.id)  # TODO figuring out why this shit gae
+        userItemDoc.set(cleanedUserItem.writeToFirebaseFormat())
+        cleanedUserItemReturnDict = cleanedUserItem.writeToDict()
+        return cleanedUserItemReturnDict
+
+    @staticmethod
+    def getAccountsForItemAsArray(plaidAccessToken):
+        request = AuthGetRequest(
+            access_token=plaidAccessToken
+        )
+        response = client.auth_get(request)
+
+        plaidInstitutionID = response["item"]["institution_id"]
+
+        accountsArr = []
+        for account in response["accounts"]:
+            # Fields necessary to make a new account (unwrapped from raw plaid response of an account)
+            plaidAccountID = account["account_id"]
+            plaidAccountName = account["name"]
+            plaidAccountOfficialName = account["official_name"]
+            plaidAccountMask = account["mask"]
+            plaidAccountSubtype = account["subtype"]
+            plaidAccountType = account["type"]
+
+            userAccountDataTemp = {
+                "plaidAccountID": plaidAccountID,
+                "plaidAccountName": plaidAccountName,
+                "plaidAccountOfficialName": plaidAccountOfficialName,
+                "plaidAccountMask": plaidAccountMask,
+                "plaidAccountSubtype": plaidAccountSubtype,
+                "plaidAccountType": plaidAccountType
+            }
+            userAccountCleaned = UserAccount.createFromDict(userAccountDataTemp).writeToDict()
+            accountsArr.append(userAccountCleaned)
+        return accountsArr, plaidInstitutionID
+
+    @staticmethod
+    def updateUserItemCursor(tryvestorID, userItemID, newCursor):
+        userItemDoc = db.collection("tryvestors").document(str(tryvestorID)).collection("userItems").document(
+            str(userItemID))
+        userItemDoc.update({
+            "cursor": str(newCursor)
+        })
+
+
+@tryApi.route("/<string:tryvestorID>/userTransactions")
+class SpecificTryvestorTransactions(Resource):
+    # Get all of a specific tryvestor's transactions stored in firebase
+    def get(self, tryvestorID):
+        allTryvestorTransactions = db.collection('tryvestors').document(tryvestorID).collection("userTransactions").stream()
+        toReturn = []
+        for userTransaction in allTryvestorTransactions:
+            userTransactionObj = UserTransaction.readFromFirebaseFormat(
+                sourceDict=userTransaction.to_dict(), userTransactionID=userTransaction.id
+            )
+            cleanedUserTransactionObj = userTransactionObj.writeToDict()
+            toReturn.append(cleanedUserTransactionObj)
+
+        return toReturn
+
+    @staticmethod
+    def convertToTransactionTableFormat(tryvestorTransaction, tryvestorUID):
+        userTransactionObj = UserTransaction.readFromFirebaseFormat(
+            sourceDict=tryvestorTransaction.to_dict(), userTransactionID=tryvestorTransaction.id)
+
+        # Getting institutionLogo
+        userItemDoc = db.collection("tryvestors").document(tryvestorUID).collection("userItems").document(
+            userTransactionObj.userItemID).get()
+        userItemObj = UserItem.readFromFirebaseFormat(sourceDict=userItemDoc.to_dict(), userItemID=userItemDoc.id)
+        institutionDoc = db.collection("institutions").document(userItemObj.plaidInstitutionID).get()
+        institutionObj = Institution.readFromFirebaseFormat(sourceDict=institutionDoc.to_dict(),
+                                                            institutionID=institutionDoc.id)
+
+        # Getting businessLogo
+        businessDoc = db.collection("businesses").document(userTransactionObj.businessID).get()
+        businessObj = Business.readFromFirebaseFormat(sourceDict=businessDoc.to_dict(), businessID=businessDoc.id)
+
+        # Choosing Transaction Date TODO fix the condition for no date existing
+        transactionDate = userTransactionObj.creationDate.isoformat() if \
+            userTransactionObj.plaidTransactionDatetime is None else userTransactionObj.plaidTransactionDatetime.isoformat()
+
+        # Final return transaction
+        formattedTransaction = {
+            "institutionLogo": institutionObj.institutionImageURL,
+            "businessLogo": businessObj.logo,
+            "transactionDate": transactionDate,
+            "transactionAmount": userTransactionObj.plaidTransactionAmount,
+            "percentStockback": userTransactionObj.percentStockback,
+            "amountMoneyInvested": userTransactionObj.percentStockback * userTransactionObj.plaidTransactionAmount
+        }
+
+        return formattedTransaction
+
+        '''
+        Each transaction should have: 
+                logo link from institution, 
+                logo link from business, 
+                date of transaction, 
+                amount in transaction, 
+                % stockback, 
+                amount of money invested in business
+        '''
 
 
 @tryApi.route("/byUsername")
-class UserByUsername(Resource):
+class UserIDByUsername(Resource):
     @api.doc(params={"username": {"description": "username of the user (likely email)", "type": "String"}})
     def get(self):
         inputUsername = request.args.get("username")
@@ -755,32 +631,394 @@ class UserByUsername(Resource):
         for doc in users:
             cleanedTryvestor = Tryvestor.readFromFirebaseFormat(doc.to_dict(), doc.id).writeToDict()
             toReturn.append(cleanedTryvestor)
-        return toReturn[0]
+        return toReturn[0]["tryvestorID"]
 
 
-@busApi.route("/termDocuments/results")
-class ResultsLink(Resource):
-    @api.doc(params={
-        "businessID": {"description": "Firebase document id of the business to get results", "type": "String"},
-        "termDocNum": {"description": "Starting at 1, which task do you want for the business", "type": "Integer"}
-    })
-    def get(self):
-        busID = request.args.get("businessID")
-        termDocNum = int(request.args.get("termDocNum"))
-        termDocs = db.collection("termDocuments").where("businessID", "==", busID).order_by("creationDate").stream()
-        termDocDict = list(termDocs)[termDocNum - 1].to_dict()
-        return termDocDict["resultsLink"]
+def fixTryvestors():
+    allTryvestors = db.collection('tryvestors').get()
+    for tryvestorDoc in allTryvestors:
+        tryDict = tryvestorDoc.to_dict()
+        # print(tryDict['address'])
+        # tryDict['DOB'] = datetime.fromisoformat(datetime.combine(datetime.now(tz=timezone.utc).date()
+        #   - timedelta(days=365*tryDict["age"]), time(tzinfo=timezone.utc), tzinfo=timezone.utc).isoformat())
+        # pre, suf = encryptSSN(str(randint(100000000, 999999999)))
+        # tryDict['SSNPrefix'] = pre
+        # tryDict['SSNSuffix'] = suf
+        # tryDict['SSNVerificationStatus'] = 0
+        # tryDict['IDVerificationStatus'] = 0
+        # tryDict["IDLink"] = "http://tryvest.us"
+        # tryDict["defaultUserItemID"] = None
+        tryDict["defaultUserItemID"] = tryDict["defaultUserItemID"]
+        tryDict["DOB"] = datetime.fromisoformat(tryDict["DOB"])
+        fixedTryvestor = Tryvestor.readFromFirebaseFormat(tryDict, tryvestorDoc.id).writeToFirebaseFormat()
+        tryvestorDoc.reference.set(fixedTryvestor)
 
 
-@busApi.route("/termDocuments")
-class TermDocuments(Resource):
+# Function for adding default loyalties in existing
+def makeTryvestorsHaveDefaultLoyalties():
+    allTryvestors = db.collection('tryvestors').get()
+    for tryDocSnapshot in allTryvestors:
+        existingLoyalties = tryDocSnapshot.collection('loyalties').stream()
+        for loyalty in existingLoyalties:
+            Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty["loyaltyID"])
+        AllTryvestors.addingLoyaltiesByCategoryToTryvestor(tryDocSnapshot.reference)
+
+
+# Plaid Stuff
+import plaid
+from plaid.model.link_token_create_request import LinkTokenCreateRequest
+from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
+from plaid.model.auth_get_request import AuthGetRequest
+from plaid.api import plaid_api
+from plaid.model.products import Products
+from plaid.model.country_code import CountryCode
+from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
+import os
+import json
+from flask import jsonify
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
+PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID', "62ef0e6f20b6d70013c6dd0a")
+PLAID_SECRET = os.getenv('PLAID_SECRET', "67b72d84fca21565d31219bf20b357")
+# Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
+# password: pass_good)
+# Use `development` to test with live users and credentials and `production`
+# to go live
+PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
+# PLAID_PRODUCTS is a comma-separated list of products to use when initializing
+# Link. Note that this list must contain 'assets' in order for the app to be
+# able to create and retrieve asset reports.
+PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions, auth').split(',')
+# PLAID_COUNTRY_CODES is a comma-separated list of countries for which users
+# will be able to select institutions from.
+PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US, CA').split(',')
+PLAID_REDIRECT_URI = None
+
+host = plaid.Environment.Sandbox
+
+if PLAID_ENV == 'sandbox':
+    host = plaid.Environment.Sandbox
+
+if PLAID_ENV == 'development':
+    host = plaid.Environment.Development
+
+if PLAID_ENV == 'production':
+    host = plaid.Environment.Production
+
+configuration = plaid.Configuration(
+    host=host,
+    api_key={
+        'clientId': PLAID_CLIENT_ID,
+        'secret': PLAID_SECRET,
+        'plaidVersion': '2020-09-14'
+    }
+)
+
+api_client = plaid.ApiClient(configuration)
+client = plaid_api.PlaidApi(api_client)
+
+products = []
+for product in PLAID_PRODUCTS:
+    products.append(Products(product))
+
+
+@api.route('/plaid/createLinkToken')
+class PlaidCreateLinkToken(Resource):
     def post(self):
-        termDocData = request.json
-        termDoc = db.collection("termDocuments").document()
-        toAdd = TermDocument.createFromDict(sourceDict=termDocData, termDocumentID=termDoc.id).writeToFirebaseFormat()
-        termDoc.set(toAdd)
-        return termDoc.id
+        try:
+            request = LinkTokenCreateRequest(
+                products=products,
+                client_name="Plaid Quickstart",
+                country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
+                language='en',
+                user=LinkTokenCreateRequestUser(
+                    client_user_id=str(time())
+                )
+            )
+            if PLAID_REDIRECT_URI != None:
+                request['redirect_uri'] = PLAID_REDIRECT_URI
+            # create link token
+            response = client.link_token_create(request)
+            response = response.to_dict()
 
+            # Defining the dictionary for the data returned by the plaid API
+            returnDict = {
+                "expiration": response["expiration"],
+                "link_token": response["link_token"],
+                "request_id": response["request_id"],
+            }
+            return jsonify(returnDict)
+
+        except plaid.ApiException as e:
+            return json.loads(e.body)
+
+
+# This route adds items into the firebase - also flushes all transactions
+@api.route('/plaid/exchangePublicToken')  # Formerly Named "/set_access_token"
+class PlaidExchangePublicToken(Resource):
+    def post(self):
+        requestData = request.json
+        publicToken = requestData["publicToken"]
+        userType = requestData["userType"]
+
+        try:
+            exchange_request = ItemPublicTokenExchangeRequest(public_token=publicToken)
+            exchange_response = client.item_public_token_exchange(exchange_request)
+            exchangeAsDict = exchange_response.to_dict()
+            exchangeAsDict['isOk'] = True
+
+            addedTransactions, modifiedTransactions, removedTransactions, cursor = \
+                PlaidUpdateTransactions.flushTransactions(accessToken=exchangeAsDict['access_token']).values()
+
+            itemDataToAdd = {
+                "UID": requestData["UID"],
+                "plaidAccessToken": exchangeAsDict["access_token"],
+                "plaidItemID": exchangeAsDict["item_id"],
+                "plaidRequestID": exchangeAsDict["request_id"],
+                "cursor": cursor
+            }
+
+            addedItem = {}
+
+            if userType == TRYVESTOR:
+                # Calls write to dict on the UserItem obj before returning it to addedItem, so readFromDict is necessary
+                addedItem = SpecificTryvestorItems.addNewUserItem(userItemData=itemDataToAdd)
+                # Parse the transaction for business information
+                addedTrans = PlaidUpdateTransactions.addTransactionsToUser(
+                    tryvestorID=requestData["UID"],
+                    userItemID=addedItem["userItemID"],
+                    transactions=addedTransactions
+                )
+
+            # elif userType == BUSINESS:
+            #     addedItem = SpecificBusinessItems.addNewBusinessItem(businessItemData=itemDataToAdd)
+            #     # addedBusinessItemObj = BusinessItem.readFromDict(sourceDict=addedItem, businessItemID=addedItem[
+            #     # "businessItemID"])
+
+            # Setting status isOk to true
+            addedItem["isOk"] = True
+            return addedItem
+
+        except plaid.ApiException as e:
+            return json.loads(e.body)
+
+
+@api.route('/plaid/updateAllTransactions')
+class PlaidUpdateTransactions(Resource):
+    @staticmethod
+    def flushTransactions(accessToken):
+        # Provide a cursor from your database if you've previously
+        # received one for the Item. Leave null if this is your
+        # first sync call for this Item. The first request will
+        # return a cursor.
+        cursor = ""
+
+        # New transaction updates since "cursor"
+        added = []
+        modified = []
+        removed = []  # Removed transaction ids
+        has_more = True
+
+        # Iterate through each page of new transaction updates for item
+        while has_more:
+            transactionsRequest = TransactionsSyncRequest(
+                access_token=accessToken,
+                cursor=cursor,
+            )
+            response = client.transactions_sync(transactionsRequest)
+
+            # Add this page of results
+            added.extend(response['added'])
+            modified.extend(response['modified'])
+            removed.extend(response['removed'])
+
+            has_more = response['has_more']
+
+            # Update cursor to the next cursor
+            cursor = response['next_cursor']
+        toReturn = {
+            "addedTransactions": added,
+            "modifiedTransactions": modified,
+            "removedTransactions": removed,
+            "cursor": cursor
+        }
+
+        def toDictConverter(a):
+            toReturnAgain = a.to_dict()
+            # toReturnAgain["authorized_date"] = toReturnAgain["authorized_date"].isoformat()
+            # toReturnAgain["authorized_datetime"] = toReturnAgain["authorized_datetime"].isoformat()
+            # toReturnAgain["date"] = toReturnAgain["date"].isoformat()
+            # toReturnAgain["datetime"] = toReturnAgain["datetime"].isoformat()
+            toReturnAgain["authorized_date"] = None
+            toReturnAgain["authorized_datetime"] = None
+            toReturnAgain["date"] = None
+            toReturnAgain["datetime"] = None
+            return toReturnAgain
+
+        addedAsDict = list(map(toDictConverter, added))
+
+        with open("transactions.json", "w") as outfile:
+            json.dump(addedAsDict, outfile)
+        return toReturn
+
+    @staticmethod
+    def addTransactionsToUser(tryvestorID, userItemID, transactions):
+        addedUserTransactions = []
+        for userTransaction in transactions:
+            # Parsing the transaction for important data and creating transaction object
+            userTransactionDoc = db.collection('tryvestors').document(tryvestorID).collection(
+                "userTransactions").document()
+
+            # TODO Remove the lines below this where the merchant name is filled in if none
+            merchantNameOptions = ["nasoyaki", "nas", "kingscrowd", "kings", "pikestic", "pike",
+                                   "treeofstories", "tree"]
+            # if userTransaction["merchant_name"] is not None:
+            #     repeatList = [userTransaction["merchant_name"]] * 100
+            #     merchantNameOptions.extend(repeatList)
+            userTransaction["merchant_name"] = choice(merchantNameOptions)
+            userTransaction["merchant_name"] = userTransaction["merchant_name"].lower()
+
+            allBusMatchingMerchantName = AllBusinesses.getBusinessesByMerchantName(userTransaction["merchant_name"])
+            if len(allBusMatchingMerchantName) == 0 or userTransaction["amount"] <= 0:
+                continue
+            # else
+            businessMatchedByMerchant = Business.readFromFirebaseFormat(
+                sourceDict=allBusMatchingMerchantName[0].to_dict(),
+                businessID=allBusMatchingMerchantName[0].id)
+            recentCampaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(
+                businessMatchedByMerchant.businessID, limit=1)
+            if len(recentCampaignsForBusiness) == 0:
+                continue
+            businessCampaign = Campaign.readFromDict(sourceDict=recentCampaignsForBusiness[0],
+                                                     campaignID=recentCampaignsForBusiness[0]["campaignID"])
+            print("got till here")
+            # Just extracting "amount" field up here
+            transactionAmount = userTransaction["amount"]
+            # Fields to make the user transaction object work
+            businessID = businessMatchedByMerchant.businessID
+            businessCampaignID = businessCampaign.campaignID
+            percentStockback = businessCampaign.stockBackPercent
+            # Amount spent * percentStockback / valuation for campaign * total shares in business
+            numFractionalShares = (float(transactionAmount) * percentStockback / businessCampaign.valuationForCampaign) * \
+                                  businessMatchedByMerchant.totalShares
+            creationDate = datetime.now(timezone.utc)
+            plaidTransactionID = userTransaction["transaction_id"]
+            plaidAccountID = userTransaction["account_id"]
+            plaidTransactionMerchantName = userTransaction["merchant_name"]
+            plaidTransactionIsPending = userTransaction["pending"]
+            plaidTransactionAmount = userTransaction["amount"]
+            plaidTransactionDatetime = userTransaction["datetime"]
+
+            userTransactionObj = UserTransaction(
+                userTransactionID=userTransactionDoc.id,
+                userItemID=userItemID,
+                businessID=businessID,
+                businessCampaignID=businessCampaignID,
+                numFractionalShares=numFractionalShares,
+                creationDate=creationDate,
+                plaidTransactionID=plaidTransactionID,
+                plaidAccountID=plaidAccountID,
+                plaidTransactionMerchantName=plaidTransactionMerchantName,
+                plaidTransactionIsPending=plaidTransactionIsPending,
+                plaidTransactionAmount=plaidTransactionAmount,
+                plaidTransactionDatetime=plaidTransactionDatetime,
+                percentStockback=percentStockback,
+                # plaidTransactionRawObject=plaidTransactionRawObject
+            )
+            userTransactionObjFireDict = userTransactionObj.writeToFirebaseFormat()
+            userTransactionDoc.set(userTransactionObjFireDict)
+            addedUserTransactions.append(userTransactionObj.writeToDict())
+        return addedUserTransactions
+
+
+# Function to test if firebase can handle adding lots of requests for docs at once
+def tryFirebaseOverload():
+    collectionRef = db.collection("numbers")
+    for i in range(200):
+        document = {
+            "num": i,
+            "numAsString": str(i),
+            "creationDate": datetime.now(timezone.utc),
+            "numInObject": {
+                "numValueInNumObject": i,
+                "numValueAsStringInNumObject": str(i)
+            },
+            "numInArray": [i, i + 1, i]
+        }
+        docToSet = collectionRef.document()
+        docToSet.set(document)
+
+
+def manuallyAddFileTransactionsToUser():
+    transactions = []
+    with open("transactions.json") as infile:
+        transactions = json.load(infile)
+    '''
+    for userTransaction in transactions:
+
+        # Just extracting "amount" field up here
+        transactionAmount = userTransaction["amount"]
+        # Fields to make the user transaction object work
+        businessID = "doesn'tMtterButbusID"
+        businessCampaignID = "doesn'tmatterbutbuscampid"
+        # Amount spent / valuation for campaign * total shares in business
+        numFractionalShares = 12.3
+        creationDate = datetime.now(timezone.utc)
+        plaidTransactionID = userTransaction["transaction_id"]
+        plaidAccountID = userTransaction["account_id"]
+        plaidTransactionMerchantName = userTransaction["merchant_name"]
+        plaidTransactionIsPending = userTransaction["pending"]
+        plaidTransactionAmount = userTransaction["amount"]
+        plaidTransactionDatetime = userTransaction["datetime"]
+        # print(plaidTransactionDatetime)
+        # plaidTransactionRawObject = userTransaction
+
+        userTransactionObj = UserTransaction(
+            userTransactionID="Doesn't Matter Here",
+            userItemID="also doesnt matter here",
+            businessID=businessID,
+            businessCampaignID=businessCampaignID,
+            numFractionalShares=numFractionalShares,
+            creationDate=creationDate,
+            plaidTransactionID=plaidTransactionID,
+            plaidAccountID=plaidAccountID,
+            plaidTransactionMerchantName=plaidTransactionMerchantName,
+            plaidTransactionIsPending=plaidTransactionIsPending,
+            plaidTransactionAmount=plaidTransactionAmount,
+            plaidTransactionDatetime=plaidTransactionDatetime,
+            # plaidTransactionRawObject=plaidTransactionRawObject
+        )
+
+        # db.collection('tryvestors').document('0cx8CV21EwfuyX8vRYvobkyIMWo2').collection("userTransactions").add(userTransactionObj.writeToDict())
+
+        docTemp = db.collection('tryvestors').document('0cx8CV21EwfuyX8vRYvobkyIMWo2').collection("userTransactions").document()
+        docTemp.set(userTransactionObj.writeToFirebaseFormat())
+        
+'''
+
+    print(PlaidUpdateTransactions.addTransactionsToUser(
+        tryvestorID="0cx8CV21EwfuyX8vRYvobkyIMWo2",
+        userItemID="doesn't matter here tbh",
+        transactions=transactions
+    ))
+
+
+def checkQueryOrder():
+    data = db.collection("tryvestors").order_by("firstName", direction=firestore.Query.DESCENDING).limit(
+        2).get()
+    for doc in data:
+        print(doc.to_dict()["firstName"])
+
+
+def fixBusinesses():
+    allBus = db.collection("businesses").stream()
+    for bus in allBus:
+        bus.reference.update({
+            "tryvestorRequirements": None
+        })
 
 if __name__ == "__main__":
     app.run(port=5000)

@@ -5,7 +5,7 @@ import Page from "../../../components/Page";
 
 function AirtableEmbedPage() {
     const { embedURL } = useParams()
-    const user = useSelector((state) => state.auth?.user)
+    const user = useSelector((state) => state.user?.user)
     const firstName = user?.firstName
     const lastName = user?.lastName
     const username = user?.username
