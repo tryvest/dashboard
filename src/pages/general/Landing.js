@@ -94,6 +94,9 @@ export function Landing() {
             <a href="#founders" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
               Discover Companies
             </a>
+            <a href="/learn-more" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
+              Learn More
+            </a>
             <a href={`${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
               Tryvestor Login
             </a>
