@@ -88,18 +88,25 @@ export function Landing() {
             <a href="#how-it-works" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
               How it Works
             </a>
+            {/*
             <a href="#founders" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
               About Our Founders
             </a>
-            <a href="#founders" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
+            */}
+            <a href="/discover" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
               Discover Companies
+            </a>
+            <a href="/learn-more" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
+              Learn More
             </a>
             <a href={`${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
               Tryvestor Login
             </a>
-            <a href={`${BUSINESS}/login`} data-ix="show-modal" className="button-2 w-button">
+{/*
+<a href={`${BUSINESS}/login`} data-ix="show-modal" className="button-2 w-button">
               Business Login
             </a>
+            */}
           </nav>
           <div className="w-nav-overlay" data-wf-ignore="" id="w-nav-overlay-0" />
         </div>
@@ -199,7 +206,7 @@ export function Landing() {
               </a>
             </div>
           </div>
-          <div id="founders" className="section process wf-section">
+          {/* <div id="founders" className="section process wf-section">
             <div className="section-body-div">
               <div className="right-steps" />
             </div>
@@ -232,7 +239,7 @@ export function Landing() {
                 </a>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="footer-section wf-section">
           <div className="columns w-row">

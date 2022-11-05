@@ -27,6 +27,7 @@ import Learn from "../pages/Learn";
 import {CustomSelectRouter} from "./customselector"
 import PlaidButton from "../utils/plaid/plaid-button";
 import TryvestorAdditionalInfo from "../pages/TryvestorAdditionalInfo";
+import MoreInfo from "../pages/general/MoreInfo";
 
 // ----------------------------------------------------------------------
 export function CustomRouter() {
@@ -38,6 +39,7 @@ export function CustomRouter() {
         { path: '/', element: <CustomSelectRouter unauthPage={<Landing/>} businessPage={<Navigate to={"/dashboard/overview"}/>} tryvestorPage={<Navigate to={"/dashboard/overview"}/>}/>},
         { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} />,},
         { path: 'plaid', element: <PlaidButton /> },
+        { path: 'learn-more', element: <MoreInfo />},
         { path: '*', element: <CustomSelectRouter /> },
         { path: '404', element: <NotFound/> },
       ],

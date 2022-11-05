@@ -61,6 +61,7 @@
     "formik": "^2.2.9",
     "history": "^5.2.0",
     "lodash": "^4.17.21",
+    "markdown-to-jsx": "^5.2.0",
     "mui-markdown": "^0.5.3",
     "numeral": "^2.0.6",
     "plaid-threads": "^11.5.0",

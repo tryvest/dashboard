@@ -15,3 +15,4 @@ build/
 /valued-throne-350421-firebase-adminsdk-8of5y-cc6d986bb9.json
 
 ./tempFiles
+.env
