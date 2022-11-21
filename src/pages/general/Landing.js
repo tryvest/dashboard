@@ -7,6 +7,8 @@ import { alpha, styled } from '@mui/material/styles';
 import Page from '../../components/Page';
 import './landing.css';
 import {BUSINESS, TRYVESTOR} from "../../UserTypes";
+import Footer from '../../layouts/dashboard/Footer'
+import LandingNav from "./LandingNav";
 
 const DRAWER_WIDTH = 280;
 const APPBAR_MOBILE = 64;
@@ -56,60 +58,7 @@ export function Landing() {
   return (
     <Page title="Landing">
       <div>
-        <div
-          data-collapse="medium"
-          data-animation="default"
-          data-duration="400"
-          data-easing="ease"
-          data-easing2="ease"
-          role="banner"
-          className="nav-backing-2 w-nav"
-        >
-          <a href="/" aria-current="page" className="brand-box-2 w-nav-brand w--current" aria-label="home">
-            <img
-              src="https://uploads-ssl.webflow.com/62851205cdcbe027038914be/6285139e8ccaf7277393a6b9_unnamed.png"
-              width="117"
-              alt=""
-            />
-          </a>
-          <div
-            className="menu-button-2 w-nav-button"
-            style={{ userSelect: 'text' }}
-            aria-label="menu"
-            role="button"
-            tabIndex="0"
-            aria-controls="w-nav-overlay-0"
-            aria-haspopup="menu"
-            aria-expanded="false"
-          >
-            <div className="w-icon-nav-menu" />
-          </div>
-          <nav role="navigation" className="nav-link-menu-2 w-nav-menu">
-            <a href="#how-it-works" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              How it Works
-            </a>
-            {/*
-            <a href="#founders" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              About Our Founders
-            </a>
-            */}
-            <a href="/discover" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              Discover Companies
-            </a>
-            <a href="/learn-more" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              Learn More
-            </a>
-            <a href={`${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
-              Tryvestor Login
-            </a>
-{/*
-<a href={`${BUSINESS}/login`} data-ix="show-modal" className="button-2 w-button">
-              Business Login
-            </a>
-            */}
-          </nav>
-          <div className="w-nav-overlay" data-wf-ignore="" id="w-nav-overlay-0" />
-        </div>
+        <LandingNav />
         <div>
           <div className="hero-2 wf-section">
             <div className="hero-div-holder-2">
@@ -241,7 +190,8 @@ export function Landing() {
             </div>
           </div> */}
         </div>
-        <div className="footer-section wf-section">
+        <Footer />
+        {/* <div className="footer-section wf-section">
           <div className="columns w-row">
             <div className="column-4 w-col w-col-3 w-col-stack">
               <div className="copyright-text-2">Copyright © 2022,&nbsp;tryvest.us</div>
@@ -273,7 +223,7 @@ export function Landing() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
         <script
           src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=62851205cdcbe027038914be"
           type="text/javascript"

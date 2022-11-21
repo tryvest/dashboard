@@ -28,6 +28,7 @@ import {CustomSelectRouter} from "./customselector"
 import PlaidButton from "../utils/plaid/plaid-button";
 import TryvestorAdditionalInfo from "../pages/TryvestorAdditionalInfo";
 import MoreInfo from "../pages/general/MoreInfo";
+import Legal from "../pages/general/Legal";
 
 // ----------------------------------------------------------------------
 export function CustomRouter() {
@@ -40,6 +41,7 @@ export function CustomRouter() {
         { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} />,},
         { path: 'plaid', element: <PlaidButton /> },
         { path: 'learn-more', element: <MoreInfo />},
+        { path: 'legal', element: <Legal />},
         { path: '*', element: <CustomSelectRouter /> },
         { path: '404', element: <NotFound/> },
       ],

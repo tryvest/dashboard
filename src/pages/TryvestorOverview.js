@@ -107,6 +107,8 @@ export default function TryvestorOverview() {
                 padding: '20px',
                 display: 'flex',
                 borderRadius: '0px',
+                border: "solid",
+                borderColor: theme.palette.primary.main
               }}
             >
               <Grid container>

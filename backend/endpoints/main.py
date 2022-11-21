@@ -441,6 +441,8 @@ class SpecificTryvestor(Resource):
         return tryvestor
 
     def patch(self, tryvestorID):
+        print("LOOK HERE")
+        print(tryvestorID)
         tryvestorUpdateData = request.json
         # If updating address, making sure it's formatted properly
         if tryvestorUpdateData.get("address") is not None:
