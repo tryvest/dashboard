@@ -6,7 +6,7 @@ function Footer(props) {
 
     return (
         <div style={{backgroundColor: theme.palette.primary.dark}}>
-            
+            Footer WIP
         </div>
     );
 }
