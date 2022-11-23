@@ -1,0 +1,38 @@
+import React, {useEffect} from "react"
+export default function FounderSection() {
+
+    return (
+    <div className="hero-2 inner thanks wf-section">
+        <div className="hero-div-holder-2 inner thanks">
+            <div className="thanks-div-2 yrntrnr">
+                <div className="div-block">
+                    <div className="div-block-5">
+                        <div className="div-block-3">
+                            <img src="https://uploads-ssl.webflow.com/62851205cdcbe027038914be/629410b72508d8c9b8271700_1652668755325.jpeg" loading="lazy" width="200" height="200" alt="" className="image-16 fgedfv" />
+                            <div className="text-block"><strong className="bold-text-3">Brett Seaton<br /></strong>Co-founder of Tryvest</div>
+                        </div>
+                        <div className="div-block-6">
+                            <h2 className="title-header thanks jdfhvd"><strong>How We Got Started</strong><span className="fgbrtbt"><br /></span></h2>
+                            <h2 className="title-header thanks jdfhvd erhg"><span className="smaller-head">Hey, I'm Brett! Last fall I started as a freshman in the Wharton School at the University of Pennsylvania. Arriving on campus for the first time, I joined an environment where people were launching social media apps, finance apps, wellness apps — you name it. Everyone marketed their apps the same way: usually with free fast food in exchange for downloading the app. <br /><br />I loved other people’s launch day because I could get some free cookies and chicken sandwiches. Most people — including myself — would stroll up to the booth, download the app, and eat the free food. By the time I finished eating, I would have uninstalled the app and continued with my day. Or, it would sit on my phone untouched because there was no long-term incentive for me to engage with the app.<br /><br />This experience reflects many issues I had faced during my time at Column, a startup that sells software to newspapers. In Fall 2020, I went on a sales road trip with the goal of convincing newspapers to adopt our software. It wasn’t successful. Newspapers worried that the incentives weren’t strong enough to be an adopter. They viewed our pitch as a risky tradeoff — the possibility of a more efficient system in exchange for being a guinea pig. I chalked this sales trip up to a loss and refocused on the few newspapers who had taken that leap of faith with us.<br /><br />After many failed sales trips like mine, enough newspapers were willing to be guinea pigs that our system grew. Two years later, Column has signed agreements with many U.S. states and respected organizations like the Washington Post. Did Column’s value proposition really improve that much in two years? Did the platform become substantially more useful? No and no. <br /><br />There have certainly been improvements to the system, but that’s not the main reason for Column’s success. By continually incorporating feedback from their early adopters, Column built an effective network and cultivated trust with their initial adopters and other newspapers.<br /><br />This isn’t a success story. Rather, Column’s story is a cautionary tale that even powerful systems and talented teams face enormous initial adoption headwinds. However, upon strong network effects being established, good products succeed.<br />‍<br /></span></h2>
+                        </div>
+                    </div>
+                    <div className="div-block-5">
+                        <div className="div-block-3">
+                            <img src="https://uploads-ssl.webflow.com/62851205cdcbe027038914be/62992fa29a562a8a31dda45c_1653274555632.jpeg" loading="lazy" width="200" height="200" alt="" className="image-16 fgedfv ytnny" />
+                            <div className="text-block gertgetg"><strong>Kaushik Akula<br />‍</strong>Co-founder of Tryvest</div>
+                        </div>
+                        <div>
+                            <h2 className="title-header thanks jdfhvd erhg rgerg">
+                            <span className="smaller-head">
+                                My co-founder, Kaushik, experienced similar difficulties in initial product adoption. While working at a few startups and going to startup conferences, Kaushik noticed firsthand many ideas with potential but no community to help them launch. Without advocates pushing ideas in the right direction and adopting the product when it becomes valuable, startups have almost no chance at success.<br /><br />The power of obtaining explorers’ loyalty is unrealized. Kaushik is someone who our product is built for: he is an initial adopter. He loves keeping up with the latest developments and getting his hands on the newest innovations. Oftentimes explorers like Kaushik try products, give feedback, and are at the front lines of helping the company succeed… all to be unrecognized and unrewarded for their support.<br /><br />First adopters provide huge value to startups—they identify small changes that would improve the product and provide crucial network effects. Sadly, explorers remain poorly incentivized and are often treated just like any other user. &nbsp;So, they move on quickly from product to product.<br /><br />In January, Brett and Kaushik got together to start working on a solution. Our goal is to create an incentive for adopters that commits them to the company for the long term instead of one-off incentives like free chicken sandwiches.<br /><br />By speaking to Penn startups and to explorers (people looking for exciting new technology), we heard that founders echoed our concerns with the chicken sandwich incentive. <br /><br />But the most compelling part of our research was that explorers felt disconnected from the people whose products they were downloading, engaging with, and asked for feedback on. <em>Both</em> sides wanted a deeper, longer-term connection — they just weren’t really sure how to structure it.<br /><br />Explorers consistently parroted the same sentiment that came to define our solution: “I wish [the startup] treated me like part of the company.” That really struck us. <br /><br />We didn’t realize how intertwined these first users felt with the company until they often compared themselves to the company’s employees. So we thought, why not provide compensation the same way that the best employees are at early startups — with ownership of the company?<br />‍<br />We are building a platform to do just that — make users feel like owners and help startups create long-term engagement. This is a substantial problem and an audacious solution. We are still malleable, continually improving our system to make companies and users more comfortable with our incentive structure. <br /><br />We are taking the time to build this product the right way because, with Tryvest, we have the vision of turning yesterday’s stakeholders into tomorrow's shareholders and yesterday’s scrapped apps into tomorrow’s unicorns. We hope you’ll help us build and launch communities!<br />
+                            </span>
+                            </h2>
+                        </div>
+                    </div>
+                    <img src="https://uploads-ssl.webflow.com/62851205cdcbe027038914be/6299921123f33e745feeb70d_tryvestteamcollage.svg" loading="lazy" alt="" className="image-17" />
+                </div>
+            </div>
+        </div>
+    </div>
+    )
+}
