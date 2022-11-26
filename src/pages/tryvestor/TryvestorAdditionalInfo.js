@@ -18,9 +18,9 @@ import { LoadingButton } from '@mui/lab';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
 import {makeStyles, withStyles} from "@mui/styles";
-import Iconify from '../components/Iconify';
-import { apiTryvestors } from '../utils/api/api-tryvestors';
-import {DarkLogo, LightLogo} from "../components/Logo";
+import Iconify from '../../components/Iconify';
+import { apiTryvestors } from '../../utils/api/api-tryvestors';
+import {DarkLogo, LightLogo} from "../../components/Logo";
 
 function TryvestorAdditionalInfo(props) {
   const uid = useSelector((state) => state.user.user.uid);
@@ -29,7 +29,7 @@ function TryvestorAdditionalInfo(props) {
 
   const patchUserAdditionalInfo = async (formData) => {
     const patchData = {
-      ssn: formData.ssn,
+      SSN: formData.ssn, // SSN needs to be all caps here
       employment: formData.employment,
       address: {
         streetAddress: formData.streetAddress,
@@ -82,7 +82,9 @@ function TryvestorAdditionalInfo(props) {
     },
     validationSchema: additionalInfoSchema,
     onSubmit: ({ ssn, employment, streetAddress, unit, city, state, postalCode}) => {
-      patchUserAdditionalInfo({ ssn, employment, streetAddress, unit, city, state, postalCode });
+      patchUserAdditionalInfo({ ssn, employment, streetAddress, unit, city, state, postalCode }).then(
+          r => navigate("/", {replace: true})
+      );
     },
   });
 

@@ -46,6 +46,7 @@ export default function Legal() {
               backgroundColor: theme.palette.primary.light,
             }}
           >
+            <div style={{ padding: '20px 0px 0px 15px', position: "sticky", top: "0px"}}/>
             <Stack direction={'row'}>
               <div>
                 <Stack paddingLeft={'15px'} paddingRight={'10px'} position={'sticky'} top={'10px'}>

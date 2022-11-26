@@ -3,6 +3,7 @@ import {ApiCore} from "./core";
 
 import {BASE_URL} from "./provider";
 import {handleError, handleResponse} from "./response";
+import {api} from "./api";
 
 const url = 'tryvestors';
 const plural = 'tryvestors';
@@ -32,6 +33,46 @@ apiTryvestors.getByUsername = (username) => {
 apiTryvestors.patchSingleUser = (uid, model) => {
     return axios
         .patch(`${BASE_URL}/${url}/${uid}`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.changeLoyalty = (tryvestorID, businessID, categoryID) => {
+    const model = {
+        "businessID": businessID,
+        "categoryID": categoryID
+    }
+
+    return axios
+        .post(`${BASE_URL}/${url}/${tryvestorID}/loyalties`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.getUserItems = (tryvestorID) => {
+    return axios
+        .get(`${BASE_URL}/${url}/${tryvestorID}/userItems`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.disableUserItem = (tryvestorID, userItemID) => {
+    return axios
+        .patch(`${BASE_URL}/${url}/${tryvestorID}/userItems/${userItemID}`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.deleteUserAccountFromItem = (tryvestorID, userItemID, userAccountID) => {
+    return axios
+        .delete(`${BASE_URL}/${url}/${tryvestorID}/userItems/${userItemID}/${userAccountID}`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.setDefaultAccountAndItem = (tryvestorID, userItemID, userAccountID) => {
+    return axios
+        .patch(`${BASE_URL}/${url}/${tryvestorID}/userItems/${userItemID}/${userAccountID}`)
         .then(handleResponse)
         .catch(handleError);
 }

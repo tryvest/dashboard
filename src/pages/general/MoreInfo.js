@@ -3,6 +3,7 @@ import { Button, CircularProgress, Stack, Typography } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '@mui/material/styles';
 import { DarkLogo } from '../../components/Logo';
+import LandingNav from "./LandingNav";
 
 export default function MoreInfo() {
   const [selectedArticleIndex, setSelectedArticleIndex] = useState(0);
@@ -31,6 +32,7 @@ export default function MoreInfo() {
 
   return (
     <div style={{ backgroundColor: theme.palette.primary.dark, height: '100%' }} title="Learn More">
+      <LandingNav/>
       <div style={{ backgroundColor: theme.palette.primary.dark, height: '100%' }}>
         {articles ? (
           <div
@@ -41,9 +43,7 @@ export default function MoreInfo() {
               backgroundColor: theme.palette.primary.light,
             }}
           >
-            <div style={{ padding: '20px 0px 0px 15px', position: "sticky", top: "0px"}}>
-              <DarkLogo/>
-            </div>
+            <div style={{ padding: '20px 0px 0px 15px', position: "sticky", top: "0px"}}/>
             <Stack direction={'row'}>
               <div>
                 <Stack paddingLeft={"15px"} paddingRight={"10px"} position={"sticky"} top={"65px"}>

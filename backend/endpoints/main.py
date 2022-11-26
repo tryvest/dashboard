@@ -83,6 +83,14 @@ class Categories(Resource):
         return toReturn
 
 
+@api.route("/categories/<string:categoryID>")
+class SpecificCategory(Resource):
+    def get(self, categoryID):
+        category = db.collection("categories").document(categoryID).get().to_dict()
+        returnVal = Category.readFromFirebaseFormat(category, categoryID).writeToDict()
+        return returnVal
+
+
 @api.route("/institution")
 class Institutions(Resource):
     @staticmethod
@@ -104,6 +112,14 @@ class Institutions(Resource):
         # New institution creation
         insObjNew = Institution.createFromDict(sourceDict=source, institutionID=plaidInstitutionID)
         institutionDocRef.set(insObjNew.writeToFirebaseFormat())
+
+
+@api.route("/institution/<string:institutionID>")
+class SpecificInstitution(Resource):
+    def get(self, institutionID):
+        insDocAsDict = db.collection("institutions").document(institutionID).get().to_dict()
+        insObj = Institution.readFromFirebaseFormat(insDocAsDict, institutionID)
+        return insObj.writeToDict()
 
 
 @busApi.route("")  # http://127.0.0.1:5000/api/businesses
@@ -202,14 +218,11 @@ class SpecificBusiness(Resource):
     def patch(self, businessID):
         businessUpdateData = request.json
         busDoc = db.collection('businesses').document(businessID)
-        print(businessUpdateData)
         busDoc.update(businessUpdateData)
 
     @staticmethod
     def getAllTryvestorsAndEquity(businessID):
-        allTransactionsForBusiness = db.collection_group("userTransactions").where("businessID", "==",
-                                                                                   businessID).stream()
-
+        allTransactionsForBusiness = db.collection_group("userTransactions").where("businessID", "==", businessID).stream()
         tryvestorsAndTheirTransactions = {}
         totalNumberOfSharesAwarded = 0
 
@@ -230,7 +243,6 @@ class SpecificBusinessCampaigns(Resource):
         limit = request.args.get("limit")
         if limit is not None:
             limit = int(limit)
-        print("limit printed here: ", str(limit))
 
         if limit is not None and limit <= 0:
             return "Limit number is bad, please send >= 1, or don't include if you want all to be returned"
@@ -263,7 +275,6 @@ class SpecificBusinessCampaigns(Resource):
 @busApi.route("/<string:businessID>/businessItems")
 class SpecificBusinessItems(Resource):
     def get(self, businessID):
-        print(businessID)
         businessItems = db.collection("tryvestors").document(businessID).collection("businessItems").order_by(
             'creationDate', direction=firestore.Query.DESCENDING).get()
         toReturn = []
@@ -317,10 +328,10 @@ class AllTryvestors(Resource):
         tryDoc.set(cleanedTryvestor.writeToFirebaseFormat())
 
         # Setting the default loyalties for all categories and initializing array of history of loyalties
-        selectedLoyaltiesByCategory = AllTryvestors.addingLoyaltiesByCategoryToTryvestor(tryDoc=tryDoc)
+        # selectedLoyaltiesByCategory = AllTryvestors.addingLoyaltiesByCategoryToTryvestor(tryDoc=tryDoc)
 
         tryvestorToReturn = cleanedTryvestor.writeToDict()
-        tryvestorToReturn["selectedLoyaltiesByCategory"] = selectedLoyaltiesByCategory
+        # tryvestorToReturn["selectedLoyaltiesByCategory"] = selectedLoyaltiesByCategory
         return tryvestorToReturn
 
     @staticmethod
@@ -375,9 +386,10 @@ class SpecificTryvestor(Resource):
         # Additional Data for Tryvestor Dash BELOW
 
         # Starting with getting companies into desired format
-        allTryvestorTransactions = tryvestorDocRef.collection("userTransactions").order_by('creationDate', direction=firestore.Query.DESCENDING).get()
+        allTryvestorTransactions = tryvestorDocRef.collection("userTransactions").order_by('creationDate',
+                                                                                           direction=firestore.Query.DESCENDING).get()
         businessesTryvestorIsIn = {}
-        totalAmountStockback = 0 # Only piece of summary data for now
+        totalAmountStockback = 0  # Only piece of summary data for now
         for tryvestorTransaciton in allTryvestorTransactions:
             # First, find amount of money spent for that transaction, then add transaction to business and then add
             # to total, also find most recent
@@ -391,7 +403,8 @@ class SpecificTryvestor(Resource):
                 recentCampaignObj = Campaign.readFromDict(sourceDict=mostRecentCampaign,
                                                           campaignID=mostRecentCampaign["campaignID"])
                 businessDocRef = db.collection("businesses").document(userTransactionObj.businessID)
-                businessObj = Business.readFromFirebaseFormat(sourceDict=businessDocRef.get().to_dict(), businessID=businessDocRef.id)
+                businessObj = Business.readFromFirebaseFormat(sourceDict=businessDocRef.get().to_dict(),
+                                                              businessID=businessDocRef.id)
                 businessesTryvestorIsIn[userTransactionObj.businessID] = {
                     "currentPercentStockback": recentCampaignObj.stockBackPercent,
                     "amountSpent": 0,
@@ -441,8 +454,6 @@ class SpecificTryvestor(Resource):
         return tryvestor
 
     def patch(self, tryvestorID):
-        print("LOOK HERE")
-        print(tryvestorID)
         tryvestorUpdateData = request.json
         # If updating address, making sure it's formatted properly
         if tryvestorUpdateData.get("address") is not None:
@@ -453,6 +464,9 @@ class SpecificTryvestor(Resource):
             prefix, suffix = encryptSSN(tryvestorUpdateData["SSN"])
             tryvestorUpdateData["SSNPrefix"] = prefix
             tryvestorUpdateData["SSNSuffix"] = suffix
+        tryvestorUpdateData["SSNVerificationStatus"] = 1
+        del tryvestorUpdateData["SSN"]
+
 
         tryDoc = db.collection('tryvestors').document(tryvestorID)
         tryDoc.update(tryvestorUpdateData)
@@ -461,7 +475,6 @@ class SpecificTryvestor(Resource):
 @tryApi.route("/<string:tryvestorID>/loyalties")
 class SpecificTryvestorLoyalties(Resource):
     def get(self, tryvestorID):
-        print(tryvestorID)
         loyalties = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('creationDate',
                                                                                                        direction=firestore.Query.DESCENDING).get()
         toReturn = []
@@ -480,23 +493,37 @@ class SpecificTryvestorLoyalties(Resource):
                                                      time(), tzinfo=timezone.utc).isoformat()
         loyaltyData['endDate'] = None
 
+        # Finding the most recent campaign for a business
+        campaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(
+            loyaltyData["businessID"], limit=1)
+        campaignID = campaignsForBusiness[0]["campaignID"]
+
+        ## TODO WRITE CODE TO MAKE SURE OLD LOYALTY (IF ONE EXISTS) IS ENDED (aka the end date is set to today)
+
+        # Making it so user can immediately change loyalty (since these are defaults), and adding a loyalty per category
+        sourceDict = {
+            "businessID": loyaltyData["businessID"],
+            "categoryID": loyaltyData["categoryID"],
+            "campaignID": campaignID,
+            "unlockDate": loyaltyData["unlockDate"],
+            "endDate": loyaltyData['endDate']
+        }
+
         # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
-        cleanedLoyalty = Loyalty.createFromDict(loyaltyData, loyaltyDoc.id)
-        loyaltyDoc.set(cleanedLoyalty.writeToFirebaseFormat())
-        return cleanedLoyalty.writeToDict()
+        newLoyalty = Loyalty.createFromDict(sourceDict, loyaltyDoc.id)
+        loyaltyDoc.set(newLoyalty.writeToFirebaseFormat())
+        return newLoyalty.writeToDict()
 
 
 @tryApi.route("/<string:tryvestorID>/userItems")
 class SpecificTryvestorItems(Resource):
     def get(self, tryvestorID):
-        print(tryvestorID)
         userItems = db.collection("tryvestors").document(tryvestorID).collection("userItems").order_by(
             'creationDate', direction=firestore.Query.DESCENDING).get()
         toReturn = []
         for userItem in userItems:
             toReturn.append(UserItem.readFromFirebaseFormat(userItem.to_dict(), userItem.id).writeToDict())
         return toReturn
-
     @staticmethod
     def addNewUserItem(userItemData):
         # UID extraction
@@ -508,18 +535,25 @@ class SpecificTryvestorItems(Resource):
         # Adding accounts into the user data
         plaidAccessToken = userItemData["plaidAccessToken"]
         allAccounts, plaidInstitutionID = SpecificTryvestorItems.getAccountsForItemAsArray(plaidAccessToken)
-        userItemData["userAccounts"] = allAccounts
+        userItemData["userAccountIDs"] = allAccounts
         userItemData["plaidInstitutionID"] = plaidInstitutionID
 
+        userDoc = db.collection("tryvestors").document(tryvestorID)
+        userDoc.update({
+            "defaultAccountID": allAccounts[0]["plaidAccountID"],
+            "defaultItemID": userItemDoc.id
+        })
+
         # Checking if the user item has an instution ID
+        # Here we notice that insDocRef in firebase is same as plaidInstitutionID
         insDocRef = db.collection("institutions").document(plaidInstitutionID)
         insDocSnap = insDocRef.get()
         if not insDocSnap.exists:
             Institutions.addNewInstitutionToFirestore(plaidInstitutionID=plaidInstitutionID,
                                                       institutionDocRef=insDocRef)
 
-        # Cleaning loyalty data, updating the doc, and returning the created cleanedLoyalty object upon success
-        cleanedUserItem = UserItem.createFromDict(userItemData, userItemDoc.id)  # TODO figuring out why this shit gae
+        # Cleaning item data, updating the doc, and returning the created cleanedUserItem as dict upon success
+        cleanedUserItem = UserItem.createFromDict(userItemData, userItemDoc.id)
         userItemDoc.set(cleanedUserItem.writeToFirebaseFormat())
         cleanedUserItemReturnDict = cleanedUserItem.writeToDict()
         return cleanedUserItemReturnDict
@@ -539,7 +573,7 @@ class SpecificTryvestorItems(Resource):
             plaidAccountID = account["account_id"]
             plaidAccountName = account["name"]
             plaidAccountOfficialName = account["official_name"]
-            plaidAccountMask = account["mask"]
+            plaidAccountMask = str(account["mask"])
             plaidAccountSubtype = account["subtype"]
             plaidAccountType = account["type"]
 
@@ -563,12 +597,48 @@ class SpecificTryvestorItems(Resource):
             "cursor": str(newCursor)
         })
 
+@tryApi.route("/<string:tryvestorID>/userItems/<string:userItemID>")
+class SpecificUserItem(Resource):
+    def patch(self, tryvestorID, userItemID):
+        updateData = {"itemIsActive": False}
+        db.collection("tryvestors").document(tryvestorID).collection("userItems").document(userItemID).update(updateData)
+
+@tryApi.route("/<string:tryvestorID>/userItems/<string:userItemID>/<string:userAccountID>")
+class SpecificUserAccount(Resource):
+    def delete(self, tryvestorID, userItemID, userAccountID):
+        itemDoc = db.collection("tryvestors").document(tryvestorID).collection("userItems").document(userItemID).get()
+        itemDocDict = itemDoc.to_dict()
+
+        indexToRemove = -1
+        for index, i in enumerate(itemDocDict["userAccountIDs"]):
+            if(i["plaidAccountID"] == userAccountID):
+                indexToRemove = index
+
+        if (indexToRemove == -1):
+            return "Error"
+
+        # I am only disabling item active status, not deleting
+        removedItem = itemDocDict["userAccountIDs"][indexToRemove]
+        itemDocDict["userAccountIDs"][indexToRemove]["accountIsActive"] = False
+        itemDoc.reference.set(itemDocDict)
+
+        removedItemCleaned = UserAccount.readFromFirebaseFormat(removedItem).writeToDict()
+        return removedItemCleaned
+
+    def patch(self, tryvestorID, userItemID, userAccountID):
+        tryDoc = db.collection("tryvestors").document(tryvestorID).get()
+        tryDocDict = tryDoc.to_dict()
+        tryDocDict["defaultItemID"] = userItemID
+        tryDocDict["defaultAccountID"] = userAccountID
+        tryDoc.reference.set(tryDocDict)
+
 
 @tryApi.route("/<string:tryvestorID>/userTransactions")
 class SpecificTryvestorTransactions(Resource):
     # Get all of a specific tryvestor's transactions stored in firebase
     def get(self, tryvestorID):
-        allTryvestorTransactions = db.collection('tryvestors').document(tryvestorID).collection("userTransactions").stream()
+        allTryvestorTransactions = db.collection('tryvestors').document(tryvestorID).collection(
+            "userTransactions").stream()
         toReturn = []
         for userTransaction in allTryvestorTransactions:
             userTransactionObj = UserTransaction.readFromFirebaseFormat(
@@ -640,7 +710,6 @@ def fixTryvestors():
     allTryvestors = db.collection('tryvestors').get()
     for tryvestorDoc in allTryvestors:
         tryDict = tryvestorDoc.to_dict()
-        # print(tryDict['address'])
         # tryDict['DOB'] = datetime.fromisoformat(datetime.combine(datetime.now(tz=timezone.utc).date()
         #   - timedelta(days=365*tryDict["age"]), time(tzinfo=timezone.utc), tzinfo=timezone.utc).isoformat())
         # pre, suf = encryptSSN(str(randint(100000000, 999999999)))
@@ -825,7 +894,7 @@ class PlaidUpdateTransactions(Resource):
         has_more = True
 
         # Iterate through each page of new transaction updates for item
-        while has_more:
+        while has_more and len(added) < 100:
             transactionsRequest = TransactionsSyncRequest(
                 access_token=accessToken,
                 cursor=cursor,
@@ -841,6 +910,8 @@ class PlaidUpdateTransactions(Resource):
 
             # Update cursor to the next cursor
             cursor = response['next_cursor']
+
+        # Now putting together data to return
         toReturn = {
             "addedTransactions": added,
             "modifiedTransactions": modified,
@@ -896,7 +967,6 @@ class PlaidUpdateTransactions(Resource):
                 continue
             businessCampaign = Campaign.readFromDict(sourceDict=recentCampaignsForBusiness[0],
                                                      campaignID=recentCampaignsForBusiness[0]["campaignID"])
-            print("got till here")
             # Just extracting "amount" field up here
             transactionAmount = userTransaction["amount"]
             # Fields to make the user transaction object work
@@ -904,7 +974,8 @@ class PlaidUpdateTransactions(Resource):
             businessCampaignID = businessCampaign.campaignID
             percentStockback = businessCampaign.stockBackPercent
             # Amount spent * percentStockback / valuation for campaign * total shares in business
-            numFractionalShares = (float(transactionAmount) * percentStockback / businessCampaign.valuationForCampaign) * \
+            numFractionalShares = (float(
+                transactionAmount) * percentStockback / businessCampaign.valuationForCampaign) * \
                                   businessMatchedByMerchant.totalShares
             creationDate = datetime.now(timezone.utc)
             plaidTransactionID = userTransaction["transaction_id"]
@@ -1021,6 +1092,14 @@ def fixBusinesses():
         bus.reference.update({
             "tryvestorRequirements": None
         })
+
+def fixAccounts():
+    allItems = db.collection("tryvestors").document("0cx8CV21EwfuyX8vRYvobkyIMWo2").collection("userItems").stream()
+    for item in allItems:
+        itemDict = item.to_dict()
+        newItem = {"userAccountIDs" : itemDict["userAccounts"], **itemDict}
+        item.reference.set(newItem)
+
 
 if __name__ == "__main__":
     app.run(port=5000)

@@ -2,6 +2,7 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 import {TRYVESTOR} from "../UserTypes";
+import {apiTryvestors} from "../utils/api/api-tryvestors";
 
 export const userSlice = createSlice({
     name: 'user',
@@ -19,10 +20,21 @@ export const userSlice = createSlice({
         logout: (state) => {
             state.user = null;
         },
+        refreshUserData: (state) => {
+            const uid = state?.user?.user.uid
+            apiTryvestors.getSingle(uid).then(userData => {
+                userData = new Map(Object.entries(userData))
+                state.user = {
+                    userType: TRYVESTOR,
+                    uid,
+                    data: userData
+                }
+            })
+        },
     },
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, refreshUserData } = userSlice.actions;
 
 // selectors
 export const selectUser = (state) => state?.user?.user;

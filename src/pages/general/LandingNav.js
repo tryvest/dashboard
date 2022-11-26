@@ -32,9 +32,9 @@ function LandingNav(props) {
                 <div className="w-icon-nav-menu" />
             </div>
             <nav role="navigation" className="nav-link-menu-2 w-nav-menu">
-                <a href="#how-it-works" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-                    How it Works
-                </a>
+                {/* <a href="#how-it-works" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal"> */}
+                {/*    How it Works */}
+                {/* </a> */}
                 {/*
             <a href="#founders" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
               About Our Founders
@@ -44,13 +44,13 @@ function LandingNav(props) {
                     Discover Companies
                 </a>
                 <a href="/learn-more" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-                    Learn More
+                    How it Works
                 </a>
                 <a href="/legal" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
                     Legal Info
                 </a>
                 <a href={`${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
-                    Tryvestor Login
+                    Access Dashboard
                 </a>
                 {/*
 <a href={`${BUSINESS}/login`} data-ix="show-modal" className="button-2 w-button">

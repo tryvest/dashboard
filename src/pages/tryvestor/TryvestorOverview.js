@@ -23,15 +23,23 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import {AddCircleOutlined, ArrowForwardIos} from '@mui/icons-material';
-import TransactionsTable from '../components/TransactionsTable';
-import Page from '../components/Page';
-import { fShortenNumber, fCurrency, fPercent } from '../utils/formatNumber';
-import Scrollbar from '../components/Scrollbar';
+import {useAuthState} from "react-firebase-hooks/auth";
+import {handleError} from "../../utils/api/response";
+import TransactionsTable from '../../components/TransactionsTable';
+import Page from '../../components/Page';
+import { fShortenNumber, fCurrency, fPercent } from '../../utils/formatNumber';
+import Scrollbar from '../../components/Scrollbar';
+import {auth} from "../../firebase";
+import {api} from "../../utils/api/api";
+import {TRYVESTOR} from "../../UserTypes";
+import {apiTryvestors} from "../../utils/api/api-tryvestors";
+import {refreshUserData} from "../../features/userSlice";
 
 // ----------------------------------------------------------------------
 
 export default function TryvestorOverview() {
   const theme = useTheme();
+  const [user, loading, error] = useAuthState(auth)
   const tryvestor = useSelector((state) => state?.user?.user);
   const [ynsProgress, setYnsProgress] = useState(0);
   const [ynsText, setYnsText] = useState();
@@ -56,6 +64,23 @@ export default function TryvestorOverview() {
   };
     */
 
+  // Use Effect to populate tryvestor in case of reload
+  useEffect(() => {
+    if (!tryvestor && user) {
+      api.getUserType(user.uid)
+          .then(userType => {
+            if (userType !== TRYVESTOR) {
+              navigate('/business/login');
+            }
+            apiTryvestors.getSingle(user.uid).then((userLocal) => {
+              refreshUserData()
+              navigate('/dashboard/overview');
+            });
+          })
+          .catch(handleError);
+    }
+  }, [])
+
   // Re-Calculate YNS On Every Render
   useEffect(() => {
     // Make sure tryvestor is defined
@@ -72,10 +97,10 @@ export default function TryvestorOverview() {
     }
 
     // If defaultUserItemID is null
-    else if (tryvestor.data.defaultUserItemID === 'None' || tryvestor.data.defaultUserItemID === null) {
+    else if (tryvestor.data.defaultAccountID === 'None' || tryvestor.data.defaultAccountID === null) {
       setYnsProgress(50);
       setYnsText('Connect your bank account');
-      setYnsLink('/dashboard/setup-bank-account');
+      setYnsLink('/dashboard/setup-banking');
     }
 
     // If identity verification status is 0, then do this

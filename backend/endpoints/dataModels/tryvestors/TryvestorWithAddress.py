@@ -3,7 +3,7 @@ from datetime import datetime, timezone, date, time
 
 class Tryvestor:
     def __init__(self, tryvestorID, firstName, lastName, username, DOB, address, creationDate, SSNPrefix, SSNSuffix,
-                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultUserItemID):
+                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultAccountID, defaultItemID):
         self.tryvestorID = tryvestorID
         self.firstName = firstName
         self.lastName = lastName
@@ -16,7 +16,8 @@ class Tryvestor:
         self.SSNVerificationStatus = SSNVerificationStatus
         self.IDVerificationStatus = IDVerificationStatus
         self.IDLink = IDLink
-        self.defaultUserItemID = defaultUserItemID
+        self.defaultAccountID = defaultAccountID
+        self.defaultItemID = defaultItemID
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, tryvestorID):
@@ -34,7 +35,8 @@ class Tryvestor:
             SSNVerificationStatus=int(sourceDict["SSNVerificationStatus"]),
             IDVerificationStatus=int(sourceDict["IDVerificationStatus"]),
             IDLink=str(sourceDict["IDLink"]),
-            defaultUserItemID=str(sourceDict["defaultUserItemID"])
+            defaultAccountID=str(sourceDict["defaultAccountID"]),
+            defaultItemID=str(sourceDict["defaultItemID"])
         )
 
     def writeToFirebaseFormat(self):
@@ -52,7 +54,8 @@ class Tryvestor:
             'SSNVerificationStatus': self.SSNVerificationStatus,
             'IDVerificationStatus': self.IDVerificationStatus,
             'IDLink': self.IDLink,
-            'defaultUserItemID': self.defaultUserItemID
+            'defaultAccountID': self.defaultAccountID,
+            'defaultItemID': self.defaultItemID
         }
 
     @staticmethod
@@ -71,7 +74,8 @@ class Tryvestor:
         sourceDict['SSNVerificationStatus'] = 0
         sourceDict['IDVerificationStatus'] = 0
         sourceDict['IDLink'] = None
-        sourceDict['defaultUserItemID'] = None
+        sourceDict['defaultAccountID'] = None
+        sourceDict['defaultItemID'] = None
         return Tryvestor.readFromDict(sourceDict, tryvestorID)
 
     def writeToDict(self):
@@ -79,6 +83,7 @@ class Tryvestor:
         toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["tryvestorID"] = self.tryvestorID
         toReturn['DOB'] = date.isoformat(toReturn['DOB'].date())
+        del toReturn["SSNPrefix"]
         return toReturn
 
 

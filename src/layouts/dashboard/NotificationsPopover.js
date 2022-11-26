@@ -36,7 +36,7 @@ const NOTIFICATIONS = [
     avatar: null,
     type: 'order_placed',
     createdAt: set(new Date(), { hours: 10, minutes: 30 }),
-    isUnRead: true,
+    isUnRead: false,
   },
   {
     id: faker.datatype.uuid(),
@@ -45,7 +45,7 @@ const NOTIFICATIONS = [
     avatar: '/static/mock-images/avatars/avatar_2.jpg',
     type: 'friend_interactive',
     createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
-    isUnRead: true,
+    isUnRead: false,
   },
   {
     id: faker.datatype.uuid(),
@@ -110,9 +110,13 @@ export default function NotificationsPopover() {
         onClick={handleOpen}
         sx={{ width: 40, height: 40 }}
       >
-        <Badge badgeContent={totalUnRead} color="error">
+        {totalUnRead === 0 ? (
+          <Badge badgeContent={totalUnRead} color="error">
+            <Iconify icon="eva:bell-fill" width={20} height={20} />
+          </Badge>
+        ) : (
           <Iconify icon="eva:bell-fill" width={20} height={20} />
-        </Badge>
+        )}
       </IconButton>
 
       <MenuPopover
@@ -137,6 +141,8 @@ export default function NotificationsPopover() {
             </Tooltip>
           )}
         </Box>
+
+        {/*
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
@@ -174,7 +180,7 @@ export default function NotificationsPopover() {
           <Button fullWidth disableRipple>
             View All
           </Button>
-        </Box>
+        </Box> */}
       </MenuPopover>
     </>
   );

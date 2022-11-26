@@ -64,14 +64,14 @@ export function Landing() {
             <div className="hero-div-holder-2">
               <div className="content-holder">
                 <h1 className="white-heading-2 hero-holder">
-                  Building better
+                  Buy stuff
                   <span className="smaller-head fwf">
                     <br />
-                    launch communities
+                    get stock
                   </span>
                 </h1>
                 <p className="body-paragraphy-2 light hero-subhead">
-                  Create network effects, get feedback, and de-risk your customer acquisition cost.
+                  Get stock-back when you buy from your favorite startups.
                 </p>
                 <a href="https://airtable.com/shrTxWeRwlAxyBwQ2" className="cta-button-2 w-button">
                   Join Waitlist
@@ -120,9 +120,9 @@ export function Landing() {
                     className="image-18"
                   />
                   <div className="number _2">1</div>
-                  <div className="hiw-head">Users find your company and express interest</div>
+                  <div className="hiw-head">Sign Up for Tryvest</div>
                   <p className="hiw-para">
-                    Through your website, users can be incentivized to join with equity rewards
+                    Securely connect all your bank accounts.
                   </p>
                 </div>
                 <div className="stepblock hiw">
@@ -134,8 +134,8 @@ export function Landing() {
                     className="image-20"
                   />
                   <div className="number _2">2</div>
-                  <div className="hiw-head">Users join Tryvest and complete terms</div>
-                  <p className="hiw-para">Keep tabs on your Tryvestors and seamlessly communicate with them</p>
+                  <div className="hiw-head">Start selecting companies to get stock-back in.</div>
+                  <p className="hiw-para">Remember, you can only earn stock-back in one company per category.</p>
                 </div>
                 <div className="stepblock hiw">
                   <img
@@ -146,8 +146,8 @@ export function Landing() {
                     className="image-19"
                   />
                   <div className="number _2">3</div>
-                  <div className="hiw-head">Users receive phantom equity and join launch community</div>
-                  <p className="hiw-para">Phantom equity is off your cap table, so you retain ownership</p>
+                  <div className="hiw-head">Start Purchasing!</div>
+                  <p className="hiw-para">Make your first purchase at a Tryvest-connected company and start earning stock-back!</p>
                 </div>
               </div>
               <a href="https://airtable.com/shrTxWeRwlAxyBwQ2" className="cta-button-2 middle w-button">
@@ -190,7 +190,6 @@ export function Landing() {
             </div>
           </div> */}
         </div>
-        <Footer />
         {/* <div className="footer-section wf-section">
           <div className="columns w-row">
             <div className="column-4 w-col w-col-3 w-col-stack">
@@ -235,6 +234,7 @@ export function Landing() {
           type="text/javascript"
         />
       </div>
+      <Footer/>
     </Page>
   );
 }

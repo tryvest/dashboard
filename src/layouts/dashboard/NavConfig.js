@@ -19,9 +19,14 @@ const navConfig = {
         icon: getIcon('fluent:tasks-app-28-filled'),
       },
       {
-        title: 'portfolio',
-        path: '/dashboard/portfolio',
-        icon: getIcon('jam:messages-f'),
+        title: 'How it Works',
+        path: '/learn-more',
+        icon: getIcon('ion:information-circle'),
+      },
+      {
+        title: 'Legal Info',
+        path: '/legal',
+        icon: getIcon('mdi:briefcase'),
       },
     ],
     businessSide: [

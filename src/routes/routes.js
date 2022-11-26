@@ -4,18 +4,15 @@ import DashboardLayout from '../layouts/dashboard';
 import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
 import EmptyPage from '../layouts/EmptyPage';
 //
-import Profile from '../pages/Profile';
-import User from '../pages/User';
-import Login from '../pages/Login';
+import Login from '../pages/general/Login';
 import BusinessLogin from '../pages/business/BusinessLogin';
-import NotFound from '../pages/Page404';
-import TryvestorRegister from '../pages/TryvestorRegister';
+import NotFound from '../pages/general/Page404';
+import TryvestorRegister from '../pages/tryvestor/TryvestorRegister';
 import Discover from '../pages/discover/Discover';
-import DashboardApp from '../pages/DashboardApp';
 import { Founders, Landing } from '../pages/general/Landing';
 import Business from '../pages/Business'
 import Tasks from "../pages/Tasks";
-import TryvestorOverview from "../pages/TryvestorOverview";
+import TryvestorOverview from "../pages/tryvestor/TryvestorOverview";
 import CompanySpecific from "../pages/CompanySpecific";
 import Announcements from "../pages/Announcements";
 import Community from "../pages/Community"
@@ -23,12 +20,12 @@ import BusinessHomePage from "../pages/business/BusinessHomePage";
 import BusinessOverview from "../pages/business/BusinessOverview";
 import BusinessCommunity from "../pages/business/BusinessCommunity";
 import BusinessAnnouncements from "../pages/business/BusinessAnnouncements";
-import Learn from "../pages/Learn";
 import {CustomSelectRouter} from "./customselector"
 import PlaidButton from "../utils/plaid/plaid-button";
-import TryvestorAdditionalInfo from "../pages/TryvestorAdditionalInfo";
+import TryvestorAdditionalInfo from "../pages/tryvestor/TryvestorAdditionalInfo";
 import MoreInfo from "../pages/general/MoreInfo";
 import Legal from "../pages/general/Legal";
+import TryvestorBanking from "../pages/tryvestor/TryvestorBanking";
 
 // ----------------------------------------------------------------------
 export function CustomRouter() {
@@ -38,7 +35,7 @@ export function CustomRouter() {
       element: <LogoOnlyLayout />,
       children: [
         { path: '/', element: <CustomSelectRouter unauthPage={<Landing/>} businessPage={<Navigate to={"/dashboard/overview"}/>} tryvestorPage={<Navigate to={"/dashboard/overview"}/>}/>},
-        { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} />,},
+        { path: 'discover', element: <CustomSelectRouter businessPage={<Discover nav/>} tryvestorPage={<Discover nav/>} unauthPage={<Discover nav/>} />,},
         { path: 'plaid', element: <PlaidButton /> },
         { path: 'learn-more', element: <MoreInfo />},
         { path: 'legal', element: <Legal />},
@@ -50,13 +47,16 @@ export function CustomRouter() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
+        { path: 'learn-more', element: <MoreInfo />},
+        { path: 'legal', element: <Legal />},
         { path: 'overview', element: <CustomSelectRouter businessPage={<BusinessOverview />} tryvestorPage={<TryvestorOverview />} /> },
-        { path: 'discover', element: <CustomSelectRouter businessPage={<Discover />} tryvestorPage={<Discover />} unauthPage={<Discover />} /> },
+        { path: 'discover', element: <CustomSelectRouter businessPage={<Discover/>} tryvestorPage={<Discover/>} /> },
         { path: 'home', element: <CustomSelectRouter businessPage={<BusinessHomePage />} /> },
         { path: 'tasks', element: <CustomSelectRouter tryvestorPage={<Tasks />} /> },
         { path: 'community', element: <CustomSelectRouter businessPage={<BusinessCommunity />} tryvestorPage={<Community />} /> },
         { path: 'announcements', element: <CustomSelectRouter businessPage={<BusinessAnnouncements />} tryvestorPage={<Announcements />} /> },
         { path: 'setup-credentials', element: <CustomSelectRouter tryvestorPage={<TryvestorAdditionalInfo />} /> },
+        { path: 'setup-banking', element: <CustomSelectRouter tryvestorPage={<TryvestorBanking />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },

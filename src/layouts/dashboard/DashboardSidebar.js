@@ -90,6 +90,7 @@ export default function DashboardSidebar({ userType, isOpenSidebar, onCloseSideb
           ModalProps ={{
             keepMounted: true
           }}
+          sx={{zIndex: "100"}}
           variant={!isDesktop ? "temporary" : "persistent"}
           open={!isDesktop ? isOpenSidebar : true}
           // onClose={!isDesktop ? onCloseSidebar : () => {}}

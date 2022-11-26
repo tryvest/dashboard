@@ -13,7 +13,7 @@ import {
     Stack,
     CardHeader,
     CardContent, Box, Chip,
-    SvgIcon, IconButton, Slider,
+    SvgIcon, IconButton, Slider, Modal, Checkbox,
 } from '@mui/material';
 import ReactMarkdown from "react-markdown";
 import { bindActionCreators } from "redux";
@@ -28,42 +28,59 @@ import { apiBusinesses } from '../utils/api/api-businesses';
 
 
 import ACCOUNT from "../_mock/account";
+import {apiTryvestors} from "../utils/api/api-tryvestors";
 
 const CompanySpecificPage = () => {
     const theme = useTheme();
     const businessID = useParams()
-    console.log(businessID.id)
     const [businessInfo, setBusinessInfo] = useState()
     const [businessCampaignInfo, setBusinessCampaignInfo] = useState()
+    const userObj = useSelector(state => state.user.user)
+    const [modalOpen, setModalOpen] = useState(false)
+    const [categoryObj, setCategoryObj] = useState()
+    const [confirmed, setConfirmed] = useState(false)
+
     useEffect(() => {
         apiBusinesses.getMostRecentCampaignInfo(businessID.id).then(campaignInfoByID => setBusinessCampaignInfo(campaignInfoByID))
-        apiBusinesses.getCompanyInfoByID(businessID.id).then(companyInfoByID => setBusinessInfo(companyInfoByID))
+        apiBusinesses.getCompanyInfoByID(businessID.id).then(companyInfoByID => {
+            setBusinessInfo(companyInfoByID)
+            apiBusinesses.getCategoryByName(companyInfoByID.categoryID).then(data => {
+                setCategoryObj(data)
+            })
+        })
     }, [])
 
-    // useEffect(() => {
-    //     apiBusinesses.getCategoryName().then((categoryData) => {
-    //         // setAllCategories(categoryData)
-    //         const categoryToName = {}
-    //         // const categoryIDs = Object.keys(categoryData)
-    //         for (let i = 0; i < categoryData.length; i += 1) {
-    //             const tempCat = categoryData[i]
-    //             categoryToName[tempCat.categoryID] = tempCat.categoryName
-    //         }
-    //         console.log(categoryToName)
-    //         setAllCategories(categoryToName)
-    //     })
-    // }, [])
+    let IDMissing = false
+    let SSNMissing = false
+
+    useEffect(() => {
+        IDMissing = userObj?.data.SSNVerificationStatus !==1
+        SSNMissing = userObj?.data.IDVerificationStatus !== 1
+    }, [userObj])
+
+    const handleOpen = () => setModalOpen(true)
+    const handleClose = () => setModalOpen(false)
+
+    const style = {
+        margin: "auto",
+        width: "85%",
+        bgcolor: theme.palette.primary.light,
+        boxShadow: 24,
+        p: 4,
+    };
+
+    const attemptChangingLoyalty = () => {
+        const tryvestorID = userObj?.uid
+        const businessID = businessInfo.businessID
+        const categoryID = businessInfo.categoryID
+        apiTryvestors.changeLoyalty(tryvestorID, businessID, categoryID).then(_ => handleClose())
+    }
 
     return (
         <Page title="Company Specific Information">
             {
                 businessInfo && businessCampaignInfo ? (
                     <Container>
-                        {/* <a>Business Name: {businessInfo.name}</a>
-                        <a>Valuation: ${businessInfo.valuation}</a>
-                        <a>Amount Raised: ${businessInfo.amountRaised}</a>
-                        <a>Additional Info: {businessInfo.additionalInformation}</a>
-                        <a>Stockback Percent: {businessCampaignInfo.stockBackPercent}%</a> */}
                         <Grid container direction="row" style={{alignItems: "center", display: "flex"}}>
                             <div style={{ height: 60, width: 100, marginRight: "20px" }}>
                                 <DarkLogo/>
@@ -154,18 +171,12 @@ const CompanySpecificPage = () => {
                                                 <Typography fontWeight={800} fontSize={16}>
                                                     Current Investors:
                                             </Typography>
-                                                {/* {businessInfo.currentInvestors.map((investor, index) => (
-                                                    <Typography key={index} fontWeight={400} fontSize={15}>
-                                                        {investor}
-                                                    </Typography>
-                                                )
-                                                )} */}
                                                 {businessInfo.currentInvestors}
                                             </Stack>
                                         </Stack>
                                     </Card>
                                     <Grid container justifyContent={"center"} style={{ marginTop: "15px" }}>
-                                        <Button style={{ borderRadius: "14px", padding: "10px", backgroundColor: "#04D49C" }} variant={"contained"}>
+                                        <Button onClick={handleOpen} style={{ borderRadius: "14px", padding: "10px", backgroundColor: "#04D49C" }} variant={"contained"}>
                                             <SvgIcon>
                                                 <svg width="26" height="23" viewBox="0 0 26 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M24.1247 4.74792C21.2745 4.75123 18.5418 5.91426 16.5264 7.98186C14.5109 10.0495 13.3772 12.8528 13.374 15.7768V21.0762C13.3846 21.5793 13.5868 22.0582 13.9375 22.4103C14.2881 22.7623 14.7592 22.9594 15.2497 22.9594C15.7403 22.9594 16.2114 22.7623 16.562 22.4103C16.9126 22.0582 17.1149 21.5793 17.1255 21.0762V15.7768C17.1275 13.8731 17.8656 12.048 19.1778 10.7019C20.49 9.35574 22.269 8.59855 24.1247 8.59643C24.6152 8.58559 25.082 8.3781 25.4252 8.01841C25.7683 7.65872 25.9605 7.17546 25.9605 6.67218C25.9605 6.16889 25.7683 5.68563 25.4252 5.32594C25.082 4.96625 24.6152 4.75876 24.1247 4.74792" fill="white" />
@@ -174,15 +185,54 @@ const CompanySpecificPage = () => {
                                             </SvgIcon>
                                             <Typography color="black" style={{ marginLeft: "8px", fontSize: "13px" }}>
                                                 Join Program
-                                                </Typography>
+                                            </Typography>
                                         </Button>
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            {/* <Grid item xs={12} sm={12} md={12}>
-                                <PayoutSlider currentVal={businessInfo.valuation} businessName={businessInfo.name} percentCompanyOwned={calcTotalPossibleSharesAsPercent()} />
-                            </Grid> */}
                         </Grid>
+                        <Modal
+                            open={modalOpen}
+                            onClose={handleClose}
+                            aria-labelledby="modal-modal-title"
+                            aria-describedby="modal-modal-description"
+                        >
+                            <Card sx={style}>
+                                <ReactMarkdown>
+                                    {"#### Disclosures\n" +
+                                        "- I understand that I can cancel my investment up until 48 hours prior to the deal deadline.\n" +
+                                        "- I understand I will not have voting rights and will grant a third-party nominee broad authority to act on my behalf.\n" +
+                                        "- I understand I may never become an equity holder, only a beneficial owner of equity interest in the Company.\n" +
+                                        "- I understand that investing this amount into several deals would better diversify my risk\n" +
+                                        "- I understand that there is no guarantee of a relationship between Tryvest and the company post-offering\n" +
+                                        "- I consent to electronic delivery of all documents, notices and agreements as related to my investment\n" +
+                                        "- I understand my investment won’t be transferable for 12 months and may not have a market for resale\n" +
+                                        "- I have read the Terms of Service, Privacy Policy, and agree to both of them including arbitration provisions\n" +
+                                        "- I understand this investment is risky and that I shouldn't invest unless I can afford to lose all invested funds\n" +
+                                        "- I have read the education materials that Tryvest provides\n" +
+                                        "- I understand I am responsible for all fees and charges associated with the use of my payment method\n" +
+                                        "- I understand that Tryvest will receive cash based on the number and size of purchases that you make\n" +
+                                        "- I confirm that this investment, together with all my other Regulation Crowdfunding investments during the past 12 months on any crowdfunding portal, does not exceed my investment limit"}
+                                </ReactMarkdown>
+                                <Typography variant={"h6"}>
+                                    Confirmation
+                                </Typography>
+                                <Stack direction={"row"} style={{alignItems: 'center'}}>
+                                    <Checkbox checked={confirmed} onChange={event => setConfirmed(event.target.checked)}/>
+                                    <Typography onClick={() => setConfirmed(!confirmed)}>
+                                        I confirm that I have read and agree to all disclosures above and want "{businessInfo?.name}" to be my company of choice for the "{categoryObj?.categoryName}" category.
+                                    </Typography>
+                                </Stack>
+                                <div style={{display: "flex", justifyContent: "end"}}>
+                                    <Button onClick={attemptChangingLoyalty} fullWidth size={"large"} disabled={!confirmed || SSNMissing || IDMissing} variant={"contained"} style={{marginY: "10px", marginInline: "auto"}}>
+                                        Join Program
+                                    </Button>
+                                </div>
+                                <Typography color={"red"} fontSize={10} fontStyle={"italic"}>
+                                    {SSNMissing ? "You must provide additional information and complete identity verification on your dashboard before you can invest." : "You must complete identity verification on your dashboard before you can invest."}
+                                </Typography>
+                            </Card>
+                        </Modal>
                     </Container>
 
                 ) : (<CircularProgress />)

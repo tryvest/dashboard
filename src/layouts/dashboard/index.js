@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles';
 import {useSelector} from "react-redux";
 import DashboardNavbar from './DashboardNavbar';
 import DashboardSidebar from './DashboardSidebar';
+import Footer from "./Footer";
 // ----------------------------------------------------------------------
 
 const APP_BAR_MOBILE = 64;
@@ -39,12 +40,14 @@ export default function DashboardLayout() {
   const { host } = window.location
 
   return (
-    <RootStyle>
-      <DashboardNavbar onOpenSidebar={() => setOpen(true)} onCloseSidebar={() => setOpen(false)} />
-      <DashboardSidebar userType={userType} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
-      <MainStyle>
-        <Outlet />
-      </MainStyle>
-    </RootStyle>
-  );
+      <div>
+        <RootStyle>
+          <DashboardNavbar onOpenSidebar={() => setOpen(true)} onCloseSidebar={() => setOpen(false)} />
+          <DashboardSidebar userType={userType} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
+          <MainStyle>
+            <Outlet />
+          </MainStyle>
+        </RootStyle>
+      </div>
+);
 }
