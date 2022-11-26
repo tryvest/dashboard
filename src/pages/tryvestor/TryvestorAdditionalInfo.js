@@ -29,7 +29,6 @@ function TryvestorAdditionalInfo(props) {
 
   const patchUserAdditionalInfo = async (formData) => {
     const patchData = {
-      SSN: formData.ssn, // SSN needs to be all caps here
       employment: formData.employment,
       address: {
         streetAddress: formData.streetAddress,
@@ -41,15 +40,15 @@ function TryvestorAdditionalInfo(props) {
     };
     console.log(uid)
     await apiTryvestors.patchSingleUser(uid, patchData).then(() => {
-      window.location.reload();
       navigate('/dashboard/overview', { replace: true });
+      window.location.reload();
     });
   };
 
   const additionalInfoSchema = Yup.object().shape({
-    ssn: Yup.string()
+/*    ssn: Yup.string()
       .required('SSN is required')
-      .matches(/^\d{9}$/, 'Invalid SSN, enter only digits'),
+      .matches(/^\d{9}$/, 'Invalid SSN, enter only digits'), */
     employment: Yup.string()
         .required('Employment is required'),
     streetAddress: Yup.string()
@@ -72,7 +71,6 @@ function TryvestorAdditionalInfo(props) {
 
   const formik = useFormik({
     initialValues: {
-      ssn: '',
       employment: '',
       streetAddress: '',
       unit: '',
@@ -81,8 +79,8 @@ function TryvestorAdditionalInfo(props) {
       postalCode: '',
     },
     validationSchema: additionalInfoSchema,
-    onSubmit: ({ ssn, employment, streetAddress, unit, city, state, postalCode}) => {
-      patchUserAdditionalInfo({ ssn, employment, streetAddress, unit, city, state, postalCode }).then(
+    onSubmit: ({ employment, streetAddress, unit, city, state, postalCode}) => {
+      patchUserAdditionalInfo({ employment, streetAddress, unit, city, state, postalCode }).then(
           r => navigate("/", {replace: true})
       );
     },
@@ -167,7 +165,7 @@ function TryvestorAdditionalInfo(props) {
             <Grid container spacing={3} width={"500px"} justifyContent={"space-between"}>
               <Grid item xs={12} sm={12} md={12}>
                 <FormControl>
-                  <InputLabel style={{color: errors.employment ? "red" : ""}}>EMPLOYMENT STATUS</InputLabel>
+                  <InputLabel>EMPLOYMENT STATUS</InputLabel>
                   <Select
                       label={"EMPLOYMENT STATUS"}
                       {...getFieldProps('employment')}
@@ -186,7 +184,7 @@ function TryvestorAdditionalInfo(props) {
                   <FormHelperText style={{color: "red"}}>{touched.employment && errors.employment}</FormHelperText>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={12} md={12}>
+{/*              <Grid item xs={12} sm={12} md={12}>
                 <TextField
                     type={'text'}
                     label="SOCIAL SECURITY NUMBER"
@@ -195,7 +193,7 @@ function TryvestorAdditionalInfo(props) {
                     helperText={touched.ssn && errors.ssn}
                     style={{width: "500px"}}
                 />
-              </Grid>
+              </Grid> Getting Rid of SSN on our end */}
             </Grid>
           </Card>
           <LoadingButton

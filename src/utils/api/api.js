@@ -29,12 +29,42 @@ api.getUserType = (uid) => {
       .catch(handleError);
 }
 
-api.createPlaidLinkToken = () => {
+api.createPlaidLinkToken = (tryvestorID) => {
+  const model = {"tryvestorID" : tryvestorID}
   return axios
-      .post(`${BASE_URL}/plaid/createLinkToken`)
+      .post(`${BASE_URL}/plaid/createLinkToken`, model)
       .then(handleResponse)
       .catch(handleError);
 }
+
+api.createPlaidIDVLinkToken = (tryvestorID) => {
+  const model = {"tryvestorID" : tryvestorID}
+  return axios
+      .post(`${BASE_URL}/plaid/idv/createLinkToken`, model)
+      .then(handleResponse)
+      .catch(handleError);
+}
+
+api.createPlaidIDVPrepopulated = (tryvestorID) => {
+  const model = {"tryvestorID" : tryvestorID}
+  return axios
+      .post(`${BASE_URL}/plaid/idv/prepopulate`, model)
+      .then(handleResponse)
+      .catch(handleError);
+}
+
+api.updateIdentityVerificationStatus = (tryvestorID, plaidIdentityVerificationID) => {
+  const model = {
+    "tryvestorID": tryvestorID,
+    "plaidIdentityVerificationID": plaidIdentityVerificationID
+  }
+  return axios
+      .post(`${BASE_URL}/plaid/idv/updateIdentityVerificationStatus`, model)
+      .then(handleResponse)
+      .catch(handleError);
+
+}
+
 
 api.exchangePublicTokenForAccessToken = (model) => {
   return axios

@@ -96,23 +96,24 @@ export default function TryvestorOverview() {
       setYnsLink('/dashboard/setup-credentials');
     }
 
-    // If defaultUserItemID is null
-    else if (tryvestor.data.defaultAccountID === 'None' || tryvestor.data.defaultAccountID === null) {
+    // If identity verification status is 0, then do this
+    else if (tryvestor.data.IDVerificationStatus === 0 || tryvestor.data.IDVerificationStatus === -1) {
       setYnsProgress(50);
-      setYnsText('Connect your bank account');
-      setYnsLink('/dashboard/setup-banking');
+      setYnsText('Verify your identity');
+      setYnsLink('/dashboard/setup-identity');
     }
 
-    // If identity verification status is 0, then do this
-    else if (tryvestor.data.IDVerificationStatus === 0) {
+    // If defaultUserItemID is null
+    else if (tryvestor.data.defaultAccountID === 'None' || tryvestor.data.defaultAccountID === null) {
       setYnsProgress(75);
-      setYnsText('Verify your identity');
-      setYnsLink('/dashboard/setup-kyc');
+      setYnsText('Connect your bank account');
+      setYnsLink('/dashboard/setup-banking');
     }
 
     // If identity verification status is 0 or SSN is unverified, then do this
     else {
       setYnsProgress(100)
+      setYnsText("If you have any questions, feel free to contact our support.")
     }
   }, [tryvestor]);
 
@@ -136,19 +137,19 @@ export default function TryvestorOverview() {
                 borderColor: theme.palette.primary.main
               }}
             >
-              <Grid container>
+              <Grid container alignItems={"center"}>
                 <Grid item xs={4.5} sm={2} md={1.5}>
                   <CircularProgressWithLabel variant={'determinate'} value={ynsProgress} size={80} />
                 </Grid>
-                <Grid item xs={7.5} sm={10} md={4}>
+                <Grid item xs={7.5} sm={10} md={10}>
                   <Stack direction={'column'}>
                     <Typography fontSize={'20px'} fontWeight={'bolder'} color={'white'}>
-                      Your next steps
+                      {ynsProgress !== 100 ? "Your next steps" : "You're all set up!"}
                     </Typography>
                     <Typography color={'#f4f4f4'} fontStyle={'italic'}>
                       {ynsText}
                     </Typography>
-                    <Button
+                    { ynsProgress !== 100 && <Button
                       style={{
                         marginTop: '2px',
                         width: '100px',
@@ -183,7 +184,7 @@ export default function TryvestorOverview() {
                           Set Up
                         </Typography>
                       </Stack>
-                    </Button>
+                    </Button>}
                   </Stack>
                 </Grid>
               </Grid>

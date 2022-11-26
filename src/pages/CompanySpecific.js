@@ -50,12 +50,14 @@ const CompanySpecificPage = () => {
         })
     }, [])
 
+    let additionalInfoMissing = false
     let IDMissing = false
-    let SSNMissing = false
+    let bankingMissing = false
 
     useEffect(() => {
-        IDMissing = userObj?.data.SSNVerificationStatus !==1
-        SSNMissing = userObj?.data.IDVerificationStatus !== 1
+        additionalInfoMissing = userObj?.data.address.streetAddress === "None" || userObj?.data.address.streetAddress === null
+        IDMissing = userObj?.data.IDVerificationStatus !== 1
+        bankingMissing = userObj?.data.defaultItemID === "None" || userObj?.data.defaultItemID === null
     }, [userObj])
 
     const handleOpen = () => setModalOpen(true)
@@ -224,13 +226,26 @@ const CompanySpecificPage = () => {
                                     </Typography>
                                 </Stack>
                                 <div style={{display: "flex", justifyContent: "end"}}>
-                                    <Button onClick={attemptChangingLoyalty} fullWidth size={"large"} disabled={!confirmed || SSNMissing || IDMissing} variant={"contained"} style={{marginY: "10px", marginInline: "auto"}}>
+                                    <Button onClick={attemptChangingLoyalty} fullWidth size={"large"} disabled={!confirmed || IDMissing} variant={"contained"} style={{marginY: "10px", marginInline: "auto"}}>
                                         Join Program
                                     </Button>
                                 </div>
-                                <Typography color={"red"} fontSize={10} fontStyle={"italic"}>
-                                    {SSNMissing ? "You must provide additional information and complete identity verification on your dashboard before you can invest." : "You must complete identity verification on your dashboard before you can invest."}
-                                </Typography>
+                                {
+                                     additionalInfoMissing && <Typography color={"red"} fontSize={10} fontStyle={"italic"}>
+                                        {"You must provide additional information on your dashboard before you can invest."}
+                                    </Typography>
+                                }
+                                {
+                                    IDMissing && <Typography color={"red"} fontSize={10} fontStyle={"italic"}>
+                                        {"You must complete identity verification on your dashboard before you can invest."}
+                                    </Typography>
+                                }
+                                {
+                                    bankingMissing && <Typography color={"red"} fontSize={10} fontStyle={"italic"}>
+                                        {"You must add a bank account and select a default bank and account before you can invest."}
+                                    </Typography>
+                                }
+
                             </Card>
                         </Modal>
                     </Container>

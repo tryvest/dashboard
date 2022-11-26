@@ -3,7 +3,7 @@ from datetime import datetime, timezone, date, time
 
 class Tryvestor:
     def __init__(self, tryvestorID, firstName, lastName, username, DOB, address, creationDate, SSNPrefix, SSNSuffix,
-                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultAccountID, defaultItemID):
+                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultAccountID, defaultItemID, plaidIdentityVerificationID):
         self.tryvestorID = tryvestorID
         self.firstName = firstName
         self.lastName = lastName
@@ -18,6 +18,7 @@ class Tryvestor:
         self.IDLink = IDLink
         self.defaultAccountID = defaultAccountID
         self.defaultItemID = defaultItemID
+        self.plaidIdentityVerificationID = plaidIdentityVerificationID
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, tryvestorID):
@@ -36,7 +37,8 @@ class Tryvestor:
             IDVerificationStatus=int(sourceDict["IDVerificationStatus"]),
             IDLink=str(sourceDict["IDLink"]),
             defaultAccountID=str(sourceDict["defaultAccountID"]),
-            defaultItemID=str(sourceDict["defaultItemID"])
+            defaultItemID=str(sourceDict["defaultItemID"]),
+            plaidIdentityVerificationID=str(sourceDict["plaidIdentityVerificationID"])
         )
 
     def writeToFirebaseFormat(self):
@@ -55,7 +57,8 @@ class Tryvestor:
             'IDVerificationStatus': self.IDVerificationStatus,
             'IDLink': self.IDLink,
             'defaultAccountID': self.defaultAccountID,
-            'defaultItemID': self.defaultItemID
+            'defaultItemID': self.defaultItemID,
+            'plaidIdentityVerificationID': self.plaidIdentityVerificationID
         }
 
     @staticmethod
@@ -76,6 +79,7 @@ class Tryvestor:
         sourceDict['IDLink'] = None
         sourceDict['defaultAccountID'] = None
         sourceDict['defaultItemID'] = None
+        sourceDict['plaidIdentityVerificationID'] = None
         return Tryvestor.readFromDict(sourceDict, tryvestorID)
 
     def writeToDict(self):

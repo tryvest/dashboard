@@ -14,7 +14,7 @@ const Link = () => {
   const currentUserType = useSelector(state => state?.user?.user?.userType)
 
   const generateToken = async () => {
-    api.createPlaidLinkToken().then((data) => {
+    api.createPlaidLinkToken(currentUserUID).then((data) => {
       setLinkToken(data.link_token);
     });
   };
@@ -104,74 +104,3 @@ const LinkHelper = (props) => {
 Link.displayName = 'Link';
 
 export default Link;
-/*
-// APP COMPONENT
-// Upon rendering of App component, make a request to create and
-// obtain a link token to be used in the Link component
-import React, { useEffect, useState } from 'react';
-import { usePlaidLink } from 'react-plaid-link';
-import {api} from "../api/api";
-
-const App = () => {
-    const [linkToken, setLinkToken] = useState(null);
-    const generateToken = async () => {
-        api.createPlaidLinkToken().then((data) => {
-            setLinkToken(data.link_token);
-        })
-    };
-    useEffect(() => {
-        generateToken();
-    }, []);
-    return linkToken != null ? <Link linkToken={linkToken} /> : <></>;
-};
-
-// LINK COMPONENT
-// Use Plaid Link and pass link token and onSuccess function
-// in configuration to initialize Plaid Link
-const Link = (props) => {
-    const onSuccess = React.useCallback((publicToken, metadata) => {
-        // send publicToken to server
-        const response = fetch('/api/set_access_token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ publicToken }),
-        });
-        // Handle response ...
-    }, []);
-    let isOauth = false;
-    const config = {
-        token: props.linkToken,
-        receivedRedirectUri: window.location.href,
-        onSuccess,
-    };
-
-    if (window.location.href.includes("?oauth_state_id=")) {
-        // TODO: figure out how to delete this ts-ignore
-        config.receivedRedirectUri = window.location.href;
-        isOauth = true;
-    }
-    console.log('got here 1')
-    const { open, ready } = usePlaidLink(config);
-    console.log('got here 2')
-
-    const [isReady, setIsReady] = useState(ready)
-
-    useEffect(() => {
-        /!*if (isOauth && ready) {
-            open();
-        }*!/
-        if(ready){
-            setIsReady(true)
-        }
-    }, [ready, open, isOauth]);
-
-    return (
-        <button onClick={() => open()} disabled={!isReady}>
-            Link account
-        </button>
-    );
-};
-export default App;
-*/

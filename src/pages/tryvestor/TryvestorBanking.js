@@ -17,7 +17,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { styled } from '@mui/material/styles';
 import {useNavigate} from "react-router-dom";
 import {DarkLogo} from "../../components/Logo";
-import PlaidButton from "../../utils/plaid/plaid-button";
+import PlaidBankingButton from "../../utils/plaid/plaid-banking-button";
 import {apiTryvestors} from "../../utils/api/api-tryvestors";
 import {api} from "../../utils/api/api";
 
@@ -203,7 +203,7 @@ const TryvestorBanking = () => {
                             <Typography fontSize={"25px"} fontWeight={"800"}>
                                 Your Linked Bank Accounts
                             </Typography>
-                            <PlaidButton/>
+                            <PlaidBankingButton/>
                         </Stack>
                         <Grid container spacing={4}>
                             {linkedItems.length === 0 ? (
@@ -222,8 +222,8 @@ const TryvestorBanking = () => {
                         </Grid>
                     </Stack>
                 </Card>
-                <Button onClick={() => navigate("/", {replace: true})} style={{ width: '100px', padding: '8px', fontWeight: '200', borderRadius: '35px' }} size="medium" variant="contained">
-                    Continue
+                <Button onClick={() => navigate("/", {replace: true})} style={{ width: '175px', padding: '8px', fontWeight: '200', borderRadius: '35px' }} size="medium" variant="contained">
+                    Back to Dashboard
                 </Button>
             </Stack>
         </div>

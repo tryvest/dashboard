@@ -6,8 +6,17 @@ from flask_restx import Api, Resource
 import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
+from plaid.model.client_user_id import ClientUserID
+from plaid.model.generic_country_code import GenericCountryCode
+from plaid.model.id_number_type import IDNumberType
+from plaid.model.identity_verification_create_request import IdentityVerificationCreateRequest
+from plaid.model.identity_verification_get_request import IdentityVerificationGetRequest
+from plaid.model.identity_verification_request_user import IdentityVerificationRequestUser
 from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
+from plaid.model.user_address import UserAddress
+from plaid.model.user_id_number import UserIDNumber
+from plaid.model.user_name import UserName
 
 # Universal Data Model Imports
 from dataModels.businesses.Campaign import Campaign
@@ -222,7 +231,8 @@ class SpecificBusiness(Resource):
 
     @staticmethod
     def getAllTryvestorsAndEquity(businessID):
-        allTransactionsForBusiness = db.collection_group("userTransactions").where("businessID", "==", businessID).stream()
+        allTransactionsForBusiness = db.collection_group("userTransactions").where("businessID", "==",
+                                                                                   businessID).stream()
         tryvestorsAndTheirTransactions = {}
         totalNumberOfSharesAwarded = 0
 
@@ -464,9 +474,8 @@ class SpecificTryvestor(Resource):
             prefix, suffix = encryptSSN(tryvestorUpdateData["SSN"])
             tryvestorUpdateData["SSNPrefix"] = prefix
             tryvestorUpdateData["SSNSuffix"] = suffix
-        tryvestorUpdateData["SSNVerificationStatus"] = 1
-        del tryvestorUpdateData["SSN"]
-
+            tryvestorUpdateData["SSNVerificationStatus"] = 1
+            del tryvestorUpdateData["SSN"]
 
         tryDoc = db.collection('tryvestors').document(tryvestorID)
         tryDoc.update(tryvestorUpdateData)
@@ -524,6 +533,7 @@ class SpecificTryvestorItems(Resource):
         for userItem in userItems:
             toReturn.append(UserItem.readFromFirebaseFormat(userItem.to_dict(), userItem.id).writeToDict())
         return toReturn
+
     @staticmethod
     def addNewUserItem(userItemData):
         # UID extraction
@@ -597,11 +607,14 @@ class SpecificTryvestorItems(Resource):
             "cursor": str(newCursor)
         })
 
+
 @tryApi.route("/<string:tryvestorID>/userItems/<string:userItemID>")
 class SpecificUserItem(Resource):
     def patch(self, tryvestorID, userItemID):
         updateData = {"itemIsActive": False}
-        db.collection("tryvestors").document(tryvestorID).collection("userItems").document(userItemID).update(updateData)
+        db.collection("tryvestors").document(tryvestorID).collection("userItems").document(userItemID).update(
+            updateData)
+
 
 @tryApi.route("/<string:tryvestorID>/userItems/<string:userItemID>/<string:userAccountID>")
 class SpecificUserAccount(Resource):
@@ -611,7 +624,7 @@ class SpecificUserAccount(Resource):
 
         indexToRemove = -1
         for index, i in enumerate(itemDocDict["userAccountIDs"]):
-            if(i["plaidAccountID"] == userAccountID):
+            if (i["plaidAccountID"] == userAccountID):
                 indexToRemove = index
 
         if (indexToRemove == -1):
@@ -738,6 +751,7 @@ def makeTryvestorsHaveDefaultLoyalties():
 # Plaid Stuff
 import plaid
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
+from plaid.model.link_token_create_request_identity_verification import LinkTokenCreateRequestIdentityVerification
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.model.auth_get_request import AuthGetRequest
 from plaid.api import plaid_api
@@ -799,20 +813,22 @@ for product in PLAID_PRODUCTS:
 @api.route('/plaid/createLinkToken')
 class PlaidCreateLinkToken(Resource):
     def post(self):
+        reqJson = request.json
+        tryvestorID = reqJson["tryvestorID"]
         try:
-            request = LinkTokenCreateRequest(
+            plaidRequest = LinkTokenCreateRequest(
                 products=products,
                 client_name="Plaid Quickstart",
                 country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
                 language='en',
                 user=LinkTokenCreateRequestUser(
-                    client_user_id=str(time())
+                    client_user_id=tryvestorID
                 )
             )
             if PLAID_REDIRECT_URI != None:
-                request['redirect_uri'] = PLAID_REDIRECT_URI
+                plaidRequest['redirect_uri'] = PLAID_REDIRECT_URI
             # create link token
-            response = client.link_token_create(request)
+            response = client.link_token_create(plaidRequest)
             response = response.to_dict()
 
             # Defining the dictionary for the data returned by the plaid API
@@ -843,6 +859,8 @@ class PlaidExchangePublicToken(Resource):
 
             addedTransactions, modifiedTransactions, removedTransactions, cursor = \
                 PlaidUpdateTransactions.flushTransactions(accessToken=exchangeAsDict['access_token']).values()
+
+            print(addedTransactions)
 
             itemDataToAdd = {
                 "UID": requestData["UID"],
@@ -877,6 +895,164 @@ class PlaidExchangePublicToken(Resource):
             return json.loads(e.body)
 
 
+@api.route('/plaid/idv/exchangePublicToken')  # Formerly Named "/set_access_token"
+class PlaidExchangeIDVPublicToken(Resource):
+    def post(self):
+        requestData = request.json
+        publicToken = requestData["publicToken"]
+        userType = requestData["userType"]
+
+        try:
+            exchange_request = ItemPublicTokenExchangeRequest(public_token=publicToken)
+            exchange_response = client.item_public_token_exchange(exchange_request)
+            exchangeAsDict = exchange_response.to_dict()
+            exchangeAsDict['isOk'] = True
+
+            addedTransactions, modifiedTransactions, removedTransactions, cursor = \
+                PlaidUpdateTransactions.flushTransactions(accessToken=exchangeAsDict['access_token']).values()
+
+            itemDataToAdd = {
+                "UID": requestData["UID"],
+                "plaidAccessToken": exchangeAsDict["access_token"],
+                "plaidItemID": exchangeAsDict["item_id"],
+                "plaidRequestID": exchangeAsDict["request_id"],
+                "cursor": cursor
+            }
+
+            addedItem = {}
+
+            if userType == TRYVESTOR:
+                # Calls write to dict on the UserItem obj before returning it to addedItem, so readFromDict is necessary
+                addedItem = SpecificTryvestorItems.addNewUserItem(userItemData=itemDataToAdd)
+                # Parse the transaction for business information
+                addedTrans = PlaidUpdateTransactions.addTransactionsToUser(
+                    tryvestorID=requestData["UID"],
+                    userItemID=addedItem["userItemID"],
+                    transactions=addedTransactions
+                )
+
+            # Setting status isOk to true
+            addedItem["isOk"] = True
+            return addedItem
+
+        except plaid.ApiException as e:
+            return json.loads(e.body)
+
+
+@api.route('/plaid/idv/prepopulate')
+class PlaidCreateIDVAndPrepopulate(Resource):
+    def post(self):
+        reqJson = request.json
+        tryvestorID = reqJson["tryvestorID"]
+        tryvestorDoc = db.collection("tryvestors").document(tryvestorID).get()
+        tryvestorDocDict = tryvestorDoc.to_dict()
+        tryvestorObj = Tryvestor.readFromFirebaseFormat(tryvestorDocDict, tryvestorID)
+        tryvestorAddress = TryvestorAddress.fromDict(tryvestorDocDict["address"])
+        tryvestorDOBAsDate = datetime.fromtimestamp(tryvestorObj.DOB.timestamp()).date()
+
+        plaidRequest = IdentityVerificationCreateRequest(
+            is_shareable=True,
+            is_idempotent=True,
+            template_id='idvtmp_3hjJ3yM7Nj7w2f',
+            user=IdentityVerificationRequestUser(
+                client_user_id=ClientUserID(tryvestorID),
+                # email_address=tryvestorObj.username,
+                # date_of_birth=tryvestorDOBAsDate,
+                # name=UserName(
+                #     given_name=tryvestorObj.firstName,
+                #     family_name=tryvestorObj.lastName
+                # ),
+                # address=UserAddress(
+                #     street=tryvestorAddress.streetAddress,
+                #     street2=tryvestorAddress.unit,
+                #     city=tryvestorAddress.city,
+                #     region=tryvestorAddress.state,
+                #     postal_code=tryvestorAddress.postalCode,
+                #     country=GenericCountryCode('US')
+                # ),
+                # id_number=UserIDNumber(
+                #     value= tryvestorObj.SSNPrefix + '' + tryvestorObj.SSNSuffix,
+                #     type=IDNumberType('US_SSN')
+                # )
+            )
+        )
+        responseDict = client.identity_verification_create(plaidRequest).to_dict()
+        tryvestorDoc.reference.update({"plaidIdentityVerificationID": responseDict["id"]})
+        toReturn = {
+            "plaidIdentityVerificationID": responseDict["id"],
+        }
+        return toReturn
+
+
+@api.route('/plaid/idv/updateIdentityVerificationStatus')
+class PlaidUpdateIdentityVerificationStatus(Resource):
+    def post(self):
+        reqJson = request.json
+        tryvestorID = reqJson["tryvestorID"]
+        plaidIdentityVerificationID = reqJson["plaidIdentityVerificationID"]
+        try:
+            plaidRequest = IdentityVerificationGetRequest(identity_verification_id=plaidIdentityVerificationID)
+            response = client.identity_verification_get(plaidRequest)
+            response = response.to_dict()
+            status = response[
+                "status"]  # From Plaid, Can be: active, success, failed, expired, canceled, pending_review
+            updateNum = 0
+
+            if (status == "active"):
+                updateNum = 0
+            elif (status == "success" or status == "pending_review"):
+                updateNum = 1
+            elif (status == "failed" or status == "expired" or status == "canceled"):
+                updateNum = -1
+            db.collection("tryvestors").document(tryvestorID).update({"IDVerificationStatus": updateNum})
+
+            # Defining the dictionary for the data returned by the plaid API
+            returnDict = {
+                "plaidStats": status,
+                "statusNum": updateNum
+            }
+            return jsonify(returnDict)
+
+        except plaid.ApiException as e:
+            return json.loads(e.body)
+
+@api.route('/plaid/idv/createLinkToken')
+class PlaidCreateIDVLinkToken(Resource):
+
+    def post(self):
+        reqJson = request.json
+        tryvestorID = reqJson["tryvestorID"]
+        try:
+            plaidRequest = LinkTokenCreateRequest(
+                products=[Products("identity_verification")],
+                client_name="Plaid Quickstart",
+                country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
+                language='en',
+                user=LinkTokenCreateRequestUser(
+                    client_user_id=tryvestorID
+                ),
+                identity_verification=LinkTokenCreateRequestIdentityVerification(
+                    template_id="idvtmp_3hjJ3yM7Nj7w2f"
+                )
+            )
+            if PLAID_REDIRECT_URI != None:
+                plaidRequest['redirect_uri'] = PLAID_REDIRECT_URI
+            # create link token
+            response = client.link_token_create(plaidRequest)
+            response = response.to_dict()
+
+            # Defining the dictionary for the data returned by the plaid API
+            returnDict = {
+                "expiration": response["expiration"],
+                "link_token": response["link_token"],
+                "request_id": response["request_id"],
+            }
+            return jsonify(returnDict)
+
+        except plaid.ApiException as e:
+            return json.loads(e.body)
+
+
 @api.route('/plaid/updateAllTransactions')
 class PlaidUpdateTransactions(Resource):
     @staticmethod
@@ -901,15 +1077,23 @@ class PlaidUpdateTransactions(Resource):
             )
             response = client.transactions_sync(transactionsRequest)
 
+            print(response)
+
             # Add this page of results
             added.extend(response['added'])
             modified.extend(response['modified'])
             removed.extend(response['removed'])
 
+            print(added)
+
             has_more = response['has_more']
+
+            print(has_more)
 
             # Update cursor to the next cursor
             cursor = response['next_cursor']
+
+            print(cursor)
 
         # Now putting together data to return
         toReturn = {
@@ -1093,11 +1277,12 @@ def fixBusinesses():
             "tryvestorRequirements": None
         })
 
+
 def fixAccounts():
     allItems = db.collection("tryvestors").document("0cx8CV21EwfuyX8vRYvobkyIMWo2").collection("userItems").stream()
     for item in allItems:
         itemDict = item.to_dict()
-        newItem = {"userAccountIDs" : itemDict["userAccounts"], **itemDict}
+        newItem = {"userAccountIDs": itemDict["userAccounts"], **itemDict}
         item.reference.set(newItem)
 
 
