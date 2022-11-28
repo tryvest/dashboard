@@ -7,6 +7,8 @@ import { alpha, styled } from '@mui/material/styles';
 import Page from '../../components/Page';
 import './landing.css';
 import {BUSINESS, TRYVESTOR} from "../../UserTypes";
+import Footer from '../../layouts/dashboard/Footer'
+import LandingNav from "./LandingNav";
 
 const DRAWER_WIDTH = 280;
 const APPBAR_MOBILE = 64;
@@ -56,73 +58,20 @@ export function Landing() {
   return (
     <Page title="Landing">
       <div>
-        <div
-          data-collapse="medium"
-          data-animation="default"
-          data-duration="400"
-          data-easing="ease"
-          data-easing2="ease"
-          role="banner"
-          className="nav-backing-2 w-nav"
-        >
-          <a href="/" aria-current="page" className="brand-box-2 w-nav-brand w--current" aria-label="home">
-            <img
-              src="https://uploads-ssl.webflow.com/62851205cdcbe027038914be/6285139e8ccaf7277393a6b9_unnamed.png"
-              width="117"
-              alt=""
-            />
-          </a>
-          <div
-            className="menu-button-2 w-nav-button"
-            style={{ userSelect: 'text' }}
-            aria-label="menu"
-            role="button"
-            tabIndex="0"
-            aria-controls="w-nav-overlay-0"
-            aria-haspopup="menu"
-            aria-expanded="false"
-          >
-            <div className="w-icon-nav-menu" />
-          </div>
-          <nav role="navigation" className="nav-link-menu-2 w-nav-menu">
-            <a href="#how-it-works" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              How it Works
-            </a>
-            {/*
-            <a href="#founders" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              About Our Founders
-            </a>
-            */}
-            <a href="/discover" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              Discover Companies
-            </a>
-            <a href="/learn-more" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
-              Learn More
-            </a>
-            <a href={`${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
-              Tryvestor Login
-            </a>
-{/*
-<a href={`${BUSINESS}/login`} data-ix="show-modal" className="button-2 w-button">
-              Business Login
-            </a>
-            */}
-          </nav>
-          <div className="w-nav-overlay" data-wf-ignore="" id="w-nav-overlay-0" />
-        </div>
+        <LandingNav />
         <div>
           <div className="hero-2 wf-section">
             <div className="hero-div-holder-2">
               <div className="content-holder">
                 <h1 className="white-heading-2 hero-holder">
-                  Building better
+                  Buy stuff
                   <span className="smaller-head fwf">
                     <br />
-                    launch communities
+                    get stock
                   </span>
                 </h1>
                 <p className="body-paragraphy-2 light hero-subhead">
-                  Create network effects, get feedback, and de-risk your customer acquisition cost.
+                  Get stock-back when you buy from your favorite startups.
                 </p>
                 <a href="https://airtable.com/shrTxWeRwlAxyBwQ2" className="cta-button-2 w-button">
                   Join Waitlist
@@ -171,9 +120,9 @@ export function Landing() {
                     className="image-18"
                   />
                   <div className="number _2">1</div>
-                  <div className="hiw-head">Users find your company and express interest</div>
+                  <div className="hiw-head">Sign Up for Tryvest</div>
                   <p className="hiw-para">
-                    Through your website, users can be incentivized to join with equity rewards
+                    Securely connect all your bank accounts.
                   </p>
                 </div>
                 <div className="stepblock hiw">
@@ -185,8 +134,8 @@ export function Landing() {
                     className="image-20"
                   />
                   <div className="number _2">2</div>
-                  <div className="hiw-head">Users join Tryvest and complete terms</div>
-                  <p className="hiw-para">Keep tabs on your Tryvestors and seamlessly communicate with them</p>
+                  <div className="hiw-head">Start selecting companies to get stock-back in.</div>
+                  <p className="hiw-para">Remember, you can only earn stock-back in one company per category.</p>
                 </div>
                 <div className="stepblock hiw">
                   <img
@@ -197,8 +146,8 @@ export function Landing() {
                     className="image-19"
                   />
                   <div className="number _2">3</div>
-                  <div className="hiw-head">Users receive phantom equity and join launch community</div>
-                  <p className="hiw-para">Phantom equity is off your cap table, so you retain ownership</p>
+                  <div className="hiw-head">Start Purchasing!</div>
+                  <p className="hiw-para">Make your first purchase at a Tryvest-connected company and start earning stock-back!</p>
                 </div>
               </div>
               <a href="https://airtable.com/shrTxWeRwlAxyBwQ2" className="cta-button-2 middle w-button">
@@ -241,7 +190,7 @@ export function Landing() {
             </div>
           </div> */}
         </div>
-        <div className="footer-section wf-section">
+        {/* <div className="footer-section wf-section">
           <div className="columns w-row">
             <div className="column-4 w-col w-col-3 w-col-stack">
               <div className="copyright-text-2">Copyright © 2022,&nbsp;tryvest.us</div>
@@ -273,7 +222,7 @@ export function Landing() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
         <script
           src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=62851205cdcbe027038914be"
           type="text/javascript"
@@ -285,6 +234,7 @@ export function Landing() {
           type="text/javascript"
         />
       </div>
+      <Footer/>
     </Page>
   );
 }

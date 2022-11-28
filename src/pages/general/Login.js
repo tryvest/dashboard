@@ -3,14 +3,15 @@ import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { Card, Link, Container, Typography } from '@mui/material';
 // hooks
-import useResponsive from '../hooks/useResponsive';
+import {useSelector} from "react-redux";
+import useResponsive from '../../hooks/useResponsive';
 // components
-import Page from '../components/Page';
-import {DarkLogo} from '../components/Logo';
+import Page from '../../components/Page';
+import {DarkLogo} from '../../components/Logo';
 // sections
-import { LoginForm } from '../sections/auth/login';
-import AuthSocial from '../sections/auth/AuthSocial';
-import {TRYVESTOR} from "../UserTypes";
+import { LoginForm } from '../../sections/auth/login';
+import AuthSocial from '../../sections/auth/AuthSocial';
+import {TRYVESTOR} from "../../UserTypes";
 
 
 // ----------------------------------------------------------------------
@@ -62,6 +63,7 @@ export default function Login() {
   const smUp = useResponsive('up', 'sm');
 
   const mdUp = useResponsive('up', 'md');
+  // const user = useSelector(state => state.user.user)
 
   return (
     <Page title="Login">

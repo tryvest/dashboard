@@ -4,23 +4,24 @@ import { apiBusinesses } from '../../utils/api/api-businesses';
 import { CompanyName } from './Styles';
 import CompanyDiscoverTile from '../../components/CompanyDiscoverTile'
 import CategoryDiscoverTile from '../../components/CategoryDiscoverTile'
+import LandingNav from "../general/LandingNav";
 
 
 // ----------------------------------------------------------------------
 
-export default function Discover() {
+const Discover = (props) => {
 
   const [allBusinessesByCategory, setAllBusinessesByCategory] = useState()
   const [allCategories, setAllCategories] = useState()
 
   useEffect(() => {
-    apiBusinesses.getCompanyInfoByCat().then((companyByCatData) => {
+    apiBusinesses.getBusinessInfoByCat().then((companyByCatData) => {
       setAllBusinessesByCategory(companyByCatData)
     })
   }, [])
 
   useEffect(() => {
-    apiBusinesses.getCategoryName().then((categoryData) => {
+    apiBusinesses.getCategoryNames().then((categoryData) => {
       // setAllCategories(categoryData)
       const categoryToName = {}
       // const categoryIDs = Object.keys(categoryData)
@@ -28,7 +29,6 @@ export default function Discover() {
         const tempCat = categoryData[i]
         categoryToName[tempCat.categoryID] = tempCat.categoryName
       }
-      console.log(categoryToName)
       setAllCategories(categoryToName)
     })
   }, [])
@@ -51,11 +51,11 @@ export default function Discover() {
   //   }
   // }
 
-  const businessDataMapping = (data) => {
-    return (
-      <CompanyDiscoverTile businessId={data.businessID} name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
-    )
-  }
+  // const businessDataMapping = (data) => {
+  //   return (
+  //     <CompanyDiscoverTile businessId={data.businessID} name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
+  //   )
+  // }
 
   // const sortedBusinesses = () => {
   //   const catKeys = Object.keys(allBusinessesByCategory)
@@ -66,17 +66,34 @@ export default function Discover() {
   //   })
   // }
 
+  useEffect(() => {
+    console.log(props)
+  }, [props])
+
   return (
-    <CompanyName>
-      {
-        allBusinessesByCategory ? (
-          Object.keys(allBusinessesByCategory)?.map((catKey) => {
-            return (
-              <CategoryDiscoverTile categoryName={allCategories[catKey]} matchingCompanies={allBusinessesByCategory[catKey]}/>
-            )
-          })
-        ) : <CircularProgress />
-      }
-    </CompanyName>
+      <div>
+        {props.nav && (<LandingNav/>)}
+        <CompanyName>
+          <div style={{margin: "15px"}}>
+            {
+              (allBusinessesByCategory && allCategories) ? (
+                  Object.keys(allBusinessesByCategory)?.map((catKey) => {
+                    const catName = allCategories[catKey]
+                    const company = allBusinessesByCategory[catKey]
+                    return (
+                        <div>
+                          <CategoryDiscoverTile categoryName={catName} matchingCompanies={company}/>
+                          <hr style={{marginBottom: "5px"}}/>
+                        </div>
+                    )
+                  })
+              ) : <CircularProgress />
+            }
+          </div>
+        </CompanyName>
+      </div>
   );
 }
+
+export default Discover
+

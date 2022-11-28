@@ -23,15 +23,23 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import {AddCircleOutlined, ArrowForwardIos} from '@mui/icons-material';
-import TransactionsTable from '../components/TransactionsTable';
-import Page from '../components/Page';
-import { fShortenNumber, fCurrency, fPercent } from '../utils/formatNumber';
-import Scrollbar from '../components/Scrollbar';
+import {useAuthState} from "react-firebase-hooks/auth";
+import {handleError} from "../../utils/api/response";
+import TransactionsTable from '../../components/TransactionsTable';
+import Page from '../../components/Page';
+import { fShortenNumber, fCurrency, fPercent } from '../../utils/formatNumber';
+import Scrollbar from '../../components/Scrollbar';
+import {auth} from "../../firebase";
+import {api} from "../../utils/api/api";
+import {TRYVESTOR} from "../../UserTypes";
+import {apiTryvestors} from "../../utils/api/api-tryvestors";
+import {refreshUserData} from "../../features/userSlice";
 
 // ----------------------------------------------------------------------
 
 export default function TryvestorOverview() {
   const theme = useTheme();
+  const [user, loading, error] = useAuthState(auth)
   const tryvestor = useSelector((state) => state?.user?.user);
   const [ynsProgress, setYnsProgress] = useState(0);
   const [ynsText, setYnsText] = useState();
@@ -56,6 +64,23 @@ export default function TryvestorOverview() {
   };
     */
 
+  // Use Effect to populate tryvestor in case of reload
+  useEffect(() => {
+    if (!tryvestor && user) {
+      api.getUserType(user.uid)
+          .then(userType => {
+            if (userType !== TRYVESTOR) {
+              navigate('/business/login');
+            }
+            apiTryvestors.getSingle(user.uid).then((userLocal) => {
+              refreshUserData()
+              navigate('/dashboard/overview');
+            });
+          })
+          .catch(handleError);
+    }
+  }, [])
+
   // Re-Calculate YNS On Every Render
   useEffect(() => {
     // Make sure tryvestor is defined
@@ -66,28 +91,36 @@ export default function TryvestorOverview() {
     console.log(tryvestor)
     // If street address is null, start there (take user there)
     if (tryvestor.data.address.streetAddress.toLowerCase() === 'none') {
-      setYnsProgress(25);
+      setYnsProgress(20);
       setYnsText('Set up some extra credentials');
       setYnsLink('/dashboard/setup-credentials');
     }
 
-    // If defaultUserItemID is null
-    else if (tryvestor.data.defaultUserItemID === 'None' || tryvestor.data.defaultUserItemID === null) {
-      setYnsProgress(50);
-      setYnsText('Connect your bank account');
-      setYnsLink('/dashboard/setup-bank-account');
+    // If identity verification status is 0, then do this
+    else if (tryvestor.data.IDVerificationStatus === 0 || tryvestor.data.IDVerificationStatus === -1) {
+      setYnsProgress(40);
+      setYnsText('Verify your identity');
+      setYnsLink('/dashboard/setup-identity');
     }
 
     // If identity verification status is 0, then do this
-    else if (tryvestor.data.IDVerificationStatus === 0) {
-      setYnsProgress(75);
-      setYnsText('Verify your identity');
-      setYnsLink('/dashboard/setup-kyc');
+    else if (tryvestor.data.initialLoyaltiesStatus === 0) {
+      setYnsProgress(60);
+      setYnsText('Choose initial loyalties');
+      setYnsLink('/dashboard/setup-loyalties');
+    }
+
+    // If defaultUserItemID is null
+    else if (tryvestor.data.defaultAccountID === 'None' || tryvestor.data.defaultAccountID === null) {
+      setYnsProgress(80);
+      setYnsText('Connect your bank account');
+      setYnsLink('/dashboard/setup-banking');
     }
 
     // If identity verification status is 0 or SSN is unverified, then do this
     else {
       setYnsProgress(100)
+      setYnsText("If you have any questions, feel free to contact our support.")
     }
   }, [tryvestor]);
 
@@ -107,21 +140,23 @@ export default function TryvestorOverview() {
                 padding: '20px',
                 display: 'flex',
                 borderRadius: '0px',
+                border: "solid",
+                borderColor: theme.palette.primary.main
               }}
             >
-              <Grid container>
+              <Grid container alignItems={"center"}>
                 <Grid item xs={4.5} sm={2} md={1.5}>
                   <CircularProgressWithLabel variant={'determinate'} value={ynsProgress} size={80} />
                 </Grid>
-                <Grid item xs={7.5} sm={10} md={4}>
+                <Grid item xs={7.5} sm={10} md={10}>
                   <Stack direction={'column'}>
                     <Typography fontSize={'20px'} fontWeight={'bolder'} color={'white'}>
-                      Your next steps
+                      {ynsProgress !== 100 ? "Your next steps" : "You're all set up!"}
                     </Typography>
                     <Typography color={'#f4f4f4'} fontStyle={'italic'}>
                       {ynsText}
                     </Typography>
-                    <Button
+                    { ynsProgress !== 100 && <Button
                       style={{
                         marginTop: '2px',
                         width: '100px',
@@ -156,7 +191,7 @@ export default function TryvestorOverview() {
                           Set Up
                         </Typography>
                       </Stack>
-                    </Button>
+                    </Button>}
                   </Stack>
                 </Grid>
               </Grid>
@@ -177,7 +212,7 @@ export default function TryvestorOverview() {
             >
               <Stack style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography fontSize={16} fontWeight={'bold'}>
-                  Your Stock Back:
+                  Your Total Rewards Earnings:
                 </Typography>
                 <Typography fontSize={100}>{fCurrency(tryvestor?.data?.summaryData?.totalAmountStockback)}</Typography>
               </Stack>
@@ -199,7 +234,7 @@ export default function TryvestorOverview() {
                         <CompanyRow
                           businessID={busKey}
                           logo={currentBus?.businessLogo}
-                          amount={currentBus?.amountSpent}
+                          amount={currentBus?.amountEquityEarned}
                           percentStockback={currentBus?.currentPercentStockback}
                         />
                       );
@@ -220,6 +255,11 @@ export default function TryvestorOverview() {
               </Stack>
             </Card>
           </Grid>
+          {ynsProgress === 100 && <Grid item xs={12} sm={12} md={12}>
+            <Button fullWidth variant={"contained"} onClick={() => navigate("/dashboard/simulate-purchase")}>
+              Simulate a purchase here!
+            </Button>
+          </Grid>}
           <Grid item xs={12} sm={12} md={12}>
             <Card style={{ borderRadius: '0px', padding: "15px", alignItems: "center", display: "flex"}}>
               <Stack direction={"column"}>

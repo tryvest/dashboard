@@ -5,7 +5,7 @@ DEFAULT_ITEM_IMAGE_URL = "" # TODO HERE
 
 class UserItem:
     def __init__(self, userItemID, plaidAccessToken, plaidItemID, plaidRequestID, plaidInstitutionID, cursor,
-                 userAccounts, creationDate, itemIsActive):
+                 userAccountIDs, creationDate, itemIsActive):
         self.userItemID = userItemID
         self.plaidAccessToken = plaidAccessToken
         self.plaidItemID = plaidItemID
@@ -13,18 +13,18 @@ class UserItem:
         self.plaidInstitutionID = plaidInstitutionID
         self.cursor = cursor
         self.creationDate = creationDate
-        self.userAccounts = userAccounts
+        self.userAccountIDs = userAccountIDs
         self.itemIsActive = itemIsActive
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, userItemID):
         # Map user accounts
-        oldAccountArr = sourceDict['userAccounts']
+        oldAccountArr = sourceDict['userAccountIDs']
         newAccountArr = []
         for account in oldAccountArr:
             newAcct = UserAccount.readFromFirebaseFormat(account)
             newAccountArr.append(newAcct)
-        sourceDict['userAccounts'] = newAccountArr
+        sourceDict['userAccountIDs'] = newAccountArr
 
         return UserItem(
             userItemID=str(userItemID),
@@ -35,12 +35,12 @@ class UserItem:
             cursor=str(sourceDict["cursor"]),
             creationDate=sourceDict['creationDate'],
             itemIsActive=sourceDict['itemIsActive'],
-            userAccounts=sourceDict['userAccounts'],
+            userAccountIDs=sourceDict['userAccountIDs'],
         )
 
     def writeToFirebaseFormat(self):
         # Map user accounts
-        oldAccountArr = self.userAccounts
+        oldAccountArr = self.userAccountIDs
         newAccountArr = []
         for account in oldAccountArr:
             newAcct = UserAccount.writeToFirebaseFormat(account)
@@ -54,7 +54,7 @@ class UserItem:
             "creationDate": self.creationDate,
             "itemIsActive": self.itemIsActive,
             "plaidInstitutionID": self.plaidInstitutionID,
-            "userAccounts": newAccountArr,
+            "userAccountIDs": newAccountArr,
         }
 
     @staticmethod
@@ -62,12 +62,12 @@ class UserItem:
         sourceDict['creationDate'] = datetime.fromisoformat(sourceDict['creationDate'])
 
         # Map user accounts
-        oldAccountArr = sourceDict['userAccounts']
+        oldAccountArr = sourceDict['userAccountIDs']
         newAccountArr = []
         for account in oldAccountArr:
             newAcct = UserAccount.readFromDict(account).writeToFirebaseFormat()
             newAccountArr.append(newAcct)
-        sourceDict['userAccounts'] = newAccountArr
+        sourceDict['userAccountIDs'] = newAccountArr
 
         return UserItem.readFromFirebaseFormat(sourceDict, userItemID)
 
@@ -76,12 +76,12 @@ class UserItem:
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
 
         # Map user accounts
-        oldAccountArr = sourceDict['userAccounts']
+        oldAccountArr = sourceDict['userAccountIDs']
         newAccountArr = []
         for account in oldAccountArr:
             newAcct = UserAccount.createFromDict(account).writeToDict()
             newAccountArr.append(newAcct)
-        sourceDict['userAccounts'] = newAccountArr
+        sourceDict['userAccountIDs'] = newAccountArr
         sourceDict['itemIsActive'] = True
 
         return UserItem.readFromDict(sourceDict, userItemID)
@@ -92,14 +92,12 @@ class UserItem:
         toReturn["userItemID"] = self.userItemID
 
         # Map user accounts
-        oldAccountArr = toReturn['userAccounts']
+        oldAccountArr = toReturn['userAccountIDs']
         newAccountArr = []
         for account in oldAccountArr:
-            print("inside writeToDict of item")
-            print(account)
             newAcct = UserAccount.readFromFirebaseFormat(account).writeToDict()
             newAccountArr.append(newAcct)
-        toReturn['userAccounts'] = newAccountArr
+        toReturn['userAccountIDs'] = newAccountArr
 
         return toReturn
 
@@ -122,7 +120,7 @@ class UserAccount:
             plaidAccountID=str(sourceDict["plaidAccountID"]),
             plaidAccountName=str(sourceDict["plaidAccountName"]),
             plaidAccountOfficialName=str(sourceDict["plaidAccountOfficialName"]),
-            plaidAccountMask=int(sourceDict["plaidAccountMask"]),
+            plaidAccountMask=str(sourceDict["plaidAccountMask"]),
             plaidAccountSubtype=str(sourceDict["plaidAccountSubtype"]),
             plaidAccountType=str(sourceDict["plaidAccountType"]),
             accountIsActive=bool(sourceDict["accountIsActive"]),

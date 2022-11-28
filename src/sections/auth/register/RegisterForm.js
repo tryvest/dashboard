@@ -38,7 +38,7 @@ const RegisterForm = () => {
   const navigate = useNavigate();
 
   const [topics, setTopics] = useState([])
-  const [selected, setSelected] = useState(new Date())
+  const [selected, setSelected] = useState(null)
 
   const css = `
   .my-selected:not([disabled]) { 
@@ -92,16 +92,18 @@ const RegisterForm = () => {
               firstName: creds.firstName,
               lastName: creds.lastName,
               username: creds.email,
-              DOB: dayjs().format('YYYY-MM-DD'), // Add dob field
+              DOB: dayjs(selected.toString()).format('YYYY-MM-DD'), // Add dob field
             };
 
             await apiTryvestors.post(userData);
+            console.log(userData)
             const payload = {
               userType: TRYVESTOR,
               uid: res.user.uid,
               data: userData,
             }
-            dispatch(login(payload));
+            dispatch(login(payload))
+            window.location.reload()
           })
           .catch((err) => {
             console.log('error signing up: ', err);

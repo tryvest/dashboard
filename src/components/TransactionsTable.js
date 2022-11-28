@@ -159,15 +159,16 @@ EnhancedTableToolbar.propTypes = {
 };
 
 export default function EnhancedTable(props) {
-  let { transactions } = props;
-  const numTransactions = 5;
-  transactions = transactions.slice(0, numTransactions);
+  const { transactions } = props;
+  // const numTransactions = 5; uncomment when limiting again
+  // transactions = transactions.slice(0, numTransactions); uncomment when limiting again
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('date');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(numTransactions);
+  const [rowsPerPage, setRowsPerPage] = React.useState(transactions.length);
+  // const [rowsPerPage, setRowsPerPage] = React.useState(numTransactions); uncomment when limiting again
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -263,11 +264,11 @@ export default function EnhancedTable(props) {
                 </TableBody>
               </Table>
             </TableContainer>
-            <div style={{ width: '100%', display: 'flex', alignItems: 'end' }}>
+{/*            <div style={{ width: '100%', display: 'flex', alignItems: 'end' }}>
               <Typography marginLeft={'auto'} marginRight={'15px'} fontSize={14} color={'#0000EE'}>
                 See All
               </Typography>
-            </div>
+            </div> uncomment when limiting again */}
           </div>
         ) : (
           <Typography fontStyle={'italic'} marginLeft={'15px'} marginRight={'5px'} fontSize={15}>

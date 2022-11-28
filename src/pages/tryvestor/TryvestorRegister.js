@@ -3,12 +3,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { Card, Link, Container, Typography } from '@mui/material';
 // hooks
-import useResponsive from '../hooks/useResponsive';
+import useResponsive from '../../hooks/useResponsive';
 // components
-import Page from '../components/Page';
-import {LightLogo} from '../components/Logo';
+import Page from '../../components/Page';
+import {LightLogo} from '../../components/Logo';
 // sections
-import { RegisterForm } from '../sections/auth/register';
+import { RegisterForm } from '../../sections/auth/register';
 
 // ----------------------------------------------------------------------
 
@@ -90,11 +90,11 @@ export default function TryvestorRegister() {
 
             <Typography variant="body2" align="center" sx={{ color: 'text.secondary', mt: 3 }}>
               By registering, I agree to Tryvest&nbsp;
-              <Link underline="always" color="text.primary" href="#">
+              <Link underline="always" color="text.primary" href="src/pages/tryvestor/TryvestorRegister#">
                 Terms of Service
               </Link>
               {' '}and{' '}
-              <Link underline="always" color="text.primary" href="#">
+              <Link underline="always" color="text.primary" href="src/pages/tryvestor/TryvestorRegister#">
                 Privacy Policy
               </Link>
               .

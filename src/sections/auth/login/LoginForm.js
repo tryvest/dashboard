@@ -17,7 +17,7 @@ import { LoadingButton } from '@mui/lab';
 // component
 import {signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence} from "firebase/auth";
 import { useDispatch, useSelector } from 'react-redux';
-import { useAppDispatch, useAppSelector } from '../../../hooks.ts';
+import { useAuthState } from "react-firebase-hooks/auth";
 import Iconify from '../../../components/Iconify';
 import {api} from "../../../utils/api/api";
 import {TRYVESTOR} from "../../../UserTypes";
@@ -30,6 +30,7 @@ import { auth } from '../../../firebase'
 
 export default function LoginForm() {
   const navigate = useNavigate();
+  const [user, loading, error] = useAuthState(auth)
 
   const [showPassword, setShowPassword] = useState(false);
   const [openUserNotExist, setOpenUserNotExist] = useState(false);

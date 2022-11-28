@@ -3,7 +3,7 @@ from datetime import datetime, timezone, date, time
 
 class Tryvestor:
     def __init__(self, tryvestorID, firstName, lastName, username, DOB, address, creationDate, SSNPrefix, SSNSuffix,
-                 SSNVerificationStatus, IDVerificationStatus, IDLink, defaultUserItemID):
+                 initialLoyaltiesStatus, IDVerificationStatus, IDLink, defaultAccountID, defaultItemID, plaidIdentityVerificationID):
         self.tryvestorID = tryvestorID
         self.firstName = firstName
         self.lastName = lastName
@@ -13,10 +13,12 @@ class Tryvestor:
         self.creationDate = creationDate
         self.SSNPrefix = SSNPrefix
         self.SSNSuffix = SSNSuffix
-        self.SSNVerificationStatus = SSNVerificationStatus
+        self.initialLoyaltiesStatus = initialLoyaltiesStatus
         self.IDVerificationStatus = IDVerificationStatus
         self.IDLink = IDLink
-        self.defaultUserItemID = defaultUserItemID
+        self.defaultAccountID = defaultAccountID
+        self.defaultItemID = defaultItemID
+        self.plaidIdentityVerificationID = plaidIdentityVerificationID
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, tryvestorID):
@@ -31,10 +33,12 @@ class Tryvestor:
             creationDate=sourceDict['creationDate'],
             SSNPrefix=str(sourceDict["SSNPrefix"]),
             SSNSuffix=str(sourceDict["SSNSuffix"]),
-            SSNVerificationStatus=int(sourceDict["SSNVerificationStatus"]),
+            initialLoyaltiesStatus=int(sourceDict["initialLoyaltiesStatus"]),
             IDVerificationStatus=int(sourceDict["IDVerificationStatus"]),
             IDLink=str(sourceDict["IDLink"]),
-            defaultUserItemID=str(sourceDict["defaultUserItemID"])
+            defaultAccountID=str(sourceDict["defaultAccountID"]),
+            defaultItemID=str(sourceDict["defaultItemID"]),
+            plaidIdentityVerificationID=str(sourceDict["plaidIdentityVerificationID"])
         )
 
     def writeToFirebaseFormat(self):
@@ -49,10 +53,12 @@ class Tryvestor:
             'creationDate': self.creationDate,
             'SSNPrefix': self.SSNPrefix,
             'SSNSuffix': self.SSNSuffix,
-            'SSNVerificationStatus': self.SSNVerificationStatus,
+            'initialLoyaltiesStatus': self.initialLoyaltiesStatus,
             'IDVerificationStatus': self.IDVerificationStatus,
             'IDLink': self.IDLink,
-            'defaultUserItemID': self.defaultUserItemID
+            'defaultAccountID': self.defaultAccountID,
+            'defaultItemID': self.defaultItemID,
+            'plaidIdentityVerificationID': self.plaidIdentityVerificationID
         }
 
     @staticmethod
@@ -68,10 +74,12 @@ class Tryvestor:
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
         sourceDict['SSNPrefix'] = None
         sourceDict['SSNSuffix'] = None
-        sourceDict['SSNVerificationStatus'] = 0
+        sourceDict['initialLoyaltiesStatus'] = 0
         sourceDict['IDVerificationStatus'] = 0
         sourceDict['IDLink'] = None
-        sourceDict['defaultUserItemID'] = None
+        sourceDict['defaultAccountID'] = None
+        sourceDict['defaultItemID'] = None
+        sourceDict['plaidIdentityVerificationID'] = None
         return Tryvestor.readFromDict(sourceDict, tryvestorID)
 
     def writeToDict(self):
@@ -79,6 +87,7 @@ class Tryvestor:
         toReturn["creationDate"] = self.creationDate.isoformat()
         toReturn["tryvestorID"] = self.tryvestorID
         toReturn['DOB'] = date.isoformat(toReturn['DOB'].date())
+        del toReturn["SSNPrefix"]
         return toReturn
 
 

@@ -36,14 +36,21 @@ apiBusinesses.getMostRecentCampaignInfo = (businessID) => {
         .catch(handleError);
 }
 
-apiBusinesses.getCategoryName = () => {
+apiBusinesses.getCategoryNames = () => {
     return axios
         .get(`${BASE_URL}/categories`)
         .then(handleResponse)
         .catch(handleError);
 }
 
-apiBusinesses.getCompanyInfoByCat = () => {
+apiBusinesses.getCategoryByName = (categoryID) => {
+    return axios
+        .get(`${BASE_URL}/categories/${categoryID}`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiBusinesses.getBusinessInfoByCat = () => {
     return axios
         .get(`${BASE_URL}/businesses?sortBy=category`)
         .then(handleResponse)

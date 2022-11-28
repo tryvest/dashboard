@@ -24,21 +24,58 @@ const api = new ApiCore({
 
 api.getUserType = (uid) => {
   return axios
-      .get(`${BASE_URL}/userType?userID=${uid}`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+      .get(`${BASE_URL}/userType?userID=${uid}`)
       .then(handleResponse)
       .catch(handleError);
 }
 
-api.createPlaidLinkToken = () => {
+api.createPlaidLinkToken = (tryvestorID) => {
+  const model = {"tryvestorID" : tryvestorID}
   return axios
-      .post(`${BASE_URL}/plaid/createLinkToken`) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+      .post(`${BASE_URL}/plaid/createLinkToken`, model)
       .then(handleResponse)
       .catch(handleError);
 }
+
+api.createPlaidIDVLinkToken = (tryvestorID) => {
+  const model = {"tryvestorID" : tryvestorID}
+  return axios
+      .post(`${BASE_URL}/plaid/idv/createLinkToken`, model)
+      .then(handleResponse)
+      .catch(handleError);
+}
+
+api.createPlaidIDVPrepopulated = (tryvestorID) => {
+  const model = {"tryvestorID" : tryvestorID}
+  return axios
+      .post(`${BASE_URL}/plaid/idv/prepopulate`, model)
+      .then(handleResponse)
+      .catch(handleError);
+}
+
+api.updateIdentityVerificationStatus = (tryvestorID, plaidIdentityVerificationID) => {
+  const model = {
+    "tryvestorID": tryvestorID,
+    "plaidIdentityVerificationID": plaidIdentityVerificationID
+  }
+  return axios
+      .post(`${BASE_URL}/plaid/idv/updateIdentityVerificationStatus`, model)
+      .then(handleResponse)
+      .catch(handleError);
+
+}
+
 
 api.exchangePublicTokenForAccessToken = (model) => {
   return axios
-      .post(`${BASE_URL}/plaid/exchangePublicToken`, model) // .get(`${BASE_URL}/byUsername`, {params: {username}})
+      .post(`${BASE_URL}/plaid/exchangePublicToken`, model)
+      .then(handleResponse)
+      .catch(handleError);
+}
+
+api.getInstitution = (institutionID) => {
+  return axios
+      .get(`${BASE_URL}/institution/${institutionID}`)
       .then(handleResponse)
       .catch(handleError);
 }
