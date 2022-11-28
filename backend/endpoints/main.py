@@ -270,15 +270,15 @@ class SpecificBusinessCampaigns(Resource):
     @staticmethod
     def returnAllCampaignsForSpecificBusiness(businessID, limit=None):
         if limit is not None and limit >= 0:
-            campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by(
-                'startDate', direction=firestore.Query.DESCENDING).limit(limit).stream()
+            campaigns = db.collection("businesses").document(str(businessID)).collection("campaigns").order_by(
+                'startDate', direction=firestore.Query.DESCENDING).limit(int(limit)).stream()
         else:
-            campaigns = db.collection("businesses").document(businessID).collection("campaigns").order_by(
+            campaigns = db.collection("businesses").document(str(businessID)).collection("campaigns").order_by(
                 'startDate', direction=firestore.Query.DESCENDING).stream()
-
         toReturn = []
         for campaign in campaigns:
-            toReturn.append(Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict())
+            temp = Campaign.readFromFirebaseFormat(campaign.to_dict(), campaign.id).writeToDict()
+            toReturn.append(temp)
         return toReturn
 
 
@@ -469,12 +469,11 @@ class SpecificTryvestor(Resource):
         if tryvestorUpdateData.get("address") is not None:
             tryvestorUpdateData["address"] = TryvestorAddress.fromDict(tryvestorUpdateData["address"]).toDict()
 
-        # If updating SSN, encrypting it using the encryptSSN function
+        # If updating SSN - don't. delete it
         if tryvestorUpdateData.get("SSN") is not None:
-            prefix, suffix = encryptSSN(tryvestorUpdateData["SSN"])
-            tryvestorUpdateData["SSNPrefix"] = prefix
-            tryvestorUpdateData["SSNSuffix"] = suffix
-            tryvestorUpdateData["SSNVerificationStatus"] = 1
+            # prefix, suffix = encryptSSN(tryvestorUpdateData["SSN"])
+            # tryvestorUpdateData["SSNPrefix"] = prefix
+            # tryvestorUpdateData["SSNSuffix"] = suffix
             del tryvestorUpdateData["SSN"]
 
         tryDoc = db.collection('tryvestors').document(tryvestorID)
@@ -483,12 +482,29 @@ class SpecificTryvestor(Resource):
 
 @tryApi.route("/<string:tryvestorID>/loyalties")
 class SpecificTryvestorLoyalties(Resource):
-    def get(self, tryvestorID):
-        loyalties = db.collection("tryvestors").document(tryvestorID).collection("loyalties").order_by('creationDate',
-                                                                                                       direction=firestore.Query.DESCENDING).get()
+    def get(self, tryvestorID): #todo need to finish this part where I return currently loyal companies
+        activeOnly = request.args.get("activeOnly")
+        loyalties = db.collection("tryvestors").document(tryvestorID).collection(
+            "loyalties").order_by('creationDate',direction=firestore.Query.DESCENDING).get()
         toReturn = []
-        for loyalty in loyalties:
-            toReturn.append(Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id).writeToDict())
+        if (bool(activeOnly)):
+            toReturn = {}
+            categories = Categories.getAllCategoriesHelper()
+            print(categories)
+            numEmpty = len(categories)
+            for category in categories:
+                catObj = Category.readFromDict(category, category["categoryID"])
+                toReturn[catObj.categoryID] = None
+            for loyalty in loyalties:
+                loyaltyObj = Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id)
+                if (toReturn.get(loyaltyObj.categoryID) == None):
+                    toReturn[loyaltyObj.categoryID] = loyaltyObj.writeToDict()
+                    numEmpty -= 1
+                if (numEmpty <= 0):
+                    break
+        else:
+            for loyalty in loyalties:
+                toReturn.append(Loyalty.readFromFirebaseFormat(loyalty.to_dict(), loyalty.id).writeToDict())
         return toReturn
 
     def post(self, tryvestorID):
@@ -501,10 +517,8 @@ class SpecificTryvestorLoyalties(Resource):
         loyaltyData['unlockDate'] = datetime.combine(datetime.now(timezone.utc).date() + defaultTimeBeforeUnlock,
                                                      time(), tzinfo=timezone.utc).isoformat()
         loyaltyData['endDate'] = None
-
         # Finding the most recent campaign for a business
-        campaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(
-            loyaltyData["businessID"], limit=1)
+        campaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(loyaltyData["businessID"], limit=1)
         campaignID = campaignsForBusiness[0]["campaignID"]
 
         ## TODO WRITE CODE TO MAKE SURE OLD LOYALTY (IF ONE EXISTS) IS ENDED (aka the end date is set to today)
@@ -523,6 +537,12 @@ class SpecificTryvestorLoyalties(Resource):
         loyaltyDoc.set(newLoyalty.writeToFirebaseFormat())
         return newLoyalty.writeToDict()
 
+@tryApi.route("/<string:tryvestorID>/loyalties/updateLoyaltyStatus")
+class SpecificTryvestorLoyalties(Resource):
+    def patch(self, tryvestorID):
+        rjson = request.json
+        initialLoyaltiesStatus = rjson["newLoyaltyStatus"]
+        db.collection("tryvestors").document(tryvestorID).update({"initialLoyaltiesStatus": initialLoyaltiesStatus})
 
 @tryApi.route("/<string:tryvestorID>/userItems")
 class SpecificTryvestorItems(Resource):

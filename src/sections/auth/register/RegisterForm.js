@@ -102,7 +102,8 @@ const RegisterForm = () => {
               uid: res.user.uid,
               data: userData,
             }
-            dispatch(login(payload));
+            dispatch(login(payload))
+            window.location.reload()
           })
           .catch((err) => {
             console.log('error signing up: ', err);

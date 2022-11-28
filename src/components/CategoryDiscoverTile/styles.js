@@ -10,11 +10,8 @@ export const CompanyTileBox = styled.div`
 export const QuickInfo = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: left;
-  justify-content: left;
   width: 200px;
   margin-left: 30px;
-  margin-top: 15px;
 `
 
 export const ButtonBox = styled.button`
@@ -23,7 +20,7 @@ export const ButtonBox = styled.button`
   background-color: white;
   border-color: black;
   border-width: 5px;
-  border-radius: 20;
+  border-radius: 20px;
   display: flex;
   flex-direction: row;
 `
@@ -31,7 +28,7 @@ export const ButtonBox = styled.button`
 export const CompanyLogo = styled.div`
   height: 95px;
   width: 240px;
-  border-radius: 20;
+  border-radius: 20px;
 `
 
 export const ButtonGroup = styled.div`

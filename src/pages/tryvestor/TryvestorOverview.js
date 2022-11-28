@@ -91,21 +91,28 @@ export default function TryvestorOverview() {
     console.log(tryvestor)
     // If street address is null, start there (take user there)
     if (tryvestor.data.address.streetAddress.toLowerCase() === 'none') {
-      setYnsProgress(25);
+      setYnsProgress(20);
       setYnsText('Set up some extra credentials');
       setYnsLink('/dashboard/setup-credentials');
     }
 
     // If identity verification status is 0, then do this
     else if (tryvestor.data.IDVerificationStatus === 0 || tryvestor.data.IDVerificationStatus === -1) {
-      setYnsProgress(50);
+      setYnsProgress(40);
       setYnsText('Verify your identity');
       setYnsLink('/dashboard/setup-identity');
     }
 
+    // If identity verification status is 0, then do this
+    else if (tryvestor.data.initialLoyaltiesStatus === 0) {
+      setYnsProgress(60);
+      setYnsText('Choose initial loyalties');
+      setYnsLink('/dashboard/setup-loyalties');
+    }
+
     // If defaultUserItemID is null
     else if (tryvestor.data.defaultAccountID === 'None' || tryvestor.data.defaultAccountID === null) {
-      setYnsProgress(75);
+      setYnsProgress(80);
       setYnsText('Connect your bank account');
       setYnsLink('/dashboard/setup-banking');
     }

@@ -15,7 +15,7 @@ const Discover = (props) => {
   const [allCategories, setAllCategories] = useState()
 
   useEffect(() => {
-    apiBusinesses.getCompanyInfoByCat().then((companyByCatData) => {
+    apiBusinesses.getBusinessInfoByCat().then((companyByCatData) => {
       setAllBusinessesByCategory(companyByCatData)
     })
   }, [])

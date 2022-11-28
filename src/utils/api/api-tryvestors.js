@@ -49,6 +49,17 @@ apiTryvestors.changeLoyalty = (tryvestorID, businessID, categoryID) => {
         .catch(handleError);
 }
 
+apiTryvestors.updateLoyaltyStatus = (tryvestorID, newLoyaltyStatus) => {
+    const model = {
+        "newLoyaltyStatus": newLoyaltyStatus
+    }
+
+    return axios
+        .patch(`${BASE_URL}/${url}/${tryvestorID}/loyalties/updateLoyaltyStatus`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
 apiTryvestors.getUserItems = (tryvestorID) => {
     return axios
         .get(`${BASE_URL}/${url}/${tryvestorID}/userItems`)

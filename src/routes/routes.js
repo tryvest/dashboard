@@ -27,6 +27,7 @@ import MoreInfo from "../pages/general/MoreInfo";
 import Legal from "../pages/general/Legal";
 import TryvestorBanking from "../pages/tryvestor/TryvestorBanking";
 import TryvestorIDV from "../pages/tryvestor/TryvestorIDV";
+import TryvestorInitialLoyalties from "../pages/tryvestor/TryvestorInitialLoyalties";
 
 // ----------------------------------------------------------------------
 export function CustomRouter() {
@@ -57,8 +58,9 @@ export function CustomRouter() {
         { path: 'community', element: <CustomSelectRouter businessPage={<BusinessCommunity />} tryvestorPage={<Community />} /> },
         { path: 'announcements', element: <CustomSelectRouter businessPage={<BusinessAnnouncements />} tryvestorPage={<Announcements />} /> },
         { path: 'setup-credentials', element: <CustomSelectRouter tryvestorPage={<TryvestorAdditionalInfo />} /> },
-        { path: 'setup-banking', element: <CustomSelectRouter tryvestorPage={<TryvestorBanking />} /> },
         { path: 'setup-identity', element: <CustomSelectRouter tryvestorPage={<TryvestorIDV />} /> },
+        { path: 'setup-loyalties', element: <CustomSelectRouter tryvestorPage={<TryvestorInitialLoyalties />} /> },
+        { path: 'setup-banking', element: <CustomSelectRouter tryvestorPage={<TryvestorBanking />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },

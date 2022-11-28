@@ -50,7 +50,7 @@ apiBusinesses.getCategoryByName = (categoryID) => {
         .catch(handleError);
 }
 
-apiBusinesses.getCompanyInfoByCat = () => {
+apiBusinesses.getBusinessInfoByCat = () => {
     return axios
         .get(`${BASE_URL}/businesses?sortBy=category`)
         .then(handleResponse)
