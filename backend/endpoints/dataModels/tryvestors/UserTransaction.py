@@ -4,7 +4,7 @@ class UserTransaction:
     def __init__(self, userTransactionID, userItemID, businessID, businessCampaignID, numFractionalShares, creationDate,
                  plaidTransactionID, plaidAccountID, plaidTransactionMerchantName, plaidTransactionIsPending,
                  plaidTransactionAmount,
-                 plaidTransactionDatetime, percentStockback):  # , plaidTransactionRawObject):
+                 plaidTransactionDatetime, percentStockback, withdrawn):  # , plaidTransactionRawObject):
         # Personal Information
         self.userTransactionID = userTransactionID
         self.userItemID = userItemID
@@ -13,6 +13,7 @@ class UserTransaction:
         self.numFractionalShares = numFractionalShares
         self.percentStockback = percentStockback
         self.creationDate = creationDate
+        self.withdrawn = withdrawn
 
         # Plaid Information
         self.plaidTransactionID = plaidTransactionID
@@ -41,6 +42,7 @@ class UserTransaction:
             plaidTransactionDatetime=sourceDict["plaidTransactionDatetime"],
             percentStockback=sourceDict["percentStockback"],
             creationDate=sourceDict["creationDate"],
+            withdrawn=bool(sourceDict["withdrawn"])
             # plaidTransactionRawObject=sourceDict["plaidTransactionRawObject"]
         )
 
@@ -58,6 +60,7 @@ class UserTransaction:
             "plaidTransactionDatetime": self.plaidTransactionDatetime,
             "percentStockback": self.percentStockback,
             "creationDate": self.creationDate,
+            "withdrawn": self.withdrawn,
             # "plaidTransactionRawObject": self.plaidTransactionRawObject
         }
 
@@ -72,6 +75,7 @@ class UserTransaction:
     @staticmethod
     def createFromDict(sourceDict, userTransactionID):
         sourceDict['creationDate'] = datetime.now(timezone.utc).isoformat()
+        sourceDict['withdrawn'] = False
         return UserTransaction.readFromDict(sourceDict, userTransactionID)
 
     def writeToDict(self):

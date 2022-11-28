@@ -88,4 +88,34 @@ apiTryvestors.setDefaultAccountAndItem = (tryvestorID, userItemID, userAccountID
         .catch(handleError);
 }
 
+apiTryvestors.getActiveLoyaltiesByCategory = (tryvestorID) => {
+    return axios
+        .get(`${BASE_URL}/${url}/${tryvestorID}/loyalties?activeOnly=True`)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.withdrawPendingInvestment = (tryvestorID, businessID, campaignID) => {
+    const model = {
+        "businessID": businessID,
+        "campaignID": campaignID
+    }
+
+    return axios
+        .post(`${BASE_URL}/${url}/${tryvestorID}/userTransactions/withdrawPendingInvestments`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.simulatePurchase = (tryvestorID, busToInvest, amountToInvest) => {
+    const model = {
+        "businessID": busToInvest,
+        "amount": amountToInvest
+    }
+    return axios
+        .post(`${BASE_URL}/${url}/${tryvestorID}/userTransactions/simulatePurchase`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
 export {apiTryvestors};

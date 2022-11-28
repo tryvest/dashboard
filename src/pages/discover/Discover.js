@@ -74,17 +74,22 @@ const Discover = (props) => {
       <div>
         {props.nav && (<LandingNav/>)}
         <CompanyName>
-          {
-            (allBusinessesByCategory && allCategories) ? (
-                Object.keys(allBusinessesByCategory)?.map((catKey) => {
-                  const catName = allCategories[catKey]
-                  const company = allBusinessesByCategory[catKey]
-                  return (
-                      <CategoryDiscoverTile categoryName={catName} matchingCompanies={company}/>
-                  )
-                })
-            ) : <CircularProgress />
-          }
+          <div style={{margin: "15px"}}>
+            {
+              (allBusinessesByCategory && allCategories) ? (
+                  Object.keys(allBusinessesByCategory)?.map((catKey) => {
+                    const catName = allCategories[catKey]
+                    const company = allBusinessesByCategory[catKey]
+                    return (
+                        <div>
+                          <CategoryDiscoverTile categoryName={catName} matchingCompanies={company}/>
+                          <hr style={{marginBottom: "5px"}}/>
+                        </div>
+                    )
+                  })
+              ) : <CircularProgress />
+            }
+          </div>
         </CompanyName>
       </div>
   );

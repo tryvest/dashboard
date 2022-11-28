@@ -174,12 +174,12 @@ function TryvestorAdditionalInfo(props) {
                       style={{width: "500px", color: "black"}}
 
                   >
-                    <MenuItem style={{color: "white"}} value={"fulltime"}>Full-Time</MenuItem>
-                    <MenuItem style={{color: "white"}} value={"parttime"}>Part-Time</MenuItem>
-                    <MenuItem style={{color: "white"}} value={"contract"}>Contractor</MenuItem>
-                    <MenuItem style={{color: "white"}} value={"self"}>Self-Employed</MenuItem>
-                    <MenuItem style={{color: "white"}} value={"student"}>Student</MenuItem>
-                    <MenuItem style={{color: "white"}} value={"unemployed"}>Unemployed</MenuItem>
+                    <MenuItem style={{color: "black"}} value={"fulltime"}>Full-Time</MenuItem>
+                    <MenuItem style={{color: "black"}} value={"parttime"}>Part-Time</MenuItem>
+                    <MenuItem style={{color: "black"}} value={"contract"}>Contractor</MenuItem>
+                    <MenuItem style={{color: "black"}} value={"self"}>Self-Employed</MenuItem>
+                    <MenuItem style={{color: "black"}} value={"student"}>Student</MenuItem>
+                    <MenuItem style={{color: "black"}} value={"unemployed"}>Unemployed</MenuItem>
                   </Select>
                   <FormHelperText style={{color: "red"}}>{touched.employment && errors.employment}</FormHelperText>
                 </FormControl>

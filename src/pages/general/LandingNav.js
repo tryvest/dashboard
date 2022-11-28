@@ -49,7 +49,7 @@ function LandingNav(props) {
                 <a href="/legal" className="nav-link-2 whitenav w-nav-link" data-ix="show-modal">
                     Legal Info
                 </a>
-                <a href={`${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
+                <a href={`/${TRYVESTOR}/login`} data-ix="show-modal" className="button-2 w-button">
                     Access Dashboard
                 </a>
                 {/*

@@ -8,7 +8,6 @@ class Category:
 
     @staticmethod
     def readFromFirebaseFormat(sourceDict, categoryID):
-        print("got here")
         return Category(
             categoryID=str(categoryID),
             categoryName=str(sourceDict["categoryName"]),

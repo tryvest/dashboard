@@ -13,20 +13,20 @@ const CategoryDiscoverTile = (props) => {
     const { categoryName, matchingCompanies, selectBusinessForCategory, selectedBusinessPerCategory, categoryID} = props
     const theme = useContext(ThemeContext)
     return (
-        <Card variant="outlined" style={{ alignItems: 'center', justifyContent: 'center', height: '220px', marginBottom: '15px' }}>
-            <CardContent>
+        <div style={{ alignItems: 'center', justifyContent: 'center', height: '220px', marginBottom: '5px' }}>
+            <div>
                 <CompanyName>
-                    {categoryName.substring(0, 1).toUpperCase() + categoryName.substring(1)}
+                    {`${categoryName.substring(0, 1).toUpperCase()}${categoryName.substring(1)}: `}
                 </CompanyName>
                 {
                     matchingCompanies?.map((data) => {
-                       return (
-                        <CompanyDiscoverTile name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
-                       )
+                        return (
+                            <CompanyDiscoverTile businessId={data.businessID} name={data.name} logo={data.logo} slogan={data.tagline} oneLiner={data.description} />
+                        )
                     })
                 }
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     )
 }
 

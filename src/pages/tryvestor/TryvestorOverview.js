@@ -212,7 +212,7 @@ export default function TryvestorOverview() {
             >
               <Stack style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography fontSize={16} fontWeight={'bold'}>
-                  Your Stock Back:
+                  Your Total Rewards Earnings:
                 </Typography>
                 <Typography fontSize={100}>{fCurrency(tryvestor?.data?.summaryData?.totalAmountStockback)}</Typography>
               </Stack>
@@ -234,7 +234,7 @@ export default function TryvestorOverview() {
                         <CompanyRow
                           businessID={busKey}
                           logo={currentBus?.businessLogo}
-                          amount={currentBus?.amountSpent}
+                          amount={currentBus?.amountEquityEarned}
                           percentStockback={currentBus?.currentPercentStockback}
                         />
                       );
@@ -255,6 +255,11 @@ export default function TryvestorOverview() {
               </Stack>
             </Card>
           </Grid>
+          {ynsProgress === 100 && <Grid item xs={12} sm={12} md={12}>
+            <Button fullWidth variant={"contained"} onClick={() => navigate("/dashboard/simulate-purchase")}>
+              Simulate a purchase here!
+            </Button>
+          </Grid>}
           <Grid item xs={12} sm={12} md={12}>
             <Card style={{ borderRadius: '0px', padding: "15px", alignItems: "center", display: "flex"}}>
               <Stack direction={"column"}>

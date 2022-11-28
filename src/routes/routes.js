@@ -28,6 +28,7 @@ import Legal from "../pages/general/Legal";
 import TryvestorBanking from "../pages/tryvestor/TryvestorBanking";
 import TryvestorIDV from "../pages/tryvestor/TryvestorIDV";
 import TryvestorInitialLoyalties from "../pages/tryvestor/TryvestorInitialLoyalties";
+import TryvestorSimulatePurchase from "../pages/tryvestor/TryvestorSimulatePurchase";
 
 // ----------------------------------------------------------------------
 export function CustomRouter() {
@@ -61,14 +62,23 @@ export function CustomRouter() {
         { path: 'setup-identity', element: <CustomSelectRouter tryvestorPage={<TryvestorIDV />} /> },
         { path: 'setup-loyalties', element: <CustomSelectRouter tryvestorPage={<TryvestorInitialLoyalties />} /> },
         { path: 'setup-banking', element: <CustomSelectRouter tryvestorPage={<TryvestorBanking />} /> },
+        { path: 'simulate-purchase', element: <CustomSelectRouter tryvestorPage={<TryvestorSimulatePurchase />} /> },
         { path: '*', element: <CustomSelectRouter /> },
       ],
     },
     {
       path: '/businesses',
+      element: <EmptyPage />,
+      children: [
+        { path: ':id', element: <CustomSelectRouter businessPage={<CompanySpecific nav/>} tryvestorPage={<CompanySpecific nav/>} unauthPage={<CompanySpecific nav unauth/>} /> },
+        { path: '*', element: <CustomSelectRouter /> },
+      ]
+    },
+    {
+      path: '/dashboard/businesses',
       element: <DashboardLayout />,
       children: [
-        { path: ':id', element: <CustomSelectRouter businessPage={<CompanySpecific />} tryvestorPage={<CompanySpecific />} unauthPage={<CompanySpecific />} /> },
+        { path: ':id', element: <CustomSelectRouter businessPage={<CompanySpecific />} tryvestorPage={<CompanySpecific />}/> },
         { path: '*', element: <CustomSelectRouter /> },
       ]
     },
