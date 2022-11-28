@@ -99,7 +99,10 @@ const CompanySpecificPage = (props) => {
     const tryvestorID = userObj?.uid;
     const businessID = businessInfo.businessID;
     const categoryID = businessInfo.categoryID;
-    apiTryvestors.changeLoyalty(tryvestorID, businessID, categoryID).then((_) => handleClose());
+    apiTryvestors.changeLoyalty(tryvestorID, businessID, categoryID).then((_) => {
+      handleClose()
+      window.location.reload()
+    });
   };
 
   const withdrawPendingInvestment = () => {
