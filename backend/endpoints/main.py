@@ -20,6 +20,7 @@ from plaid.model.user_name import UserName
 
 # Universal Data Model Imports
 from dataModels.businesses.Campaign import Campaign
+from dataModels.tryvestors.UserInvestment import UserInvestment
 from dataModels.universal.Category import Category
 from dataModels.universal.GenericUser import GenericUser
 from dataModels.universal.Institution import Institution
@@ -425,6 +426,19 @@ class SpecificTryvestor(Resource):
                     "amountEquityWithdrawn": 0,
                     "businessLogo": businessObj.logo
                 }
+
+                # After initializing things for a newly recognized business, then loop through all their investments for current campaign of this business
+                allTryvestorInvestments = tryvestorDocRef.collection("userInvestments").where("businessCampaignID", "==", recentCampaignObj.campaignID).order_by('creationDate', direction=firestore.Query.DESCENDING).get()
+                for userInvestment in allTryvestorInvestments:
+                    userInvestmentObj = UserInvestment.readFromFirebaseFormat(sourceDict=userInvestment.to_dict(), userInvestmentID=userInvestment.id)
+                    if (userInvestmentObj.withdrawn):
+                        businessesTryvestorIsIn[userTransactionObj.businessID]["amountEquityWithdrawn"] += \
+                            userInvestmentObj.investmentAmount
+                    else:
+                        businessesTryvestorIsIn[userTransactionObj.businessID]["amountEquityPendingInvestment"] += \
+                            userInvestmentObj.investmentAmount
+
+
             # Thing to do for company per transaction
             if (userTransactionObj.withdrawn):
                 businessesTryvestorIsIn[userTransactionObj.businessID]["amountEquityWithdrawn"] += \
@@ -438,13 +452,14 @@ class SpecificTryvestor(Resource):
                 userTransactionObj.plaidTransactionAmount
             totalAmountStockback += userTransactionObj.plaidTransactionAmount * userTransactionObj.percentStockback
 
-        # Loop through the 10 transactions and add necessary data
+        # Loop through the 10 transactions and add necessary data -- LOOK AT CAPS BELOW
         recentTryvestorTransactionsFormatted = []
-        # for i in range(min(10, len(allTryvestorTransactions))):
+        # for i in range(min(10, len(allTryvestorTransactions))): -- THIS LINE INSTEAD OF THE FOR LOOP BELOW IF YOU WANT ONLY 10 TRANSACTION
         for i in range(len(allTryvestorTransactions)):
             formattedRecentTransaction = SpecificTryvestorTransactions.convertToTransactionTableFormat(
                 tryvestorTransaction=allTryvestorTransactions[i], tryvestorUID=tryvestorID)
             recentTryvestorTransactionsFormatted.append(formattedRecentTransaction)
+
 
         # Summary Data Compilation
         tryvestorSummaryData = {
@@ -661,7 +676,6 @@ class SpecificTryvestorItems(Resource):
             "cursor": str(newCursor)
         })
 
-
 @tryApi.route("/<string:tryvestorID>/userItems/<string:userItemID>")
 class SpecificUserItem(Resource):
     def patch(self, tryvestorID, userItemID):
@@ -699,6 +713,58 @@ class SpecificUserAccount(Resource):
         tryDocDict["defaultAccountID"] = userAccountID
         tryDoc.reference.set(tryDocDict)
 
+
+@tryApi.route("/<string:tryvestorID>/userInvestments")
+class SpecificTryvestorInvestments(Resource):
+    # Get all of a specific tryvestor's investments stored in firebase
+    def get(self, tryvestorID):
+        allTryvestorInvestments = db.collection('tryvestors').document(tryvestorID).collection(
+            "userInvestments").stream()
+        toReturn = []
+        for userInvestment in allTryvestorInvestments:
+            userInvestmentObj = UserInvestment.readFromFirebaseFormat(
+                sourceDict=userInvestment.to_dict(), userInvestmentID=userInvestment.id
+            )
+            cleanedUserInvestmentObj = userInvestmentObj.writeToDict()
+            toReturn.append(cleanedUserInvestmentObj)
+        return toReturn
+
+    def post(self, tryvestorID):
+        businessID = request.json["businessID"]
+        amount = request.json["amountToInvest"]
+        itemID = request.json["itemID"]
+        accountID = request.json["accountID"]
+
+        userInvestmentDoc = db.collection('tryvestors').document(tryvestorID).collection("userInvestments").document()
+        recentCampaignsForBusiness = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(businessID, limit=1)
+        if len(recentCampaignsForBusiness) == 0:
+            return
+        businessCampaign = Campaign.readFromDict(sourceDict=recentCampaignsForBusiness[0], campaignID=recentCampaignsForBusiness[0]["campaignID"])
+
+        businessCampaignID = businessCampaign.campaignID
+        bus = db.collection('businesses').document(businessID).get()
+        busObj = Business.readFromFirebaseFormat(bus.to_dict(), bus.id)
+        # Amount spent * percentStockback / valuation for campaign * total shares in business
+        numFractionalShares = (float(amount) / businessCampaign.valuationForCampaign) * busObj.totalShares
+        creationDate = datetime.now(timezone.utc)
+        userfb = db.collection("tryvestors").document(tryvestorID).get()
+        userObj = Tryvestor.readFromFirebaseFormat(userfb.to_dict(), userfb.id)
+
+        userInvestmentObj = UserInvestment(
+            userInvestmentID=userInvestmentDoc.id,
+            userItemID=itemID,
+            userAccountID=accountID,
+            businessID=businessID,
+            businessCampaignID=businessCampaignID,
+            numFractionalShares=numFractionalShares,
+            creationDate=creationDate,
+            investmentAmount=amount,
+            withdrawn=False
+        )
+
+        userInvestmentObjFireDict = userInvestmentObj.writeToFirebaseFormat()
+        userInvestmentDoc.set(userInvestmentObjFireDict)
+        return userInvestmentObj.writeToDict()
 
 @tryApi.route("/<string:tryvestorID>/userTransactions")
 class SpecificTryvestorTransactions(Resource):
@@ -759,18 +825,29 @@ class SpecificTryvestorTransactions(Resource):
                 amount of money invested in business
         '''
 
-@tryApi.route("/<string:tryvestorID>/userTransactions/withdrawPendingInvestments")
+@tryApi.route("/<string:tryvestorID>/withdrawPendingInvestments")
 class SpecificTryvestorTransactionsWithdrawal(Resource):
     # Get all of a specific tryvestor's transactions stored in firebase
     def post(self, tryvestorID):
         businessID = request.json["businessID"]
         businessCampaignID = request.json["campaignID"]
+
+        # Withdraw the transactions
         allTryvestorTransactions = db.collection('tryvestors').document(tryvestorID).collection("userTransactions").where("businessCampaignID", "==", businessCampaignID).stream()
         for userTransaction in allTryvestorTransactions:
             userTransactionObj = UserTransaction.readFromFirebaseFormat(
                 sourceDict=userTransaction.to_dict(), userTransactionID=userTransaction.id)
             if (userTransactionObj.businessID == businessID and userTransactionObj.businessCampaignID == businessCampaignID):
                 userTransaction.reference.update({"withdrawn": True})
+
+        # Withdraw the investments
+        allTryvestorInvestments = db.collection('tryvestors').document(tryvestorID).collection(
+            "userInvestments").where("businessCampaignID", "==", businessCampaignID).stream()
+        for userInvestment in allTryvestorInvestments:
+            userInvestmentObj = UserInvestment.readFromFirebaseFormat(
+                sourceDict=userInvestment.to_dict(), userInvestmentID=userInvestment.id)
+            if (userInvestmentObj.businessID == businessID and userInvestmentObj.businessCampaignID == businessCampaignID):
+                userInvestment.reference.update({"withdrawn": True})
 
 @tryApi.route("/<string:tryvestorID>/userTransactions/simulatePurchase")
 class SpecificTryvestorTransactionsPurchaseSimulation(Resource):
