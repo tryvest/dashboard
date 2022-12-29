@@ -67,12 +67,12 @@ export function Landing() {
                   Buy stuff
                   <span className="smaller-head fwf">
                     <br />
-                    get stock
+                    get cashback, and invest!
                   </span>
                 </h1>
-                <p className="body-paragraphy-2 light hero-subhead">
-                  Get stock-back when you buy from your favorite startups.
-                </p>
+                <Typography fontSize={20} fontStyle={"italic"} color={"darkgray"}>
+                  Get cashback to invest when you buy from your favorite startups.
+                </Typography>
                 <a href="https://airtable.com/shrTxWeRwlAxyBwQ2" className="cta-button-2 w-button">
                   Join Waitlist
                 </a>
@@ -120,9 +120,9 @@ export function Landing() {
                     className="image-18"
                   />
                   <div className="number _2">1</div>
-                  <div className="hiw-head">Sign Up for Tryvest</div>
+                  <div className="hiw-head">Sign Up</div>
                   <p className="hiw-para">
-                    Securely connect all your bank accounts.
+                    Enroll in your favorite private companies
                   </p>
                 </div>
                 <div className="stepblock hiw">
@@ -134,8 +134,8 @@ export function Landing() {
                     className="image-20"
                   />
                   <div className="number _2">2</div>
-                  <div className="hiw-head">Start selecting companies to get stock-back in.</div>
-                  <p className="hiw-para">Remember, you can only earn stock-back in one company per category.</p>
+                  <div className="hiw-head">Start Purchasing.</div>
+                  <p className="hiw-para">Earn cashback to use towards investment</p>
                 </div>
                 <div className="stepblock hiw">
                   <img
@@ -146,8 +146,8 @@ export function Landing() {
                     className="image-19"
                   />
                   <div className="number _2">3</div>
-                  <div className="hiw-head">Start Purchasing!</div>
-                  <p className="hiw-para">Make your first purchase at a Tryvest-connected company and start earning stock-back!</p>
+                  <div className="hiw-head">Invest!</div>
+                  <p className="hiw-para">See your rewards grow by investing your cashback!</p>
                 </div>
               </div>
               <a href="https://airtable.com/shrTxWeRwlAxyBwQ2" className="cta-button-2 middle w-button">

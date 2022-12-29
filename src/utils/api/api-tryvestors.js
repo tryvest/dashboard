@@ -102,7 +102,7 @@ apiTryvestors.withdrawPendingInvestment = (tryvestorID, businessID, campaignID) 
     }
 
     return axios
-        .post(`${BASE_URL}/${url}/${tryvestorID}/userTransactions/withdrawPendingInvestments`, model)
+        .post(`${BASE_URL}/${url}/${tryvestorID}/withdrawPendingInvestments`, model)
         .then(handleResponse)
         .catch(handleError);
 }
@@ -114,6 +114,20 @@ apiTryvestors.simulatePurchase = (tryvestorID, busToInvest, amountToInvest) => {
     }
     return axios
         .post(`${BASE_URL}/${url}/${tryvestorID}/userTransactions/simulatePurchase`, model)
+        .then(handleResponse)
+        .catch(handleError);
+}
+
+apiTryvestors.commitInvestment = (tryvestorID, businessID, amountToInvest, itemID, accountID) => {
+    const model = {
+        "businessID": businessID,
+        "amountToInvest": amountToInvest,
+        "itemID": itemID,
+        "accountID": accountID,
+    }
+
+    return axios
+        .post(`${BASE_URL}/${url}/${tryvestorID}/userInvestments`, model)
         .then(handleResponse)
         .catch(handleError);
 }
