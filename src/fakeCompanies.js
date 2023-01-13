@@ -1,4 +1,4 @@
-export const fakeCompanies = [ /* this data will come from firebase soon. Making it an array so we can .map. This will
+export const fakeCompanies = [ /* this data should come from firebase now. Making it an array so we can .map. This will
     be the case anyway once backend is linked */
   {
     name: 'Symbiotica',
