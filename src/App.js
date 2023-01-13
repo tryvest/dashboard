@@ -35,12 +35,12 @@ export default function App() {
           dispatch(login(payload));
         });
         // user is logged in, send the user's details to redux, store the current user in the state
-      } else {
+      } 
+      else {
         dispatch(logout());
       }
     });
   }, []);
-
     return (
         <StylesProvider injectFirst>
             <ThemeProvider>
