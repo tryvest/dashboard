@@ -46,4 +46,5 @@ const CompanyDiscoverTile = (props) => {
     )
 }
 
+
 export default CompanyDiscoverTile
