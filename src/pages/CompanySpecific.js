@@ -85,6 +85,7 @@ const CompanySpecificPage = (props) => {
     IDMissing = userObj?.data.IDVerificationStatus !== 1;
     bankingMissing = userObj?.data.defaultItemID === 'None' || userObj?.data.defaultItemID === null;
     setInvested(userObj?.data.businessesInvestedIn[businessID.id] || false);
+    console.log(userObj?.data.businessesInvestedIn)
     if (userObj) {
       apiTryvestors.getActiveLoyaltiesByCategory(userObj?.uid).then((data) => {
         const catID = businessInfo?.categoryID;

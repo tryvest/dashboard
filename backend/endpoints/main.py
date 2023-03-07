@@ -427,16 +427,16 @@ class SpecificTryvestor(Resource):
                     "businessLogo": businessObj.logo
                 }
 
-                # After initializing things for a newly recognized business, then loop through all their investments for current campaign of this business
-                allTryvestorInvestments = tryvestorDocRef.collection("userInvestments").where("businessCampaignID", "==", recentCampaignObj.campaignID).order_by('creationDate', direction=firestore.Query.DESCENDING).get()
-                for userInvestment in allTryvestorInvestments:
-                    userInvestmentObj = UserInvestment.readFromFirebaseFormat(sourceDict=userInvestment.to_dict(), userInvestmentID=userInvestment.id)
-                    if (userInvestmentObj.withdrawn):
-                        businessesTryvestorIsIn[userTransactionObj.businessID]["amountEquityWithdrawn"] += \
-                            userInvestmentObj.investmentAmount
-                    else:
-                        businessesTryvestorIsIn[userTransactionObj.businessID]["amountEquityPendingInvestment"] += \
-                            userInvestmentObj.investmentAmount
+                # # After initializing things for a newly recognized business, then loop through all their investments for current campaign of this business
+                # allTryvestorInvestments = tryvestorDocRef.collection("userInvestments").where("businessCampaignID", "==", recentCampaignObj.campaignID).order_by('creationDate', direction=firestore.Query.DESCENDING).get()
+                # for userInvestment in allTryvestorInvestments:
+                #     userInvestmentObj = UserInvestment.readFromFirebaseFormat(sourceDict=userInvestment.to_dict(), userInvestmentID=userInvestment.id)
+                #     if (userInvestmentObj.withdrawn):
+                #         businessesTryvestorIsIn[userTransactionObj.businessID]["amountEquityWithdrawn"] += \
+                #             userInvestmentObj.investmentAmount
+                #     else:
+                #         businessesTryvestorIsIn[userTransactionObj.businessID]["amountEquityPendingInvestment"] += \
+                #             userInvestmentObj.investmentAmount
 
 
             # Thing to do for company per transaction
@@ -465,6 +465,38 @@ class SpecificTryvestor(Resource):
         tryvestorSummaryData = {
             "totalAmountStockback": totalAmountStockback
         }
+
+        allTryvestorInvestments = tryvestorDocRef.collection("userInvestments").order_by('creationDate', direction=firestore.Query.DESCENDING).get()
+        for userInvestment in allTryvestorInvestments:
+            userInvestmentObj = UserInvestment.readFromFirebaseFormat(sourceDict=userInvestment.to_dict(),
+                                                                      userInvestmentID=userInvestment.id)
+
+            # Initializing business first time a transaction is seen within this loop from this particular business
+            if businessesTryvestorIsIn.get(userInvestmentObj.businessID) is None:
+                mostRecentCampaign = SpecificBusinessCampaigns.returnAllCampaignsForSpecificBusiness(
+                    businessID=userInvestmentObj.businessID, limit=1)[0]
+                recentCampaignObj = Campaign.readFromDict(sourceDict=mostRecentCampaign,
+                                                          campaignID=mostRecentCampaign["campaignID"])
+                businessDocRef = db.collection("businesses").document(userInvestmentObj.businessID)
+                businessObj = Business.readFromFirebaseFormat(sourceDict=businessDocRef.get().to_dict(),
+                                                              businessID=businessDocRef.id)
+                businessesTryvestorIsIn[userInvestmentObj.businessID] = {
+                    "currentPercentStockback": recentCampaignObj.stockBackPercent,
+                    "amountSpent": 0,
+                    "amountEquityEarned": 0,
+                    "amountEquityPendingInvestment": 0,
+                    "amountEquityInvested": 0,
+                    "amountEquityWithdrawn": 0,
+                    "businessLogo": businessObj.logo
+                }
+
+            # After initializing things for a newly recognized business, then loop through all their investments for current campaign of this business
+            if userInvestmentObj.withdrawn:
+                businessesTryvestorIsIn[userInvestmentObj.businessID]["amountEquityWithdrawn"] += \
+                    userInvestmentObj.investmentAmount
+            else:
+                businessesTryvestorIsIn[userInvestmentObj.businessID]["amountEquityPendingInvestment"] += \
+                    userInvestmentObj.investmentAmount
 
         # Adding all desired data into tryvestor object
         tryvestor["summaryData"] = tryvestorSummaryData
