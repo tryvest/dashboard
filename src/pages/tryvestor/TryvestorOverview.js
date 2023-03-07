@@ -91,28 +91,28 @@ export default function TryvestorOverview() {
     console.log(tryvestor)
     // If street address is null, start there (take user there)
     if (tryvestor.data.address.streetAddress.toLowerCase() === 'none') {
-      setYnsProgress(20);
+      setYnsProgress(25);
       setYnsText('Set up some extra credentials');
       setYnsLink('/dashboard/setup-credentials');
     }
 
     // If identity verification status is 0, then do this
     else if (tryvestor.data.IDVerificationStatus === 0 || tryvestor.data.IDVerificationStatus === -1) {
-      setYnsProgress(40);
+      setYnsProgress(50);
       setYnsText('Verify your identity');
       setYnsLink('/dashboard/setup-identity');
     }
 
     // If identity verification status is 0, then do this
-    else if (tryvestor.data.initialLoyaltiesStatus === 0) {
+    /* else if (tryvestor.data.initialLoyaltiesStatus === 0) {
       setYnsProgress(60);
       setYnsText('Choose initial loyalties');
       setYnsLink('/dashboard/setup-loyalties');
-    }
+    } */
 
     // If defaultUserItemID is null
     else if (tryvestor.data.defaultAccountID === 'None' || tryvestor.data.defaultAccountID === null) {
-      setYnsProgress(80);
+      setYnsProgress(75);
       setYnsText('Connect your bank account');
       setYnsLink('/dashboard/setup-banking');
     }
@@ -197,7 +197,7 @@ export default function TryvestorOverview() {
               </Grid>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={12} md={6}>
+          {/* <Grid item xs={12} sm={12} md={6}>
             <Card
               style={{
                 display: 'flex',
@@ -241,7 +241,7 @@ export default function TryvestorOverview() {
                     })}
                   </Scrollbar>
                 </div>
-{/*                <div style={{justifyContent: "end", width: "100%"}}>
+                <div style={{justifyContent: "end", width: "100%"}}>
                   {Object.entries(tryvestor.data.businessesInvestedIn).length > 0 ? (
                     <Typography marginLeft={'auto'} marginRight={'5px'} fontSize={12} color={'#0000EE'}>
                       See All
@@ -251,15 +251,15 @@ export default function TryvestorOverview() {
                     You don't own equity yet.
                     </Typography>
                   )}
-                </div> */}
+                </div>
               </Stack>
             </Card>
-          </Grid>
+          </Grid> }
           {ynsProgress === 100 && <Grid item xs={12} sm={12} md={12}>
             <Button fullWidth variant={"contained"} onClick={() => navigate("/dashboard/simulate-purchase")}>
               Simulate a purchase here!
             </Button>
-          </Grid>}
+          </Grid>} */}
           <Grid item xs={12} sm={12} md={12}>
             <Card style={{ borderRadius: '0px', padding: "15px", alignItems: "center", display: "flex"}}>
               <Stack direction={"column"}>
@@ -290,9 +290,9 @@ export default function TryvestorOverview() {
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={12} md={12}>
+          {/* <Grid item xs={12} sm={12} md={12}>
             <TransactionsTable transactions={tryvestor?.data?.recentTransactions} />
-          </Grid>
+          </Grid> */}
         </Grid>
       ) : (
         <div>

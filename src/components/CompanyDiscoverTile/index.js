@@ -34,7 +34,7 @@ const CompanyDiscoverTile = (props) => {
                     </OneLinerText>
                     <Stack direction={"row"}>
                         <Button style={{ width: "150px", height: "30px", backgroundColor: "#042534", fontSize: "14px", color: "#fff" }}>
-                            Get Stock-Back
+                            Invest Capital
                         </Button>
                         <div style={{ marginLeft: "5px" }}>
                             <img src={ArrowRight} alt="Arrow Right"/>

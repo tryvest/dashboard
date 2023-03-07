@@ -163,8 +163,8 @@ const CompanySpecificPage = (props) => {
                 Receive equity for helping {businessInfo.name} grow
               </Typography>
             </div>
-            <Stack spacing={1}>
-              {!unauth ? (
+            {<Stack spacing={1}>
+              {/* ! unauth ? (
                 <Button
                   disabled={enrolled}
                   onClick={handleOpen}
@@ -210,7 +210,7 @@ const CompanySpecificPage = (props) => {
                     Sign In to Invest
                   </Typography>
                 </Button>
-              )}
+              ) */}
               {!unauth ? (
                 <Button
                   onClick={handleOpen2}
@@ -259,12 +259,12 @@ const CompanySpecificPage = (props) => {
                   </Typography>
                 </Button>
               )}
-            </Stack>
+            </Stack>}
           </Stack>
           <Grid container spacing={1} style={{ marginTop: '15px' }}>
             <Grid item xs={12} sm={12} md={9}>
               <Stack spacing={2}>
-                {enrolled ? (
+                {/* {enrolled ? (
                   <Card style={{ backgroundColor: theme.palette.primary.dark }}>
                     <CardContent>
                       <div>
@@ -303,7 +303,7 @@ const CompanySpecificPage = (props) => {
                       </Stack>
                     </CardContent>
                   </Card>
-                )}
+                )} */}
                 <Card style={{ backgroundColor: theme.palette.primary.dark }}>
                   <CardContent>
                     <Stack spacing={1}>
@@ -316,7 +316,7 @@ const CompanySpecificPage = (props) => {
                         </Typography>
                       </div>
                       <Grid container spacing={1}>
-                        <Grid item>
+{/*                        <Grid item>
                           <Card
                             style={{
                               padding: '10px',
@@ -347,7 +347,7 @@ const CompanySpecificPage = (props) => {
                               {fCurrency(invested.amountEquityEarned)}
                             </Typography>
                           </Card>
-                        </Grid>
+                        </Grid> */}
                         <Grid item>
                           <Card
                             style={{
@@ -364,7 +364,6 @@ const CompanySpecificPage = (props) => {
                             </Typography>
                           </Card>
                         </Grid>
-
                         <Grid item>
                           <Card
                             style={{
@@ -403,7 +402,7 @@ const CompanySpecificPage = (props) => {
               </div>
               <div style={{ marginTop: '5px', marginLeft: '5px' }}>
                 <Typography fontWeight={500} fontSize={15} color={'black'}>
-                  {/* {businessInfo.additionalInformation} */}
+                   {businessInfo.additionalInformation}
                   {'For real companies, here we will provide company details including but not limited to: ' +
                     'Major updates & accomplishments, Pitch deck (problem, solution, traction, customers, business model, market, competitors, founders, etc.)'}
                 </Typography>
